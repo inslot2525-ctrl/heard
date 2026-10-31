@@ -105,7 +105,7 @@ Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese
 - **heard-api**: Node web service, Singapore, free plan. Runs migrations on start. Health check `/health`.
 - **heard-web**: static site (global CDN). The hash router needs no rewrite rules.
 
-The services find each other through `fromService`: the API's `WEB_ORIGIN` is the web host (for CORS) and the web's `VITE_API_URL` is the API host.
+Live: **https://heard-web.onrender.com** (web) and **https://heard-api-htrg.onrender.com** (API). The services know each other's public URLs from `render.yaml` (`WEB_ORIGIN`, `VITE_API_URL`). Don't use `fromService … property: host` for these: it returns Render's internal hostname, not the public one.
 
 1. Render dashboard → **New → Blueprint** → pick this repo (branch `main`).
 2. Paste the secrets it asks for (never commit them): `NEXCONN_APP_KEY`, `NEXCONN_APP_SECRET`, `DATABASE_URL` (Neon **pooled** string, Singapore project), `GEMINI_API_KEY`, `DEMO_PASSCODE`, and `VITE_NEXCONN_APP_KEY` (same App Key). `SESSION_SECRET` is generated.
