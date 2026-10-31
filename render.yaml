@@ -29,11 +29,10 @@ services:
         sync: false
       - key: SESSION_SECRET
         generateValue: true
+      # Public URL of heard-web. Not `fromService … property: host`: that gives Render's internal
+      # hostname ("heard-web"), not the public one, so CORS rejected the real site.
       - key: WEB_ORIGIN
-        fromService:
-          type: web
-          name: heard-web
-          property: host
+        value: https://heard-web.onrender.com
 
   - type: web
     name: heard-web
@@ -51,8 +50,6 @@ services:
     envVars:
       - key: VITE_NEXCONN_APP_KEY
         sync: false
+      # Public URL of heard-api (Render added the "-htrg" suffix because "heard-api" was taken).
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: heard-api
-          property: host
+        value: https://heard-api-htrg.onrender.com
