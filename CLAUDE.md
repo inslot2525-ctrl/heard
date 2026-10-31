@@ -13,7 +13,7 @@ Two people (Aditya, Om) build this in parallel with Claude Code. Read `docs/MVP-
 ## Layout
 
 ```
-apps/web         React + Vite + TS, Nexconn Chat UI / Chat SDK (web)
+apps/web         React + Vite + TS on the Nexconn Chat SDK (own chat screens; no @nexconn/chatui)
 apps/api         Node + TS: auth/token, campus, pulse, flags, bot, safety, webhooks
 packages/shared  custom message types, flag rule definitions, shared types
 data/            handbook.md (bot knowledge), seed files (fake only)

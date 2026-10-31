@@ -35,7 +35,7 @@ Rules:
 | Date | Aditya | Om |
 |---|---|---|
 | **Thu Nov 5** | Postgres schema plus migrations; `/auth` with demo passcode login; token issuing. | Onboarding screens wired to `/auth`. |
-| **Fri Nov 6** | Campus setup script: community channel, subchannels, user groups; seed a fake campus (2 hostels, 3 mentors, 20 students). | Chat screens with Chat UI: channel list, hostel channel, direct chat. |
+| **Fri Nov 6** | Campus setup script: community channel, subchannels, user groups; seed a fake campus (2 hostels, 3 mentors, 20 students). | Own chat screens on the Chat SDK (no Chat UI: not mobile, no community channels): channel list, hostel channel, direct chat, message list with custom-card renderers. |
 | **Sat Nov 7** | Custom message types in `packages/shared`: `PulseCard`, `PulseResponse`, `FlagCard`, `Notice`. Server send helpers. | Renderers for the custom cards. Notices channel (only wardens post) with a read-receipt view. |
 | **Sun Nov 8** | Translation on per user and per channel; webhook receiver skeleton. | Language toggle (original vs translated); the Marathi/Hindi UI strings that matter. |
 | **Mon Nov 9** | Deploy API + web on Render; Neon DB; health check. **Shared demo URL live.** | End-to-end test on 2 phones; bug list in GitHub Issues. |

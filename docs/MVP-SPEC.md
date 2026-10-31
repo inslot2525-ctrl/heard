@@ -94,7 +94,7 @@ A campus = one Nexconn **community channel**. Each hostel, class and the mentors
 
 | Nexconn feature | Where |
 |---|---|
-| Chat SDK + Chat UI (web) | all chat screens |
+| Chat SDK (web), with our own React chat screens | all chat screens |
 | Community channel, subchannels, private subchannels, user groups | F2 |
 | Direct channels | F2, F4 |
 | Custom messages | F3 (`PulseCard`, `PulseResponse`), F4 (`FlagCard`), notices |
@@ -109,7 +109,7 @@ A campus = one Nexconn **community channel**. Each hostel, class and the mentors
 
 ```
 Browser (installable web app, React + Vite + TS)
-  ├─ Nexconn Chat UI / Chat SDK (web)  ←→  Nexconn cloud
+  ├─ Nexconn Chat SDK (web), own React chat screens  ←→  Nexconn cloud
   └─ our REST API
         │
 Backend (Node + TypeScript, Fastify or Hono)
@@ -125,7 +125,7 @@ LLM: Gemini (free tier) behind one small adapter, so it can be swapped
 ```
 
 - Monorepo: `apps/web`, `apps/api`, `packages/shared` (message types, rule definitions).
-- Nexconn packages seen in public sample apps: `@nexconn/engine`, `@nexconn/chat`, `@nexconn/chatui`. Confirm exact names and versions in the docs during spike A.
+- Packages: `@nexconn/engine` + `@nexconn/chat` 26.2.1. We do **not** use `@nexconn/chatui`: it does not support portrait mobile or community channels (see `docs/SPIKES.md` B).
 
 ### Data model (first cut)
 
@@ -141,7 +141,7 @@ LLM: Gemini (free tier) behind one small adapter, so it can be swapped
 | # | Question | If the answer is no |
 |---|---|---|
 | A | Can we issue a token from our server and send a message from the web SDK? | Blocker: open a GitHub issue on NexconnAI-Dev/hackathon at once |
-| B | Do custom messages render in Chat UI (web), or do we need our own renderer? | Build our own message list for custom cards |
+| B | ~~Do custom messages render in Chat UI?~~ Settled Oct 31: own React components on the Chat SDK | — |
 | C | Translation for hi / mr: auto vs on demand, from web | Translate through the LLM adapter ourselves |
 | D | Can our server send messages as the bot user, and stream them? | Send normal messages from the bot |
 | E | Do community channels work on the free hackathon plan? | Use groups per hostel instead |

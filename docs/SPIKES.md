@@ -24,12 +24,16 @@ How to rerun: `pnpm dev`, log in as `alice` in the spike lab (`apps/web/src/Spik
 `pnpm --filter @heard/api spike <users|d-text|d-stream|b|e>` (`apps/api/scripts/spike.ts`) and watch the lab log.
 
 ## B. Custom messages
-**SDK level ✅ (Oct 31). Chat UI rendering: not tested yet.**
+**SDK level ✅. Decision: no `@nexconn/chatui`; own React chat screens (Oct 31).**
+
+- The Chat UI quickstart says: *"Portrait mobile browsers are not a supported target for the UI today"*, and it supports only **direct, group and system channels**, not community channels. Heard is phone-first and uses community channels, so we render our own message list and cards on top of `@nexconn/chat`. Chat SDK use alone satisfies the challenge rule.
+- (For reference, if anyone revisits it: Chat UI custom bubbles are web components registered with `app.registerCustomMessages([{ messageType, component: { tagName, elementClass }, digest }])`, rendered as `nc-c-<tagName>`.)
+- **Check:** the same quickstart says the Free plan is *"valid for one month"*, while the Free Chat Plan page says 10K MAU free for a year. Confirm the expiry date in the console.
 
 - Register before `connect`: `NCEngine.registerCustomMessages([{ messageType: 'SA:PulseCard', isPersisted: true, isCounted: true }])`. We register every type in `MSG` from `@heard/shared`.
 - Server sends with `POST /v4/direct-channel/message/send`, `messageType: 'SA:PulseCard'`, `content: JSON.stringify(card)`. The web client receives `messageType 'SA:PulseCard'` with `content` **already parsed** into the object.
 - Custom types must not start with `RC:` and must be ≤32 characters. Unregistered types reach the client but can't be parsed.
-- Still to do: render the cards inside `@nexconn/chatui` (docs: `chatui-web/chat/register-message`), or render our own message list.
+- Cards are rendered by our own React components from the parsed `content`.
 
 ## C. Built-in translation (hi / mr)
 **⏸ Blocked on a console switch (Oct 31).**
