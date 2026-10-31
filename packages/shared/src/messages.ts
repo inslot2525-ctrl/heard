@@ -40,6 +40,7 @@ export interface PulseResponse {
 export interface FlagCard {
   flagId: string;
   studentId: string;
+  studentName: string;
   rule: string;
   /** Plain-English reason, shown as is. */
   reason: string;

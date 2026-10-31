@@ -105,3 +105,29 @@ describe('POST /auth/demo-login', () => {
     expect((await t.req('POST', '/auth/demo-login', { passcode: TEST_PASSCODE, userId: 'testcampusbot' })).status).toBe(404);
   });
 });
+
+describe('personal login code', () => {
+  it('is returned once on join and logs the same user back in', async () => {
+    const j = await join(code('student'), 'Priya');
+    expect(j.body.loginCode).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+    const res = await t.req('POST', '/auth/login', { code: j.body.loginCode.toLowerCase().replace(/-/g, ' ') });
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as any;
+    expect(body.user.id).toBe(j.body.user.id);
+    expect(body.user.loginCodeHash).toBeUndefined();
+  });
+
+  it('stores only a hash, and never returns it', async () => {
+    const j = await join(code('student'), 'Priya');
+    const [row] = await t.db.select().from(users).where(eq(users.id, j.body.user.id));
+    expect(row.loginCodeHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(row.loginCodeHash).not.toContain(j.body.loginCode);
+    const me = (await (await t.req('GET', '/auth/me', undefined, j.body.session)).json()) as any;
+    expect(me.user.loginCodeHash).toBeUndefined();
+  });
+
+  it('rejects wrong codes', async () => {
+    expect((await t.req('POST', '/auth/login', { code: 'AAAA-BBBB-CCCC' })).status).toBe(404);
+    expect((await t.req('POST', '/auth/login', {})).status).toBe(400);
+  });
+});

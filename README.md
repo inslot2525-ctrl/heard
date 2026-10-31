@@ -28,15 +28,40 @@ pnpm typecheck
 
 ## API so far
 
+Authenticated routes take `Authorization: Bearer <session>`.
+
+**Auth**
+
 | Route | What it does |
 |---|---|
-| `POST /auth/join` `{ code, name, lang }` | Join a campus with a code. The code decides campus, role and hostel. Returns `{ session, user }`. Students are given the mentor with the fewest students. |
+| `POST /auth/join` `{ code, name, lang }` | Join a campus with a join code; the code decides campus, role and hostel. Returns `{ session, user, loginCode }`. **Show `loginCode` to the user once**: it's how they log back in on another device (only its hash is stored). Students get the mentor with the fewest students. |
+| `POST /auth/login` `{ code }` | Log back in with the personal login code. |
 | `POST /auth/demo-login` `{ passcode, userId }` | Log in as a seeded demo persona (demo users only). |
 | `GET /auth/demo-users` | Demo personas for a login picker. |
 | `GET /auth/me` | User, campus, hostel, and (for students) mentor. |
 | `POST /auth/nexconn-token` | Nexconn access token for the logged-in user. |
 
-Authenticated routes take `Authorization: Bearer <session>`.
+Join, login and demo login are rate-limited (20 tries per 10 minutes per IP).
+
+**Check-ins (pulse)**
+
+| Route | Who | What it does |
+|---|---|---|
+| `GET /pulse/current` | student | This week (`2026-W45`) and my answer, or `null`. |
+| `POST /pulse` `{ week, levels: { studies, money, health, home }, note?, wantsToTalk? }` | student | Save or change an answer (levels: 2 good, 1 ok, 0 struggling). This week or last week only. Mirrors a `SA:PulseResp` into the student's chat with the campus bot, then runs the flag rules. Returns `{ saved, mentorNotified }`; students never see flags. |
+| `POST /pulse/rounds` | warden | Send this week's `SA:PulseCard` to every student from the campus bot. First checks last week for students who went silent. |
+
+**Mentor inbox (flags)**
+
+| Route | What it does |
+|---|---|
+| `GET /flags?status=open,contacted` | My students' flags, newest first, with `student`, `reason`, `evidence` (6-week history + the student's words) and `openerDraft` in my language. |
+| `GET /flags/:id` | One flag (only my own students'). |
+| `POST /flags/:id/opener` `{ text }` | Send my edited opener to the student as me; flag → `contacted`. Refuses labels/diagnoses ("depressed", "at risk", …). |
+| `POST /flags/:id/dismiss` `{ reason }` | Close with a reason (required). |
+| `POST /flags/:id/resolve` | Close as resolved. |
+
+A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it shows up in chat.
 
 ## The demo campus
 

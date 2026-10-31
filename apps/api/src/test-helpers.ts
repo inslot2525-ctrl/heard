@@ -30,15 +30,22 @@ export function fakeChat() {
   return { chat, calls };
 }
 
+/** A clock tests can move: clock.set('2026-11-04'). */
+export function testClock(start = '2026-11-04T10:00:00Z') {
+  let t = new Date(start);
+  return { now: () => t, set: (iso: string) => (t = new Date(iso.length === 10 ? `${iso}T10:00:00Z` : iso)) };
+}
+
 export async function testApp() {
   const handle = await openDb({ memory: true });
   const fake = fakeChat();
-  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*' });
+  const clock = testClock();
+  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now });
   const req = (method: string, path: string, body?: unknown, session?: string) =>
     app.request(path, {
       method,
       headers: { 'Content-Type': 'application/json', ...(session ? { Authorization: `Bearer ${session}` } : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
-  return { ...handle, ...fake, app, req };
+  return { ...handle, ...fake, app, req, clock };
 }

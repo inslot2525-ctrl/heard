@@ -1,0 +1,59 @@
+// Draft opening lines for mentors, by rule and in the mentor's language. A mentor always edits
+// and sends; nothing here reaches a student on its own. Template drafts now; an LLM draft can
+// replace them later, but must pass checkOpener() too.
+// Hindi and Marathi use respectful, gender-neutral forms (आप / तुम्ही). Get a native speaker to
+// review before the pilot.
+
+import type { PulseArea } from '@heard/shared';
+import type { Lang } from './db/schema.js';
+
+const AREA: Record<Lang, Record<PulseArea, string>> = {
+  en: { studies: 'studies', money: 'money', health: 'health', home: 'things at home' },
+  hi: { studies: 'पढ़ाई', money: 'पैसों', health: 'सेहत', home: 'घर-परिवार' },
+  mr: { studies: 'अभ्यास', money: 'पैसे', health: 'आरोग्य', home: 'घर-कुटुंब' },
+};
+
+type Template = (first: string, area: string) => string;
+
+const TEMPLATES: Record<Lang, Record<'struggling' | 'silent' | 'wants_to_talk', Template>> = {
+  en: {
+    struggling: (n, a) => `Hi ${n}, thanks for doing your weekly check-ins. It looks like ${a} has been hard lately. Could we talk for a few minutes this week? You can just reply here.`,
+    silent: (n) => `Hi ${n}, I haven't seen your check-in for a couple of weeks. Just checking that you're doing okay. Reply here whenever you can.`,
+    wants_to_talk: (n) => `Hi ${n}, you asked to talk, and I'm glad you did. What time suits you this week? You can reply here.`,
+  },
+  hi: {
+    struggling: (n, a) => `नमस्ते ${n}, हर हफ़्ते चेक-इन करने के लिए धन्यवाद। लगता है पिछले कुछ समय से ${a} को लेकर मुश्किल हो रही है। क्या इस हफ़्ते कुछ मिनट बात कर सकते हैं? आप यहीं जवाब दे सकते हैं।`,
+    silent: (n) => `नमस्ते ${n}, पिछले दो हफ़्तों से आपका चेक-इन नहीं दिखा। बस यह जानना था कि सब ठीक है। जब समय मिले, यहीं जवाब दीजिए।`,
+    wants_to_talk: (n) => `नमस्ते ${n}, आपने बात करने के लिए कहा, यह बहुत अच्छा किया। इस हफ़्ते कौन-सा समय ठीक रहेगा? यहीं जवाब दीजिए।`,
+  },
+  mr: {
+    struggling: (n, a) => `नमस्कार ${n}, दर आठवड्याला चेक-इन केल्याबद्दल धन्यवाद. गेल्या काही दिवसांपासून ${a} बाबत अडचण येत आहे असे दिसते. या आठवड्यात थोडा वेळ बोलूया का? इथेच उत्तर द्या.`,
+    silent: (n) => `नमस्कार ${n}, गेल्या दोन आठवड्यांपासून तुमचे चेक-इन दिसले नाही. सगळे ठीक आहे ना, एवढेच विचारायचे होते. वेळ मिळेल तेव्हा इथे उत्तर द्या.`,
+    wants_to_talk: (n) => `नमस्कार ${n}, तुम्ही बोलायचे आहे असे सांगितले, हे छान केलेत. या आठवड्यात कोणती वेळ सोयीची आहे? इथेच उत्तर द्या.`,
+  },
+};
+
+export function draftOpener(rule: string, area: PulseArea | '' | null, studentName: string, mentorLang: Lang) {
+  const first = studentName.trim().split(/\s+/)[0] || studentName;
+  const t = TEMPLATES[mentorLang];
+  if (rule === 'silent') return t.silent(first, '');
+  if (rule === 'wants_to_talk') return t.wants_to_talk(first, '');
+  return t.struggling(first, area ? AREA[mentorLang][area] : AREA[mentorLang].studies);
+}
+
+// Words a draft or a sent opener must not contain: labels, diagnoses, scores, threats.
+const BANNED = [
+  /\b(depress(ed|ion)?|anxiety|disorder|mental(ly)? ill|suicid\w*|at[- ]risk|risk score|diagnos\w*|expel\w*|rusticat\w*)\b/i,
+  /(डिप्रेशन|अवसाद|मानसिक रोग|आत्महत्या|निलंबन)/,
+];
+
+export const OPENER_MAX = 1000;
+
+/** null = fine; otherwise the reason the text can't be sent. */
+export function checkOpener(text: string): string | null {
+  const t = text.trim();
+  if (!t) return 'empty';
+  if (t.length > OPENER_MAX) return 'too_long';
+  if (BANNED.some((re) => re.test(t))) return 'labels_or_diagnosis';
+  return null;
+}
