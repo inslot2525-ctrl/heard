@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@heard/shared": "workspace:*",
     "@nexconn/chat": "26.2.1",
     "@nexconn/engine": "26.2.1",
-    "@heard/shared": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

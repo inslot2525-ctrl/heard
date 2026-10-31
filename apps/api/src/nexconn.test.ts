@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import { authHeaders, Nexconn, NexconnError, sign } from './nexconn.js';
+import { authHeaders, Nexconn, NexconnError, sign, verifyWebhook } from './nexconn.js';
 
 const cfg = { appKey: 'key123', appSecret: 'secret', apiHost: 'api.sg-light-api.com' };
 
@@ -37,5 +37,35 @@ describe('Nexconn.issueAccessToken', () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ code: 1002, msg: 'bad sig' })));
     const n = new Nexconn(cfg, fetchMock as unknown as typeof fetch);
     await expect(n.issueAccessToken('u1', 'x')).rejects.toBeInstanceOf(NexconnError);
+  });
+});
+
+describe('verifyWebhook', () => {
+  const good = { nonce: '8f3a2b1c', timestamp: '1709020800000', signature: sign('secret', '8f3a2b1c', '1709020800000') };
+  it('accepts a correct signature, case-insensitively', () => {
+    expect(verifyWebhook('secret', good)).toBe(true);
+    expect(verifyWebhook('secret', { ...good, signature: good.signature.toUpperCase() })).toBe(true);
+  });
+  it('rejects a wrong secret or missing headers', () => {
+    expect(verifyWebhook('other', good)).toBe(false);
+    expect(verifyWebhook('secret', { ...good, signature: null })).toBe(false);
+  });
+});
+
+describe('Nexconn.sendDirectStream', () => {
+  it('numbers chunks from 1, reuses the first messageId, and ends with complete=true', async () => {
+    const bodies: any[] = [];
+    const fetchMock = vi.fn(async (_url: string, init: RequestInit) => {
+      bodies.push(JSON.parse(init.body as string));
+      return new Response(JSON.stringify({ code: 0, result: bodies.length === 1 ? { messageId: 'M1' } : undefined }));
+    });
+    const n = new Nexconn(cfg, fetchMock as unknown as typeof fetch);
+    await expect(n.sendDirectStream('bot', 'alice', ['a', 'b'])).resolves.toBe('M1');
+    expect(bodies.map((b) => [b.content.seq, b.content.complete, b.content.messageId])).toEqual([
+      [1, false, undefined],
+      [2, false, 'M1'],
+      [3, true, 'M1'],
+    ]);
+    expect(bodies[0].content.type).toBe('text');
   });
 });
