@@ -74,7 +74,7 @@ A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it show
 | Sneha Iyer (`demosneha`) | stopped replying two weeks ago | silent |
 | Aman Khan (`demoaman`) | tapped "I'd like to talk" | wants to talk |
 
-Everyone else is steady and never flags (tested).
+Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese, exchange student) talks to Prof. Rao in English: the best showcase of chat translation.
 
 ## Layout
 
@@ -85,5 +85,5 @@ Everyone else is steady and never flags (tested).
   - **Mentor:** inbox of flags → flag detail (reason, 6-week bars, the student's words, editable opener, send / resolve / dismiss) and chats with each student.
   - **Warden:** send this week's check-in round; notices and hostel channels.
   - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
-  - UI text in English, Hindi and Marathi (`src/i18n.ts`; hi/mr need a native speaker's review). The old spike lab is at `#/lab`.
+  - **Languages:** the full UI is written in English, Hindi, Marathi and Chinese (`src/i18n.ts`; hi/mr/zh need a native speaker's review). Chat works in all **211** languages Nexconn translates (`packages/shared/src/languages.ts`): pick any, and the UI falls back to English while messages are translated. Users can switch language any time (🌐 in the header, `POST /auth/me/lang`). The old spike lab is at `#/lab`.
 - `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).

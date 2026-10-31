@@ -18,10 +18,10 @@ function historyFor(studentId: string): WeekPulse[] {
 }
 
 describe('demo campus data', () => {
-  it('has 20 students with unique Nexconn-safe IDs', () => {
-    expect(DEMO_STUDENTS).toHaveLength(20);
+  it('has 21 students with unique Nexconn-safe IDs', () => {
+    expect(DEMO_STUDENTS).toHaveLength(21);
     const ids = DEMO_STUDENTS.map((s) => s.id);
-    expect(new Set(ids).size).toBe(20);
+    expect(new Set(ids).size).toBe(21);
     for (const id of ids) expect(id).toMatch(/^[a-z0-9]+$/);
   });
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMe } from '../App';
 import { api } from '../api';
 import { useT } from '../i18n';
+import { LanguageSwitch } from './LanguageSwitch';
 import { ChatList } from './ChatList';
 
 export function WardenHome() {
@@ -29,6 +30,7 @@ export function WardenHome() {
           {me.user.name}
           <span className="sub">{me.campus.name}</span>
         </h1>
+        <LanguageSwitch />
         <button className="btn ghost" onClick={logout}>{t.logOut}</button>
       </header>
       <main className="page">

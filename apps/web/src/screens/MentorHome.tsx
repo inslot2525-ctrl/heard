@@ -3,6 +3,7 @@ import { useMe } from '../App';
 import { api, type Flag } from '../api';
 import { onMessage } from '../chat-client';
 import { useT } from '../i18n';
+import { LanguageSwitch } from './LanguageSwitch';
 import { href } from '../router';
 import { ChatList } from './ChatList';
 
@@ -16,6 +17,7 @@ export function MentorHome({ tab }: { tab: 'inbox' | 'chats' }) {
           {me.user.name}
           <span className="sub">{me.campus.name}</span>
         </h1>
+        <LanguageSwitch />
         <button className="btn ghost" onClick={logout}>{t.logOut}</button>
       </header>
       <nav className="tabs">

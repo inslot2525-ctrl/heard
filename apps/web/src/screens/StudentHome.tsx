@@ -1,5 +1,6 @@
 import { useMe } from '../App';
 import { useT } from '../i18n';
+import { LanguageSwitch } from './LanguageSwitch';
 import { CheckIn } from './CheckIn';
 import { ChatList } from './ChatList';
 
@@ -13,6 +14,7 @@ export function StudentHome() {
           {me.user.name}
           <span className="sub">{[me.hostel?.name, me.campus.name].filter(Boolean).join(' · ')}</span>
         </h1>
+        <LanguageSwitch />
         <button className="btn ghost" onClick={logout}>{t.logOut}</button>
       </header>
       <main className="page">

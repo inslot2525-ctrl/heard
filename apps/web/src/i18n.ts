@@ -2,7 +2,7 @@
 // Get a native speaker to review hi/mr before the pilot. Missing keys fall back to English.
 
 import { createContext, useContext } from 'react';
-import type { Lang } from './api';
+import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
   yourMentor: 'Your mentor',
@@ -75,6 +75,8 @@ const en = {
   connecting: 'Connecting…',
   offline: 'Offline. Reconnecting…',
   error: 'Something went wrong. Try again.',
+  moreLanguages: 'More languages',
+  chatLanguageNote: 'The app’s text stays in English for now; chat messages are translated into your language.',
 };
 
 export type Strings = typeof en;
@@ -193,13 +195,96 @@ const mr: Partial<Strings> = {
   error: 'काहीतरी चुकले. पुन्हा प्रयत्न करा.',
 };
 
-const ALL: Record<Lang, Partial<Strings>> = { en, hi, mr };
 
-export function strings(lang: Lang): Strings {
-  return { ...en, ...ALL[lang] };
+const zh: Partial<Strings> = {
+  yourMentor: '你的导师',
+  noticesTitle: '通知',
+  assistantTitle: 'Heard 助手',
+  assistantSub: '宿舍相关问题，随时可问',
+  mentorsRoom: '导师交流室',
+  mentorsRoomSub: '仅限导师和宿管',
+  appTagline: '在危机之前，被听见。',
+  joinTitle: '加入你的校园',
+  joinCode: '加入码',
+  joinCodeHint: '由宿管或导师提供，例如 GODAV-7K2M',
+  yourName: '你的名字',
+  language: '语言',
+  join: '加入',
+  haveLoginCode: '我已加入（使用登录码）',
+  loginCode: '你的登录码',
+  logIn: '登录',
+  tryDemo: '体验演示校园',
+  demoPasscode: '演示口令',
+  back: '返回',
+  saveCodeTitle: '请保存你的登录码',
+  saveCodeBody: '在另一部手机上登录时需要用到它。它只会显示这一次。',
+  savedIt: '我已保存',
+  copy: '复制',
+  copied: '已复制',
+  logOut: '退出登录',
+  checkInTitle: '本周签到',
+  checkInSub: '每项点一下即可。只有你的导师能看到。',
+  studies: '学业',
+  money: '经济',
+  health: '健康',
+  home: '家庭',
+  good: '很好',
+  ok: '还行',
+  struggling: '有困难',
+  noteLabel: '有什么想说的吗？（选填）',
+  wantsToTalk: '我想和导师聊一聊',
+  send: '发送',
+  sending: '发送中…',
+  checkInDone: '谢谢，你的签到已保存。',
+  checkInDoneMentor: '谢谢，你的导师很快会联系你。',
+  change: '修改',
+  chats: '聊天',
+  noMessages: '还没有消息。',
+  typeMessage: '输入消息',
+  onlyWardensPost: '只有宿管可以在这里发布。',
+  translate: '翻译',
+  showOriginal: '查看原文',
+  showTranslation: '查看译文',
+  translating: '翻译中…',
+  translatedFrom: '译文',
+  pulseCardTitle: '每周签到',
+  pulseCardOpen: '打开签到',
+  pulseRespTitle: '签到已发送',
+  inbox: '待办',
+  inboxEmpty: '目前没有需要你处理的事。',
+  students: '学生',
+  openerLabel: '你的开场消息（发送前可修改）',
+  sendOpener: '发送给学生',
+  dismiss: '忽略',
+  dismissReason: '原因？（会留作记录）',
+  resolve: '标记为已解决',
+  sentOpener: '你已发送',
+  studentWords: '学生的原话',
+  lastWeeks: '最近 6 周',
+  noReply: '未回复',
+  sendRound: '发送本周签到',
+  roundSent: '已发送给 {n} 名学生',
+  connecting: '连接中…',
+  offline: '离线，正在重新连接…',
+  error: '出了点问题，请重试。',
+  moreLanguages: '更多语言',
+  chatLanguageNote: '界面文字暂以英文显示；聊天消息会翻译成你选择的语言。',
+};
+
+const ALL: Record<UiLang, Partial<Strings>> = { en, hi, mr, zh };
+
+/** Any chat language works; UI text falls back to English where we have no strings. */
+export function strings(lang: string): Strings {
+  return { ...en, ...ALL[uiLangFor(lang)] };
 }
 
-export const LangContext = createContext<Lang>('en');
+export const LangContext = createContext<string>('en');
 export const useT = () => strings(useContext(LangContext));
 
-export const LANG_NAMES: Record<Lang, string> = { en: 'English', hi: 'हिन्दी', mr: 'मराठी' };
+/** Quick-pick buttons: languages with a full UI. Everything else is in the "more" menu. */
+export const QUICK_LANGS: { code: UiLang; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'mr', name: 'मराठी' },
+  { code: 'zh', name: '中文' },
+];

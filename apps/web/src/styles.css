@@ -14,7 +14,7 @@
   --mine: #dcebe5;
   --radius: 14px;
   --shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
-  font-family: 'Noto Sans', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 16px;
   line-height: 1.45;
   color: var(--ink);
@@ -137,3 +137,5 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .tabs a { padding: 0.7rem 0.9rem; text-decoration: none; color: var(--muted); font-weight: 600; border-bottom: 2px solid transparent; }
 .tabs a[aria-current='page'] { color: var(--accent); border-color: var(--accent); }
 .item-title, .item-sub { display: block; }
+.composer .btn { flex: none; white-space: nowrap; }
+.topbar .btn { white-space: nowrap; }

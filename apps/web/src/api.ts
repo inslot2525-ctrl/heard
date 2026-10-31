@@ -5,7 +5,8 @@ export const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
 const KEY = 'heard.session';
 
 export type Role = 'student' | 'mentor' | 'warden';
-export type Lang = 'en' | 'hi' | 'mr';
+/** Any Nexconn chat language code, e.g. 'en', 'mr', 'zh', 'ta'. */
+export type Lang = string;
 
 export interface User {
   id: string;

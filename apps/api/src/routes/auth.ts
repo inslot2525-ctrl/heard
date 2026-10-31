@@ -3,7 +3,8 @@ import { Hono } from 'hono';
 import { addToCampusChat, adoptUnassignedStudents, leastLoadedMentor } from '../campus.js';
 import type { Chat } from '../chat.js';
 import type { Db } from '../db/client.js';
-import { campuses, hostels, invites, LANGS, mentorAssignments, users, type Lang } from '../db/schema.js';
+import { isLanguage } from '@heard/shared';
+import { campuses, hostels, invites, mentorAssignments, users } from '../db/schema.js';
 import { hashLoginCode, newId, newLoginCode } from '../ids.js';
 import { NexconnError } from '../nexconn.js';
 import { rateLimit } from '../rate-limit.js';
@@ -43,7 +44,7 @@ export function authRoutes({ db, chat, sessionSecret, demoPasscode }: AuthDeps) 
     const body = (await c.req.json().catch(() => ({}))) as { code?: string; name?: string; lang?: string };
     const code = body.code?.trim().toUpperCase();
     const name = cleanName(body.name);
-    const lang = (LANGS as readonly string[]).includes(body.lang ?? '') ? (body.lang as Lang) : 'en';
+    const lang = isLanguage(body.lang) ? body.lang : 'en';
     if (!code) return c.json({ error: 'missing_code' }, 400);
     if (name.length < 2) return c.json({ error: 'missing_name' }, 400);
 
@@ -146,6 +147,15 @@ export function authRoutes({ db, chat, sessionSecret, demoPasscode }: AuthDeps) 
       mentor = m ?? null;
     }
     return c.json({ ...row, user: publicUser(row.user), mentor });
+  });
+
+  /** Change my language. Body: { lang } (any supported chat language). */
+  r.use('/me/lang', requireSession(sessionSecret));
+  r.post('/me/lang', async (c) => {
+    const { lang } = (await c.req.json().catch(() => ({}))) as { lang?: string };
+    if (!isLanguage(lang)) return c.json({ error: 'bad_lang' }, 400);
+    const [u] = await db.update(users).set({ lang }).where(eq(users.id, c.get('session').sub)).returning();
+    return c.json({ user: publicUser(u) });
   });
 
   /** Nexconn access token for the logged-in user (the App Secret stays on the server). */

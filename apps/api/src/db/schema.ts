@@ -5,8 +5,8 @@ import { boolean, index, integer, jsonb, pgTable, primaryKey, smallint, text, ti
 
 export const ROLES = ['student', 'mentor', 'warden', 'bot'] as const;
 export type Role = (typeof ROLES)[number];
-export const LANGS = ['en', 'hi', 'mr'] as const;
-export type Lang = (typeof LANGS)[number];
+/** Any Nexconn chat language code (see @heard/shared languages.ts); validated in the API. */
+export type Lang = string;
 export const FLAG_STATUSES = ['open', 'contacted', 'resolved', 'dismissed'] as const;
 export type FlagStatus = (typeof FLAG_STATUSES)[number];
 
@@ -37,7 +37,7 @@ export const users = pgTable(
     campusId: text('campus_id').notNull().references(() => campuses.id),
     role: text('role', { enum: ROLES }).notNull(),
     name: text('name').notNull(),
-    lang: text('lang', { enum: LANGS }).notNull().default('en'),
+    lang: text('lang').notNull().default('en'),
     hostelId: text('hostel_id').references(() => hostels.id),
     /** Seeded fake users for the demo. Never mixed with pilot data. */
     isDemo: boolean('is_demo').notNull().default(false),

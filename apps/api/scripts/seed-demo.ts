@@ -3,7 +3,7 @@
 //   pnpm --filter @heard/api seed:demo --reset   delete demo pulses/flags first (fresh demo)
 // Uses DATABASE_URL if set, otherwise the local PGlite database.
 
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { addToCampusChat, createJoinCodes, provisionCampus } from '../src/campus.js';
 import { openDb } from '../src/db/client.js';
 import { flags, invites, mentorAssignments, pulses, users } from '../src/db/schema.js';
@@ -42,7 +42,7 @@ await db
 await db
   .insert(mentorAssignments)
   .values(DEMO_STUDENTS.map((s) => ({ studentId: s.id, mentorId: s.mentor! })))
-  .onConflictDoNothing();
+  .onConflictDoUpdate({ target: mentorAssignments.studentId, set: { mentorId: sql`excluded.mentor_id` } });
 const pulseRows = demoPulses().map((p) => ({ id: newId('p'), ...p, note: p.note ?? null }));
 await db.insert(pulses).values(pulseRows).onConflictDoNothing();
 console.log(`database: ${people.length} demo people, ${pulseRows.length} pulses`);

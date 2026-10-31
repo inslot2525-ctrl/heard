@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, ApiError, session, type Lang, type User } from '../api';
-import { LANG_NAMES, LangContext, strings } from '../i18n';
+import { LangContext, strings } from '../i18n';
+import { LanguagePicker } from '../LanguagePicker';
 
 type Mode = 'join' | 'login' | 'demo';
 
@@ -24,13 +25,7 @@ export function Welcome({ onLoggedIn }: { onLoggedIn: () => Promise<void> }) {
             <div className="brand">Heard</div>
             <p className="tagline">{t.appTagline}</p>
           </div>
-          <div className="seg" role="group" aria-label={t.language}>
-            {(Object.keys(LANG_NAMES) as Lang[]).map((l) => (
-              <button key={l} aria-pressed={lang === l} onClick={() => setLang(l)}>
-                {LANG_NAMES[l]}
-              </button>
-            ))}
-          </div>
+          <LanguagePicker value={lang} onChange={setLang} />
           {mode === 'join' && <JoinForm lang={lang} onJoined={setNewCode} />}
           {mode === 'login' && <LoginForm lang={lang} onDone={onLoggedIn} />}
           {mode === 'demo' && <DemoForm lang={lang} onDone={onLoggedIn} />}

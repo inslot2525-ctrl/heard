@@ -131,3 +131,18 @@ describe('personal login code', () => {
     expect((await t.req('POST', '/auth/login', {})).status).toBe(400);
   });
 });
+
+describe('languages', () => {
+  it('accepts any Nexconn chat language, and falls back to English for unknown codes', async () => {
+    expect((await join(code('student'), 'Kavya', 'ta')).body.user.lang).toBe('ta');
+    expect((await join(code('student'), 'Li Na', 'zh')).body.user.lang).toBe('zh');
+    expect((await join(code('student'), 'Someone', 'xx')).body.user.lang).toBe('en');
+  });
+
+  it('lets a user change their language', async () => {
+    const j = await join(code('student'), 'Priya', 'mr');
+    const res = await t.req('POST', '/auth/me/lang', { lang: 'zh' }, j.body.session);
+    expect(((await res.json()) as any).user.lang).toBe('zh');
+    expect((await t.req('POST', '/auth/me/lang', { lang: 'klingon' }, j.body.session)).status).toBe(400);
+  });
+});
