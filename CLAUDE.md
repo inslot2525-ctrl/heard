@@ -1,4 +1,4 @@
-# Saathi: rules for every Claude Code session
+# Heard: rules for every Claude Code session
 
 Two people (Aditya, Om) build this in parallel with Claude Code. Read `docs/MVP-SPEC.md` and `docs/PLAN.md` first.
 

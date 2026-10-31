@@ -2,7 +2,18 @@
 
 One section per spike from the spec §7. Record what works, the exact package and API names, and any surprises.
 
+## Known from the docs (Oct 31, before any keys)
+
+- Packages: `@nexconn/engine` + `@nexconn/chat` (26.2.1). Chat UI: `@nexconn/chatui` (26.2.5), Lit web components, root tag `nc-chat-ui-app-provider`; initialise `NCEngine` **before** `NCChatUIApplication`. Its docs only show a Vue setup; React will need the custom element mounted manually.
+- Client init: `NCEngine.initialize({ appKey, areaCode: AreaCode.SG })`. The App Key's data centre must match `areaCode`.
+- Server auth: headers `App-Key`, `Nonce` (≤18 chars), `Timestamp` (ms), `Signature = sha1(secret + nonce + timestamp)`. JSON bodies.
+- Base URL (Singapore): `api.sg-light-api.com`, backup `api-b.sg-light-api.com`.
+- Token: `POST /v4/auth/access-token/issue` `{ userId, name, avatarUrl? }` → `result.accessToken`.
+- `apps/web` type-checks against the real SDK: `DirectChannel`, `SendTextMessageParams`, `MessageHandler`, `NCEngine.addMessageHandler`, `AreaCode` all exist.
+
 ## A. Token from server + first message from web
+Code ready (`apps/api/src/nexconn.ts`, `apps/web/src/SpikeA.tsx`). **Waiting for the App Key/Secret.**
+
 ## B. Custom messages in Chat UI (web)
 ## C. Built-in translation (hi / mr)
 ## D. Bot replies from server (+ stream messages)
