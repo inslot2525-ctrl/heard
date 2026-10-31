@@ -9,7 +9,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "spike": "tsx scripts/spike.ts",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.14",

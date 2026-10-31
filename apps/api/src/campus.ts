@@ -58,7 +58,7 @@ export async function createJoinCodes(db: Db, campusId: string, opts: { maxUses?
     await db.insert(invites).values({ code, campusId, role, hostelId, maxUses: opts.maxUses ?? 200, expiresAt: opts.expiresAt });
     out.push({ code, role, hostel: hostelName });
   };
-  for (const h of hostelRows) await add('student', h.subchannelId, h.id, h.name);
+  for (const h of hostelRows) await add('student', h.name, h.id, h.name); // e.g. GODAV-7K2M
   await add('mentor', 'MENTR');
   await add('warden', 'WARDN');
   return out;

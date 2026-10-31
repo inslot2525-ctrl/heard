@@ -8,9 +8,9 @@ import { Nexconn, NexconnError } from '../src/nexconn.js';
 if (!nexconnConfigured) throw new Error('Set NEXCONN_APP_KEY and NEXCONN_APP_SECRET in the root .env');
 const nx = new Nexconn({ appKey: env.nexconnAppKey!, appSecret: env.nexconnAppSecret!, apiHost: env.nexconnApiHost });
 
-const BOT = 'heardbot';
-const STUDENT = 'alice';
-const MENTOR = 'bob';
+const BOT = 'heardDemobot'; // the demo campus's assistant (botIdFor('heardDemo'))
+const STUDENT = 'demopriya';
+const MENTOR = 'demorao';
 const COMMUNITY = 'heardDemo';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
