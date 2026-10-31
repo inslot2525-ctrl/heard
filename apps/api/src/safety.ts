@@ -55,7 +55,12 @@ export async function checkAndAlert(db: Db, chat: Chat | null, studentId: string
   const [student] = await db.select().from(users).where(eq(users.id, studentId));
   if (!student || student.role !== 'student') return null;
 
-  await db.insert(safetyEvents).values({ id: newId('x'), studentId, messageId: messageId ?? null, matchedTerm: hit.term, alertedAt: now });
+  const [claimed] = await db
+    .insert(safetyEvents)
+    .values({ id: newId('x'), studentId, messageId: messageId ?? null, matchedTerm: hit.term, alertedAt: now })
+    .onConflictDoNothing()
+    .returning();
+  if (!claimed) return { ...hit, flagId: null, duplicate: true as const }; // already alerted for this message
 
   const [assignment] = await db.select().from(mentorAssignments).where(eq(mentorAssignments.studentId, studentId));
   const wardens = await db

@@ -7,6 +7,7 @@ import { flagRoutes } from './routes/flags.js';
 import { pulseRoutes } from './routes/pulse.js';
 import { chatRoutes } from './routes/chats.js';
 import { aiRoutes } from './routes/ai.js';
+import { webhookRoutes } from './routes/webhooks.js';
 import type { Llm } from './llm.js';
 
 export interface AppDeps {
@@ -18,6 +19,8 @@ export interface AppDeps {
   webOrigin: string | string[];
   /** Gemini; null = AI features off (translation falls back to Nexconn, assistant hands off). */
   llm?: Llm | null;
+  /** App Key + Secret for verifying Nexconn webhooks; null = webhooks off. */
+  nexconnWebhook?: { appKey: string; appSecret: string } | null;
   /** Injectable clock, so tests can move through weeks. */
   now?: () => Date;
 }
@@ -32,6 +35,7 @@ export function createApp(deps: AppDeps) {
   app.route('/pulse', pulseRoutes({ ...deps, now }));
   app.route('/flags', flagRoutes(deps));
   app.route('/chats', chatRoutes(deps));
+  app.route('/webhooks', webhookRoutes({ db: deps.db, chat: deps.chat, nexconn: deps.nexconnWebhook ?? null, now }));
   app.route('/', aiRoutes({ ...deps, llm: deps.llm ?? null, now }));
 
   return app;

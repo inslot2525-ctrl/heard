@@ -124,16 +124,21 @@ export const flags = pgTable(
   ],
 );
 
-export const safetyEvents = pgTable('safety_events', {
-  id: text('id').primaryKey(),
-  studentId: text('student_id')
-    .notNull()
-    .references(() => users.id),
-  messageId: text('message_id'),
-  matchedTerm: text('matched_term').notNull(),
-  alertedAt: timestamp('alerted_at', { withTimezone: true }),
-  createdAt: createdAt(),
-});
+export const safetyEvents = pgTable(
+  'safety_events',
+  {
+    id: text('id').primaryKey(),
+    studentId: text('student_id')
+      .notNull()
+      .references(() => users.id),
+    messageId: text('message_id'),
+    matchedTerm: text('matched_term').notNull(),
+    alertedAt: timestamp('alerted_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  // One alert per message, even when the webhook and the app both report it. (NULLs don't collide.)
+  (t) => [uniqueIndex('safety_events_message_uq').on(t.messageId)],
+);
 
 export const consents = pgTable(
   'consents',
