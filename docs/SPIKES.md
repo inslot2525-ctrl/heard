@@ -12,7 +12,13 @@ One section per spike from the spec §7. Record what works, the exact package an
 - `apps/web` type-checks against the real SDK: `DirectChannel`, `SendTextMessageParams`, `MessageHandler`, `NCEngine.addMessageHandler`, `AreaCode` all exist.
 
 ## A. Token from server + first message from web
-Code ready (`apps/api/src/nexconn.ts`, `apps/web/src/SpikeA.tsx`). **Waiting for the App Key/Secret.**
+**✅ Passed, Oct 31.** Singapore app.
+
+- Server: signed `POST /v4/auth/access-token/issue` works first try; tokens are 84 characters.
+- Client: `NCEngine.initialize({ appKey, areaCode: AreaCode.SG })` → `NCEngine.connect({ token })` returns `code 0`.
+- `new DirectChannel('alice').sendMessage(new SendTextMessageParams({ text }))` returns `code 0`; the other tab receives it in under a second.
+- **Gotcha: the receive event shape.** `onMessageReceived` gets **a batch**, `{ messages: Message[] }`, not one message. Each message has `messageId`, `senderUserId`, `sentTime`, `direction` (2 = incoming), `_identifier: { _channelType: 1 (direct), _channelId: <peer id> }`, `_registeredParams.messageType` (`"RC:TxtMsg"`), and the text in `_content.text`. Don't read the `_` fields: the typings (`index.d.ts`) have public getters `message.content`, `message.messageType`, `message.channelId`, `message.channelType` and `message.identifier`.
+- Notepad saves `.env` as `.env.txt` by default. Check the file name if the API says `nexconn: false`.
 
 ## B. Custom messages in Chat UI (web)
 ## C. Built-in translation (hi / mr)
