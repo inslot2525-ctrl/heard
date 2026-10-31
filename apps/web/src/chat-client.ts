@@ -16,7 +16,7 @@ import {
   TranslateMessageParam,
   type Message,
 } from '@nexconn/chat';
-import { MSG } from '@heard/shared';
+import { MSG, useLlmTranslation } from '@heard/shared';
 import { api, type ChatItem, type Lang } from './api';
 
 const APP_KEY = import.meta.env.VITE_NEXCONN_APP_KEY as string | undefined;
@@ -60,18 +60,36 @@ export function cachedTranslation(id: string, lang: Lang) {
   return localStorage.getItem(cacheKey(id, lang));
 }
 
-export function translateMessage(m: ChatMessage, lang: Lang): Promise<string | null> {
+/**
+ * Translate a message into `lang`. Indian languages (either side) go through our API (Gemini);
+ * everything else through Nexconn. If Gemini is unavailable we fall back to Nexconn.
+ */
+export async function translateMessage(m: ChatMessage, lang: Lang, fromLang?: Lang): Promise<string | null> {
   const cached = cachedTranslation(m.id, lang);
-  if (cached !== null) return Promise.resolve(cached);
+  if (cached !== null) return cached;
   const text = typeof m.content?.text === 'string' ? m.content.text : null;
-  if (!text) return Promise.resolve(null);
+  if (!text) return null;
+  if (useLlmTranslation(fromLang, lang)) {
+    try {
+      const r = await api<{ text: string }>('/translate', { body: { text, to: lang } });
+      localStorage.setItem(cacheKey(m.id, lang), r.text);
+      return r.text;
+    } catch {
+      /* fall through to Nexconn */
+    }
+  }
+  return translateWithNexconn(m.id, text, lang);
+}
+
+function translateWithNexconn(id: string, text: string, lang: Lang): Promise<string | null> {
+  const m = { id };
   return new Promise((resolve) => {
     pending.set(m.id, (out) => {
       if (out !== null) localStorage.setItem(cacheKey(m.id, lang), out);
       resolve(out);
     });
     NCEngine.translateModule
-      .translateMessages({ list: [new TranslateMessageParam(m.id, 'auto', lang, text)], force: false })
+      .translateMessages({ list: [new TranslateMessageParam(id, 'auto', lang, text)], force: false })
       .then((r) => {
         if (r.code !== 0) pending.get(m.id)?.(null), pending.delete(m.id);
       });

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FlagCard, PulseResponse } from '@heard/shared';
+import { HELPLINES, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
 import { useMe } from '../App';
 import { api, type ChatItem, type Lang } from '../api';
 import { chatKey, connectChat, loadHistory, onMessage, sendText, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
@@ -40,6 +40,9 @@ export function ChatScreen({ route }: { route: string[] }) {
   const [messages, setMessages] = useState<ChatMessage[] | null>(null);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [thinking, setThinking] = useState(false);
+  // Shown right here when the safety check fires (the helpline card also goes to the assistant chat).
+  const [showHelp, setShowHelp] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const key = item ? chatKey(item) : '';
 
@@ -74,8 +77,21 @@ export function ChatScreen({ route }: { route: string[] }) {
     const sent = await sendText(item, text.trim()).catch(() => null);
     setSending(false);
     if (sent) {
+      const body = text.trim();
       setText('');
       setMessages((list) => [...(list ?? []), sent]);
+      if (me.user.role === 'student') {
+        if (item.kind === 'direct' && item.role === 'assistant') {
+          // The answer arrives in this chat from the bot, through Nexconn.
+          setThinking(true);
+          api('/assistant/ask', { body: { text: body, messageId: sent.id } }).catch(() => undefined).finally(() => setThinking(false));
+        } else {
+          // Until Nexconn webhooks are live, the app asks the server to check what was sent.
+          api<{ alerted: boolean }>('/safety/check', { body: { text: body, messageId: sent.id } })
+            .then((r) => r.alerted && setShowHelp(true))
+            .catch(() => undefined);
+        }
+      }
     }
   }
 
@@ -98,6 +114,8 @@ export function ChatScreen({ route }: { route: string[] }) {
         {messages?.map((m) => (
           <MessageView key={m.id} m={m} sender={people[m.from]} showSender={item.kind === 'community'} myLang={me.user.lang} />
         ))}
+        {thinking && <div className="status">{t.assistantTyping}</div>}
+        {showHelp && <SafetyCardView c={{ helplines: HELPLINES }} />}
         <div ref={bottom} />
       </div>
       {canPost ? (
@@ -150,6 +168,8 @@ function Body({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: 
       return <PulseRespView r={m.content as PulseResponse} />;
     case 'SA:FlagCard':
       return <FlagCardView f={m.content as FlagCard} />;
+    case 'SA:SafetyCard':
+      return <SafetyCardView c={m.content as SafetyCard} />;
     default:
       return <div className="bubble muted">[{m.type}]</div>;
   }
@@ -169,7 +189,7 @@ function TextBubble({ m, sender, myLang }: { m: ChatMessage; sender?: Person; my
 
   function run() {
     setState('busy');
-    translateMessage(m, myLang).then((out) => {
+    translateMessage(m, myLang, sender?.lang).then((out) => {
       setTranslation(out);
       setState(out === null ? 'failed' : 'idle');
     });
@@ -253,6 +273,23 @@ function FlagCardView({ f }: { f: FlagCard }) {
       <div className="flag-reason small">{f.reason}</div>
       {f.studentWords && <div className="quote small" style={{ marginTop: '0.4rem' }}>{f.studentWords}</div>}
       <a className="btn primary" style={{ marginTop: '0.5rem' }} href={href('flag', f.flagId)}>{t.inbox} →</a>
+    </div>
+  );
+}
+
+/** Helplines, shown right after a safety keyword. Numbers are tap-to-call. */
+function SafetyCardView({ c }: { c: SafetyCard }) {
+  const t = useT();
+  return (
+    <div className="mcard safety" role="alert">
+      <div className="t">{t.safetyTitle}</div>
+      <p className="small" style={{ margin: '0 0 0.5rem' }}>{t.safetyBody}</p>
+      {c.helplines?.map((h) => (
+        <a key={h.number} className="btn block" style={{ marginBottom: '0.35rem', justifyContent: 'space-between' }} href={`tel:${h.number.replace(/[^0-9+]/g, '')}`}>
+          <span>{h.name}</span>
+          <strong>{h.number}</strong>
+        </a>
+      ))}
     </div>
   );
 }

@@ -61,3 +61,10 @@ export interface SafetyCard {
   helplines: { name: string; number: string }[];
   campusContact?: string;
 }
+
+/** India helplines shown on the safety card. Tele-MANAS: national tele-mental-health line, free, 24×7. */
+export const HELPLINES: SafetyCard['helplines'] = [
+  { name: 'Tele-MANAS (free, 24×7, many languages)', number: '14416' },
+  { name: 'Tele-MANAS toll-free', number: '1-800-891-4416' },
+  { name: 'Emergency', number: '112' },
+];

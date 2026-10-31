@@ -10,6 +10,7 @@ import { pulses, users } from './db/schema.js';
 import { evaluateStudent } from './flags.js';
 import { newId } from './ids.js';
 import { NexconnError } from './nexconn.js';
+import { checkAndAlert } from './safety.js';
 
 const WEEK_MS = 7 * 86_400_000;
 export const NOTE_MAX = 500;
@@ -114,6 +115,8 @@ export async function recordPulse(db: Db, chat: Chat | null, student: { id: stri
       console.error('pulse mirror failed', saved.id, e instanceof NexconnError ? JSON.stringify(e.body) : e);
     }
   }
+
+  if (value.note) await checkAndAlert(db, chat, student.id, value.note, saved.id, now);
 
   // Evaluate as of the answered week, so a late answer for last week is judged in its own week.
   const asOf = value.week === isoWeek(now) ? now : new Date(now.getTime() - WEEK_MS);

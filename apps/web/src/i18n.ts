@@ -5,6 +5,9 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  assistantTyping: 'Heard Assistant is typing…',
+  safetyTitle: 'You are not alone',
+  safetyBody: 'Your mentor and warden have been told and will reach out. If you need someone right now, call:',
   yourMentor: 'Your mentor',
   noticesTitle: 'Notices',
   assistantTitle: 'Heard Assistant',
@@ -82,6 +85,9 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  assistantTyping: 'Heard सहायक लिख रहा है…',
+  safetyTitle: 'आप अकेले नहीं हैं',
+  safetyBody: 'आपके मेंटर और वार्डन को बता दिया गया है, वे संपर्क करेंगे। अगर अभी किसी से बात करनी है, तो कॉल करें:',
   yourMentor: 'आपके मेंटर',
   noticesTitle: 'सूचनाएँ',
   assistantTitle: 'Heard सहायक',
@@ -139,6 +145,9 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  assistantTyping: 'Heard सहाय्यक लिहित आहे…',
+  safetyTitle: 'तुम्ही एकटे नाही',
+  safetyBody: 'तुमच्या मेंटर आणि वॉर्डनना कळवले आहे, ते संपर्क करतील. आत्ता कोणाशी बोलायचे असेल तर कॉल करा:',
   yourMentor: 'तुमचे मेंटर',
   noticesTitle: 'सूचना',
   assistantTitle: 'Heard सहाय्यक',
@@ -197,6 +206,9 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  assistantTyping: 'Heard 助手正在输入…',
+  safetyTitle: '你并不孤单',
+  safetyBody: '已经通知了你的导师和宿管，他们会尽快联系你。如果你现在就需要找人说话，请拨打：',
   yourMentor: '你的导师',
   noticesTitle: '通知',
   assistantTitle: 'Heard 助手',
