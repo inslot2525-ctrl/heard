@@ -79,5 +79,11 @@ Everyone else is steady and never flags (tested).
 ## Layout
 
 - `apps/api`: Hono on Node. Drizzle ORM (PGlite locally, Postgres via `DATABASE_URL`), join-code login, Nexconn server API client.
-- `apps/web`: React + Vite on the Nexconn web SDK (`@nexconn/chat` 26.2.1). Currently the spike lab.
+- `apps/web`: React + Vite on the Nexconn web SDK (`@nexconn/chat` 26.2.1). Mobile-first screens:
+  - **Welcome:** join with a code (then the one-time login code), log back in with a login code, or pick a demo persona.
+  - **Student:** this week's one-tap check-in card, then chats (mentor, hostel, notices, assistant).
+  - **Mentor:** inbox of flags → flag detail (reason, 6-week bars, the student's words, editable opener, send / resolve / dismiss) and chats with each student.
+  - **Warden:** send this week's check-in round; notices and hostel channels.
+  - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
+  - UI text in English, Hindi and Marathi (`src/i18n.ts`; hi/mr need a native speaker's review). The old spike lab is at `#/lab`.
 - `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).

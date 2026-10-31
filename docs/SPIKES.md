@@ -47,6 +47,7 @@ How to rerun: `pnpm dev`, log in as `alice` in the spike lab (`apps/web/src/Spik
   1. Always show the original next to the translation, with a toggle.
   2. Flags never depend on translated text; they come from one-tap pulse answers (already true in `packages/shared/src/rules.ts`).
   3. Give mentors a "check translation" action that re-translates the student's note with our LLM for comparison.
+- **Second failure (Oct 31, in the real UI):** *"हो सर, आज रात्रीच्या जेवणानंतर बोलूया का?"* ("Yes sir, shall we talk after dinner tonight?") came back as **"be sir, today's ratrilogy today?"**. English → Marathi was fine. **Decision: translate Marathi (and likely Hindi) with Gemini; keep Nexconn translation only where it holds up.** Needs `GEMINI_API_KEY`.
 - **Speech-to-text exists in the SDK** even though the docs don't cover it: `voiceMessage.requestSpeechToText()` → `onSpeechToTextCompleted`. `NCEngine.getAppSettings().data.isSpeechToTextEnabled` is currently **false**; it needs a console switch too. That would cover voice notes in Marathi without our own speech-to-text (spec S6).
 
 ## D. Bot replies from server (+ stream messages)

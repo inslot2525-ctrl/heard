@@ -5,6 +5,7 @@ import type { Db } from './db/client.js';
 import { authRoutes } from './routes/auth.js';
 import { flagRoutes } from './routes/flags.js';
 import { pulseRoutes } from './routes/pulse.js';
+import { chatRoutes } from './routes/chats.js';
 
 export interface AppDeps {
   db: Db;
@@ -25,6 +26,7 @@ export function createApp(deps: AppDeps) {
   app.route('/auth', authRoutes(deps));
   app.route('/pulse', pulseRoutes({ ...deps, now }));
   app.route('/flags', flagRoutes(deps));
+  app.route('/chats', chatRoutes(deps));
 
   return app;
 }
