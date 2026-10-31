@@ -66,8 +66,8 @@ A campus = one Nexconn **community channel**. Each hostel, class and the mentors
 - Flag states: open → contacted → resolved / dismissed. The mentor sees a "resolved this month" count.
 
 **F5. Language bridging**
-- Uses Nexconn built-in translation. Each user's language is set at onboarding, and auto-translate is on in the mentor–student chats and hostel channels.
-- The UI shows the original text with the translation, and lets users toggle between them.
+- Uses Nexconn built-in translation. Each user's language is set at onboarding. **The SDK has no automatic translation**, so our message list calls `translateMessages` for each incoming message in a chat where the user turned translation on, and caches the result by message ID (see `docs/SPIKES.md` C).
+- The UI **always** shows the original text with the translation, and lets users toggle between them. Mentors get a "check translation" action that re-translates a note with our LLM: in testing, Marathi machine translation dropped "अडचण" (trouble) and inverted a sentence. Flags never depend on translated text.
 - Cost: 10,000 characters are free, then a card is needed ($0.02 per 1,000 characters). The team decides whether to bind a card before the pilot.
 
 **F6. Campus assistant bot**

@@ -36,11 +36,17 @@ How to rerun: `pnpm dev`, log in as `alice` in the spike lab (`apps/web/src/Spik
 - Cards are rendered by our own React components from the parsed `content`.
 
 ## C. Built-in translation (hi / mr)
-**⏸ Blocked on a console switch (Oct 31).**
+**✅ Works for en / mr / hi / ta (Oct 31), with three caveats below.** Console: Chat → Chat settings → Messages → Translation → on (10,000 characters free, then a card is needed). While it's off, calls return **`code 28400`**.
 
-- `NCEngine.translateModule.translateTexts({ list: [new TranslateTextParam(text, 'auto', 'en')] })` returns **`code 28400`** while translation is off. Results arrive through `NCEngine.addTranslateHandler(id, new TranslateHandler({ onTranslationCompleted }))`.
-- Other APIs: `setTranslationLanguage(lang)`, `setAutoTranslateEnabled(bool)`, `setTranslateStrategy(channelIdentifiers, TranslateStrategy.AUTO)`, `translateMessages(...)`.
-- **To do (Aditya, console):** Chat → Chat settings → Messages → Translation → on. 10,000 characters free, then a card is needed.
+- **Messages:** `NCEngine.translateModule.translateMessages({ list: [new TranslateMessageParam(message.messageId, 'auto', 'en', message.content.text)], force: false })`. On Web the 4th argument (the original text) is required. The result arrives in about a second through `NCEngine.addTranslateHandler(id, new TranslateHandler({ onTranslationCompleted }))`: `results[i].identifier === messageId`, `sourceType 0`, and `translateInfo.translatedText`.
+- **Free text:** `translateTexts({ list: [new TranslateTextParam(text, 'auto', 'mr')] })` → the same handler, with `sourceType 1`.
+- **Caveat 1, no auto-translate.** The docs say: *"The Chat SDK does not include built-in auto-translate functionality."* `setTranslationLanguage`, `setAutoTranslateEnabled` and `setTranslateStrategy([...], TranslateStrategy.AUTO_ON)` only store preferences, synced across devices. **Our message list must call `translateMessages` for each incoming message** when the user's preference is on. The enum is `DEFAULT / AUTO_ON / AUTO_OFF`; the SDK's doc comment says `AUTO`, which doesn't exist and returns 35062.
+- **Caveat 2, not persisted.** The translation isn't saved on the message (history comes back without it). Cache it ourselves by `messageId` (client storage, or our DB for mentor views).
+- **Caveat 3, batches can fail.** Three texts in one `translateTexts` call: one returned **`28401`**. The same three sent one per call all succeeded. Send one per call, or retry failed items.
+- **Quality, important for Heard.** Marathi *"या आठवड्यात पैशांची थोडी अडचण आहे, फी भरायला उशीर होईल"* (money trouble this week, fee will be late) came back as *"There's a bit of money this week, it'll be late to fill the fee"*: **it dropped अडचण (trouble) and inverted the meaning.** Short phrases were fine ("मला घरची खूप आठवण येते" → "I miss home a lot."). Hindi output defaults to the masculine form. Rules for the build:
+  1. Always show the original next to the translation, with a toggle.
+  2. Flags never depend on translated text; they come from one-tap pulse answers (already true in `packages/shared/src/rules.ts`).
+  3. Give mentors a "check translation" action that re-translates the student's note with our LLM for comparison.
 - **Speech-to-text exists in the SDK** even though the docs don't cover it: `voiceMessage.requestSpeechToText()` → `onSpeechToTextCompleted`. `NCEngine.getAppSettings().data.isSpeechToTextEnabled` is currently **false**; it needs a console switch too. That would cover voice notes in Marathi without our own speech-to-text (spec S6).
 
 ## D. Bot replies from server (+ stream messages)
