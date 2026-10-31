@@ -14,7 +14,7 @@ import {
 } from '@nexconn/chat';
 import { MSG } from '@heard/shared';
 
-const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
+import { API } from './api';
 const APP_KEY = import.meta.env.VITE_NEXCONN_APP_KEY as string | undefined;
 
 let initialized = false;

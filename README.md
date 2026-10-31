@@ -97,3 +97,18 @@ Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese
   - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
   - **Languages:** the full UI is written in English, Hindi, Marathi and Chinese (`src/i18n.ts`; hi/mr/zh need a native speaker's review). Chat works in all **211** languages Nexconn translates (`packages/shared/src/languages.ts`): pick any, and the UI falls back to English while messages are translated. Users can switch language any time (🌐 in the header, `POST /auth/me/lang`). The old spike lab is at `#/lab`.
 - `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).
+
+## Deploy (Render + Neon, all in Singapore)
+
+`render.yaml` is a Render Blueprint with two services:
+
+- **heard-api**: Node web service, Singapore, free plan. Runs migrations on start. Health check `/health`.
+- **heard-web**: static site (global CDN). The hash router needs no rewrite rules.
+
+The services find each other through `fromService`: the API's `WEB_ORIGIN` is the web host (for CORS) and the web's `VITE_API_URL` is the API host.
+
+1. Render dashboard → **New → Blueprint** → pick this repo (branch `main`).
+2. Paste the secrets it asks for (never commit them): `NEXCONN_APP_KEY`, `NEXCONN_APP_SECRET`, `DATABASE_URL` (Neon **pooled** string, Singapore project), `GEMINI_API_KEY`, `DEMO_PASSCODE`, and `VITE_NEXCONN_APP_KEY` (same App Key). `SESSION_SECRET` is generated.
+3. After the first deploy, seed the demo campus into Neon once from your machine (`pnpm --filter @heard/api seed:demo` with `DATABASE_URL` set), if it isn't there already.
+
+Free-plan note: the API sleeps after ~15 minutes idle and takes up to a minute to wake. Open `/health` a minute before a demo.

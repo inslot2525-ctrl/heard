@@ -4,6 +4,14 @@ import { fileURLToPath } from 'node:url';
 // One .env at the repo root, shared by api and web.
 config({ path: fileURLToPath(new URL('../../../.env', import.meta.url)), quiet: true });
 
+export function parseOrigins(value: string) {
+  return value
+    .split(',')
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean)
+    .map((o) => (/^https?:\/\//.test(o) ? o : `https://${o}`));
+}
+
 function opt(name: string) {
   const v = process.env[name]?.trim();
   return v ? v : undefined;
@@ -11,7 +19,8 @@ function opt(name: string) {
 
 export const env = {
   port: Number(opt('PORT') ?? 8787),
-  webOrigin: opt('WEB_ORIGIN') ?? 'http://localhost:5173',
+  /** Allowed browser origins (CORS). Comma-separated; bare hosts get https:// (Render passes hosts). */
+  webOrigins: parseOrigins(opt('WEB_ORIGIN') ?? 'http://localhost:5173'),
   nexconnAppKey: opt('NEXCONN_APP_KEY'),
   nexconnAppSecret: opt('NEXCONN_APP_SECRET'),
   nexconnApiHost: opt('NEXCONN_API_HOST') ?? 'api.sg-light-api.com',
