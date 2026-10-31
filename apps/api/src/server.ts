@@ -16,7 +16,7 @@ console.log(`database: ${env.databaseUrl ? 'Postgres (DATABASE_URL)' : 'embedded
 const llm = env.geminiApiKey ? geminiLlm({ apiKey: env.geminiApiKey, models: env.geminiModels }) : null;
 if (!llm) console.warn('GEMINI_API_KEY not set: AI translation and the assistant are off.');
 
-const app = createApp({ db, chat, llm, sessionSecret: sessionSecret(), demoPasscode: env.demoPasscode, webOrigin: env.webOrigin });
+const app = createApp({ db, chat, llm, sessionSecret: sessionSecret(), demoPasscode: env.demoPasscode, webOrigin: env.webOrigins });
 
 serve({ fetch: app.fetch, port: env.port }, (info) => {
   console.log(`api listening on http://localhost:${info.port}`);

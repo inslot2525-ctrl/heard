@@ -1,7 +1,9 @@
 // Thin client for our API. The session token lives in localStorage (the MVP has no passwords;
 // the personal login code brings it back on another device).
 
-export const API = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
+// Render passes a bare host (heard-api.onrender.com); add the scheme if missing.
+const RAW_API = (import.meta.env.VITE_API_URL ?? 'http://localhost:8787').replace(/\/$/, '');
+export const API = /^https?:\/\//.test(RAW_API) ? RAW_API : `https://${RAW_API}`;
 const KEY = 'heard.session';
 
 export type Role = 'student' | 'mentor' | 'warden';

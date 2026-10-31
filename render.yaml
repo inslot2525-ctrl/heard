@@ -1,0 +1,58 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repo. Everything runs in Singapore, next
+# to the Neon database (ap-southeast-1) and the Nexconn app (Singapore data centre).
+# Secrets marked `sync: false` are asked for once when the Blueprint is created; they never live in git.
+
+services:
+  - type: web
+    name: heard-api
+    runtime: node
+    region: singapore
+    plan: free
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @heard/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXCONN_API_HOST
+        value: api.sg-light-api.com
+      - key: NEXCONN_APP_KEY
+        sync: false
+      - key: NEXCONN_APP_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DEMO_PASSCODE
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: WEB_ORIGIN
+        fromService:
+          type: web
+          name: heard-web
+          property: host
+
+  - type: web
+    name: heard-web
+    runtime: static
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @heard/web build
+    staticPublishPath: apps/web/dist
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+    envVars:
+      - key: VITE_NEXCONN_APP_KEY
+        sync: false
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: heard-api
+          property: host

@@ -14,7 +14,8 @@ export interface AppDeps {
   chat: Chat | null;
   sessionSecret: string;
   demoPasscode?: string;
-  webOrigin: string;
+  /** Allowed browser origins; '*' allows any (tests). */
+  webOrigin: string | string[];
   /** Gemini; null = AI features off (translation falls back to Nexconn, assistant hands off). */
   llm?: Llm | null;
   /** Injectable clock, so tests can move through weeks. */
