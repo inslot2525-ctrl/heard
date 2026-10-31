@@ -8,17 +8,23 @@
     "start": "tsx src/server.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "spike": "tsx scripts/spike.ts"
+    "spike": "tsx scripts/spike.ts",
+    "db:generate": "drizzle-kit generate",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.14.0",
+    "@electric-sql/pglite": "^0.5.14",
     "@heard/shared": "workspace:*",
+    "@hono/node-server": "^1.14.0",
     "dotenv": "^17.2.0",
+    "drizzle-orm": "^0.44.7",
     "hono": "^4.9.0",
+    "postgres": "^4.0.0",
     "tsx": "^4.20.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "drizzle-kit": "^0.31.11",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   }

@@ -7,6 +7,10 @@ Today is Sat Oct 31, 2026. **Internal deadline: Sun Nov 22, 21:00 IST.** The har
 - Full speed starts Nov 5.
 - Aditya hands over to Om on **Mon Nov 16** (see `HANDOVER.md`). Change that date here if it moves.
 
+## Progress
+
+- **Oct 31:** Phase 0 done (scaffold, spikes A–E; F waits for deploy). Started Phase 1 early, since Om has the Meta hackathon: database, join-code login, sessions, and the seeded demo campus are done (planned Nov 5–6). See README "API so far".
+
 ## Who owns what
 
 | | Aditya (until handover) | Om |

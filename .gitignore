@@ -16,3 +16,6 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+
+# local embedded database
+.pglite/

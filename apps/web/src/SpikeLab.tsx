@@ -25,9 +25,10 @@ function short(v: unknown) {
 }
 
 export function SpikeLab() {
-  const [userId, setUserId] = useState('alice');
+  // Seeded demo personas (pnpm --filter @heard/api seed:demo): demopriya, demorao, demowarden, …
+  const [userId, setUserId] = useState('demopriya');
   const [passcode, setPasscode] = useState('');
-  const [peer, setPeer] = useState('bob');
+  const [peer, setPeer] = useState('demorao');
   const [text, setText] = useState('');
   const [connected, setConnected] = useState(false);
   const [log, setLog] = useState<string[]>([]);
@@ -40,10 +41,13 @@ export function SpikeLab() {
       const r = await fetch(`${API}/auth/demo-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ passcode, userId, name: userId }),
+        body: JSON.stringify({ passcode, userId }),
       });
-      const j = await r.json();
-      if (!r.ok) return add(`login failed: ${JSON.stringify(j)}`);
+      const login = await r.json();
+      if (!r.ok) return add(`login failed: ${JSON.stringify(login)}`);
+      const t = await fetch(`${API}/auth/nexconn-token`, { method: 'POST', headers: { Authorization: `Bearer ${login.session}` } });
+      const j = await t.json();
+      if (!t.ok) return add(`token failed: ${JSON.stringify(j)}`);
       if (!initialized) {
         NCEngine.initialize({ appKey: APP_KEY, areaCode: AreaCode.SG });
         // B: register our custom types so the SDK can parse them. Must happen before connect.
