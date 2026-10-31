@@ -7,7 +7,8 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "spike": "tsx scripts/spike.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",
