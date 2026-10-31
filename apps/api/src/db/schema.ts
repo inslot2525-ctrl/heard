@@ -1,7 +1,6 @@
 // Database schema (spec §7). IDs that are also Nexconn IDs (campus = community channel,
 // hostel = subchannel, user = Nexconn user) are letters and digits only, as Nexconn requires.
 
-import { sql } from 'drizzle-orm';
 import { boolean, index, integer, jsonb, pgTable, primaryKey, smallint, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 
 export const ROLES = ['student', 'mentor', 'warden', 'bot'] as const;
@@ -42,9 +41,11 @@ export const users = pgTable(
     hostelId: text('hostel_id').references(() => hostels.id),
     /** Seeded fake users for the demo. Never mixed with pilot data. */
     isDemo: boolean('is_demo').notNull().default(false),
+    /** sha256 of the personal login code (shown to the user once). Never store the code itself. */
+    loginCodeHash: text('login_code_hash'),
     createdAt: createdAt(),
   },
-  (t) => [index('users_campus_idx').on(t.campusId)],
+  (t) => [index('users_campus_idx').on(t.campusId), uniqueIndex('users_login_code_uq').on(t.loginCodeHash)],
 );
 
 /** Join codes. The code decides campus, role and hostel, so nobody picks their own role. */
@@ -114,7 +115,7 @@ export const flags = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true })
       .notNull()
       .defaultNow()
-      .$onUpdate(() => sql`now()`),
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index('flags_mentor_status_idx').on(t.mentorId, t.status),

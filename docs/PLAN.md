@@ -10,6 +10,7 @@ Today is Sat Oct 31, 2026. **Internal deadline: Sun Nov 22, 21:00 IST.** The har
 ## Progress
 
 - **Oct 31:** Phase 0 done (scaffold, spikes A–E; F waits for deploy). Started Phase 1 early, since Om has the Meta hackathon: database, join-code login, sessions, and the seeded demo campus are done (planned Nov 5–6). See README "API so far".
+- **Oct 31 (later):** core loop done ahead of Nov 10–12: personal login codes, weekly rounds, `POST /pulse`, flags engine, mentor inbox API with opener drafts (templates in en/hi/mr; LLM drafts later). Verified live on Nexconn: answer → flag card to mentor → opener reaches student.
 
 ## Who owns what
 
