@@ -14,7 +14,8 @@
   --mine: #dcebe5;
   --radius: 14px;
   --shadow: 0 1px 2px rgb(0 0 0 / 6%), 0 4px 16px rgb(0 0 0 / 4%);
-  font-family: 'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Latin system fonts first: if a CJK font comes first, Windows draws ’ and ' full-width ("You’ ll"). */
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Nirmala UI', 'Noto Sans Devanagari', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   font-size: 16px;
   line-height: 1.45;
   color: var(--ink);
