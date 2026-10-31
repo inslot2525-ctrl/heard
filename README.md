@@ -69,7 +69,8 @@ A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it show
 |---|---|---|
 | `POST /translate` `{ text, to }` | any | Gemini translation, used for Indian languages (Nexconn garbles Marathi). Cached; rate-limited. |
 | `POST /assistant/ask` `{ text, messageId? }` | student | The Heard Assistant answers from `data/handbook/<campusId>.md` in the student's language, sent as the campus bot. Personal or unknown questions → hand-off: an `asked_for_help` flag for the mentor. |
-| `POST /safety/check` `{ text, messageId? }` | student | Runs the safety keywords on a message the student just sent (until Nexconn webhooks are live). |
+| `POST /safety/check` `{ text, messageId? }` | student | Runs the safety keywords on a message the student just sent. A backup for the webhook below. |
+| `POST /webhooks/nexconn` | Nexconn | Signed webhook. On `message:send`, every student text message in any chat goes through the safety check, server-side. Configure in the Nexconn console: Chat → Chat settings → Webhooks → URL `https://heard-api-htrg.onrender.com/webhooks/nexconn`, event `message:send`. |
 
 **Safety path** (`apps/api/src/safety.ts`): fixed keyword lists in English, Hindi, Marathi and Chinese, matched in code (never by AI), for self-harm and ragging. Checked on chat messages, check-in notes and assistant questions, **before** any AI. On a match: the student gets a card with Tele-MANAS 14416 and 112, the mentor gets an **urgent** flag at the top of the inbox, and every warden gets a direct alert. The lists need review by a counsellor and native speakers before the pilot.
 

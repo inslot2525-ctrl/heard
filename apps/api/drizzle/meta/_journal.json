@@ -15,6 +15,13 @@
       "when": 1793455806267,
       "tag": "0001_tired_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793469894565,
+      "tag": "0002_normal_expediter",
+      "breakpoints": true
     }
   ]
 }

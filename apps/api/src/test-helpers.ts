@@ -46,7 +46,7 @@ export async function testApp(opts: { llm?: { complete: (p: { system: string; us
   const handle = await openDb({ memory: true });
   const fake = fakeChat();
   const clock = testClock();
-  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now, llm: opts.llm ?? null });
+  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now, llm: opts.llm ?? null, nexconnWebhook: { appKey: 'testkey', appSecret: 'testsecret' } });
   const req = (method: string, path: string, body?: unknown, session?: string) =>
     app.request(path, {
       method,

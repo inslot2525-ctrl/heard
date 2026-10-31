@@ -41,7 +41,8 @@ function lru<V>(max: number) {
 export function aiRoutes({ db, chat, llm, sessionSecret, now }: AiDeps) {
   const r = new Hono<AuthVars>();
   const cache = lru<string>(5000);
-  r.use('*', requireSession(sessionSecret));
+  // Scoped to this router's own paths: it's mounted at '/', so '*' would also catch other routes.
+  for (const p of ['/translate', '/assistant/*', '/safety/*']) r.use(p, requireSession(sessionSecret));
   r.use('/translate', rateLimit({ max: 300, windowMs: 10 * 60_000 }));
   r.use('/assistant/*', rateLimit({ max: 60, windowMs: 10 * 60_000 }));
 

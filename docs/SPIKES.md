@@ -70,7 +70,8 @@ How to rerun: `pnpm dev`, log in as `alice` in the spike lab (`apps/web/src/Spik
 - **Private subchannels hold:** a message sent to `mentors` did not reach `alice`. Members must be added to a private subchannel explicitly (`private-channel/add-to-private-channel-users`); joining the community isn't enough.
 
 ## F. Webhooks for sent messages
-**⏸ Needs a public HTTPS URL.** Planned for the Render deploy (Nov 9), or a temporary tunnel earlier.
+**✅ Receiver built (Oct 31): `POST /webhooks/nexconn` (`apps/api/src/routes/webhooks.ts`).** It checks the App Key and the signature, rejects timestamps more than 5 minutes off (replays), replies at once, and processes afterwards. On `message:send`, every RC:TxtMsg from a student (not `os: Server`) goes through the safety check. A unique `safety_events.message_id` means a message alerts once, even if the webhook, Nexconn's retries and the app's `/safety/check` all report it.
+- Gotcha: a router mounted at `/` with `use('*', requireSession)` also caught `/webhooks/*` (401 `not_logged_in`). Middleware is now scoped to its own paths.
 
 - Console: Chat → Chat settings → Webhooks → Config → URL + events. One URL for all events.
 - Events we want: `message:send` (all messages: pulse replies, bot questions), and **`direct_channel:pre_messaging`** / `group_channel:pre_messaging` (free plan), which can **block or modify a message before delivery**. Good fit for the safety path (F7).

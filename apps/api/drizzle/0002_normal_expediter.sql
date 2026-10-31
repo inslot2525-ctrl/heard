@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "safety_events_message_uq" ON "safety_events" USING btree ("message_id");
