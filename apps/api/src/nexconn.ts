@@ -116,6 +116,16 @@ export class Nexconn {
     return this.call('/v4/community-channel/join', { channelId, userId });
   }
 
+  /**
+   * docs: platform-chat-api/community-channel/private-channel/add-to-private-channel-users.
+   * Users must already be community members (else code 24406). Max 20 per call; we batch.
+   */
+  async addPrivateSubchannelMembers(channelId: string, subchannelId: string, userIds: string[]) {
+    for (let i = 0; i < userIds.length; i += 20) {
+      await this.call('/v4/community-channel/private-subchannel/member/add', { channelId, subchannelId, userIds: userIds.slice(i, i + 20) });
+    }
+  }
+
   /** docs: platform-chat-api/message/community-channel/send-community-channel. Sender also receives it. */
   sendCommunity(p: { from: string; channelId: string; subchannelId?: string; messageType: string; content: string; toUserIds?: string[] }) {
     return this.call('/v4/community-channel/message/send', {
