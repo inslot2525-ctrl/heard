@@ -1,6 +1,6 @@
-# Saathi: MVP spec
+# Heard: MVP spec
 
-**Working name:** Saathi (साथी, "companion"). Rename freely.
+**Name:** Heard. Tagline: "Heard, before it's a crisis."
 **Challenge:** Nexconn Build Challenge 2026 on Reskilll. **Track:** Humanitarian & Social Good.
 **Deadline:** Nov 22, 23:59 AoE = **Mon Nov 23, 17:29 IST**. Our internal deadline: **Sun Nov 22, 21:00 IST**.
 **Team:** Aditya, Om.
@@ -71,7 +71,7 @@ A campus = one Nexconn **community channel**. Each hostel, class and the mentors
 - Cost: 10,000 characters are free, then a card is needed ($0.02 per 1,000 characters). The team decides whether to bind a card before the pilot.
 
 **F6. Campus assistant bot**
-- A Nexconn bot user, "Saathi Assistant", answers routine questions (mess timings, leave process, fees office hours, Wi-Fi) from `data/handbook.md`.
+- A Nexconn bot user, "Heard Assistant", answers routine questions (mess timings, leave process, fees office hours, Wi-Fi) from `data/handbook.md`.
 - Replies stream in piece by piece (Nexconn stream messages) when the platform supports that from the server. Otherwise it sends normal messages.
 - Hand-off: if a message is out of scope or sensitive, the bot replies "I'll connect you with your mentor" and opens a flag of type `asked_for_help`.
 

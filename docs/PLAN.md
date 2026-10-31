@@ -1,4 +1,4 @@
-# Saathi: day-by-day plan
+# Heard: day-by-day plan
 
 Today is Sat Oct 31, 2026. **Internal deadline: Sun Nov 22, 21:00 IST.** The hard deadline is Mon Nov 23, 17:29 IST.
 

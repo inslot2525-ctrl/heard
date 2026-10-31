@@ -10,12 +10,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@heard/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@hono/node-server':
         specifier: ^1.14.0
         version: 1.19.17(hono@4.13.14)
-      '@saathi/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       dotenv:
         specifier: ^17.2.0
         version: 17.4.2
@@ -38,15 +38,15 @@ importers:
 
   apps/web:
     dependencies:
+      '@heard/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@nexconn/chat':
         specifier: 26.2.1
         version: 26.2.1(@nexconn/engine@26.2.1)
       '@nexconn/engine':
         specifier: 26.2.1
         version: 26.2.1
-      '@saathi/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       react:
         specifier: ^19.1.0
         version: 19.3.1

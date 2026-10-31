@@ -67,7 +67,7 @@ export function SpikeA() {
 
   return (
     <main style={{ fontFamily: 'system-ui', maxWidth: 640, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>Saathi · spike A</h1>
+      <h1>Heard · spike A</h1>
       <p>Log in as one user here and another in a second window, then message each other.</p>
       <fieldset disabled={connected}>
         <input value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="user id" />{' '}

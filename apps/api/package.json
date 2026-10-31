@@ -1,5 +1,5 @@
 {
-  "name": "@saathi/api",
+  "name": "@heard/api",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",
-    "@saathi/shared": "workspace:*",
+    "@heard/shared": "workspace:*",
     "dotenv": "^17.2.0",
     "hono": "^4.9.0",
     "tsx": "^4.20.0"

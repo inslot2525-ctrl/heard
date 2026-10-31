@@ -1,4 +1,4 @@
-# Saathi
+# Heard
 
 Hostel students heard early: weekly one-tap check-ins, mentor conversations started by evidence and approved by a human, and chat in Marathi, Hindi or English. Built on the Nexconn Chat SDK for the Nexconn Build Challenge 2026 (Humanitarian & Social Good).
 
