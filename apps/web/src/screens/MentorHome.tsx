@@ -34,6 +34,9 @@ const RULE_LABEL: Record<Flag['rule'], string> = {
   drop_from_baseline: 'Sudden drop',
   silent: 'Gone quiet',
   wants_to_talk: 'Asked to talk',
+  asked_for_help: 'Asked the assistant for help',
+  safety: 'URGENT: may not be safe',
+  safety_ragging: 'URGENT: reported ragging',
 };
 
 export function ruleLabel(rule: Flag['rule']) {
@@ -54,7 +57,8 @@ function Inbox() {
 
   if (!flags) return <div className="muted">…</div>;
   if (!flags.length) return <div className="card center muted">{t.inboxEmpty}</div>;
-  const open = flags.filter((f) => f.status === 'open');
+  const urgent = (f: Flag) => f.rule.startsWith('safety');
+  const open = flags.filter((f) => f.status === 'open').sort((a, b) => Number(urgent(b)) - Number(urgent(a)));
   const contacted = flags.filter((f) => f.status === 'contacted');
   return (
     <>
@@ -76,7 +80,7 @@ function FlagList({ flags }: { flags: Flag[] }) {
             <span className="item-title">{f.student.name}</span>
             <span className="item-sub">{ruleLabel(f.rule)}{f.area ? ` · ${f.area}` : ''}</span>
           </span>
-          {f.status === 'open' && <span className="badge">new</span>}
+          {f.status === 'open' && <span className="badge">{f.rule.startsWith('safety') ? 'urgent' : 'new'}</span>}
         </a>
       ))}
     </div>

@@ -274,6 +274,22 @@ export function uiLangFor(code: string): UiLang {
   return isUiLang(code) ? code : 'en';
 }
 
+/** English name, e.g. 'Marathi' (for prompts and logs). */
+export function englishLanguageName(code: string): string {
+  return ALL_LANGUAGES.find(([c]) => c === code)?.[1] ?? code;
+}
+
 export function languageName(code: string): string {
   return FEATURED.find((l) => l.code === code)?.name ?? ALL_LANGUAGES.find(([c]) => c === code)?.[1] ?? code;
+}
+
+/**
+ * Languages we translate with Gemini instead of Nexconn. In testing Nexconn garbled Marathi twice
+ * ("ratrilogy"), so Indian languages go through Gemini; other pairs (e.g. zh ↔ en, which Nexconn does
+ * very well) stay on Nexconn. See docs/SPIKES.md C.
+ */
+export const LLM_TRANSLATED = new Set(['hi', 'mr', 'bn', 'ta', 'te', 'kn', 'ml', 'gu', 'pa', 'ur', 'or', 'as', 'ne', 'si']);
+
+export function useLlmTranslation(from: string | undefined, to: string) {
+  return LLM_TRANSLATED.has(to) || (from !== undefined && LLM_TRANSLATED.has(from));
 }

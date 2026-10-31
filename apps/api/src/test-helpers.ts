@@ -36,11 +36,17 @@ export function testClock(start = '2026-11-04T10:00:00Z') {
   return { now: () => t, set: (iso: string) => (t = new Date(iso.length === 10 ? `${iso}T10:00:00Z` : iso)) };
 }
 
-export async function testApp() {
+/** Fake LLM: returns `reply(system, user)`; records calls. */
+export function fakeLlm(reply: (system: string, user: string) => string) {
+  const calls: { system: string; user: string }[] = [];
+  return { calls, llm: { complete: async (p: { system: string; user: string }) => (calls.push(p), reply(p.system, p.user)) } };
+}
+
+export async function testApp(opts: { llm?: { complete: (p: { system: string; user: string }) => Promise<string> } } = {}) {
   const handle = await openDb({ memory: true });
   const fake = fakeChat();
   const clock = testClock();
-  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now });
+  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now, llm: opts.llm ?? null });
   const req = (method: string, path: string, body?: unknown, session?: string) =>
     app.request(path, {
       method,

@@ -139,3 +139,5 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .item-title, .item-sub { display: block; }
 .composer .btn { flex: none; white-space: nowrap; }
 .topbar .btn { white-space: nowrap; }
+.mcard.safety { border-color: var(--hard); background: #fdf1f0; }
+.mcard.safety .t { color: var(--hard); }

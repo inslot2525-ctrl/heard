@@ -20,6 +20,9 @@ export const env = {
   databaseUrl: opt('DATABASE_URL'),
   sessionSecret: opt('SESSION_SECRET'),
   production: process.env.NODE_ENV === 'production',
+  geminiApiKey: opt('GEMINI_API_KEY'),
+  /** Comma-separated model chain, tried in order. Default in src/llm.ts. */
+  geminiModels: opt('GEMINI_MODELS')?.split(',').map((m) => m.trim()).filter(Boolean),
 };
 
 export const nexconnConfigured = Boolean(env.nexconnAppKey && env.nexconnAppSecret);
