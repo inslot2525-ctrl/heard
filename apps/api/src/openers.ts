@@ -4,18 +4,18 @@
 // Hindi and Marathi use respectful, gender-neutral forms (आप / तुम्ही). Get a native speaker to
 // review before the pilot.
 
-import type { PulseArea } from '@heard/shared';
-import type { Lang } from './db/schema.js';
+import { uiLangFor, type PulseArea, type UiLang } from '@heard/shared';
 
-const AREA: Record<Lang, Record<PulseArea, string>> = {
+const AREA: Record<UiLang, Record<PulseArea, string>> = {
   en: { studies: 'studies', money: 'money', health: 'health', home: 'things at home' },
   hi: { studies: 'पढ़ाई', money: 'पैसों', health: 'सेहत', home: 'घर-परिवार' },
   mr: { studies: 'अभ्यास', money: 'पैसे', health: 'आरोग्य', home: 'घर-कुटुंब' },
+  zh: { studies: '学业', money: '经济方面', health: '身体', home: '家里的事' },
 };
 
 type Template = (first: string, area: string) => string;
 
-const TEMPLATES: Record<Lang, Record<'struggling' | 'silent' | 'wants_to_talk', Template>> = {
+const TEMPLATES: Record<UiLang, Record<'struggling' | 'silent' | 'wants_to_talk', Template>> = {
   en: {
     struggling: (n, a) => `Hi ${n}, thanks for doing your weekly check-ins. It looks like ${a} has been hard lately. Could we talk for a few minutes this week? You can just reply here.`,
     silent: (n) => `Hi ${n}, I haven't seen your check-in for a couple of weeks. Just checking that you're doing okay. Reply here whenever you can.`,
@@ -31,20 +31,28 @@ const TEMPLATES: Record<Lang, Record<'struggling' | 'silent' | 'wants_to_talk', 
     silent: (n) => `नमस्कार ${n}, गेल्या दोन आठवड्यांपासून तुमचे चेक-इन दिसले नाही. सगळे ठीक आहे ना, एवढेच विचारायचे होते. वेळ मिळेल तेव्हा इथे उत्तर द्या.`,
     wants_to_talk: (n) => `नमस्कार ${n}, तुम्ही बोलायचे आहे असे सांगितले, हे छान केलेत. या आठवड्यात कोणती वेळ सोयीची आहे? इथेच उत्तर द्या.`,
   },
+  zh: {
+    struggling: (n, a) => `${n}你好，谢谢你每周按时签到。看起来最近${a}有些困难。这周我们能聊几分钟吗？直接在这里回复就可以。`,
+    silent: (n) => `${n}你好，已经两周没看到你的签到了，想问问你一切都还好吗？方便的时候在这里回复我就行。`,
+    wants_to_talk: (n) => `${n}你好，你说想聊一聊，很高兴你提出来。这周什么时间方便？直接在这里回复就可以。`,
+  },
 };
 
-export function draftOpener(rule: string, area: PulseArea | '' | null, studentName: string, mentorLang: Lang) {
+/** Drafts in the mentor's language when we have templates for it; otherwise English. */
+export function draftOpener(rule: string, area: PulseArea | '' | null, studentName: string, mentorLang: string) {
+  const lang = uiLangFor(mentorLang);
   const first = studentName.trim().split(/\s+/)[0] || studentName;
-  const t = TEMPLATES[mentorLang];
+  const t = TEMPLATES[lang];
   if (rule === 'silent') return t.silent(first, '');
   if (rule === 'wants_to_talk') return t.wants_to_talk(first, '');
-  return t.struggling(first, area ? AREA[mentorLang][area] : AREA[mentorLang].studies);
+  return t.struggling(first, area ? AREA[lang][area] : AREA[lang].studies);
 }
 
 // Words a draft or a sent opener must not contain: labels, diagnoses, scores, threats.
 const BANNED = [
   /\b(depress(ed|ion)?|anxiety|disorder|mental(ly)? ill|suicid\w*|at[- ]risk|risk score|diagnos\w*|expel\w*|rusticat\w*)\b/i,
   /(डिप्रेशन|अवसाद|मानसिक रोग|आत्महत्या|निलंबन)/,
+  /(抑郁|焦虑症|精神病|自杀|高风险|开除)/,
 ];
 
 export const OPENER_MAX = 1000;

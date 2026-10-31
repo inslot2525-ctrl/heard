@@ -166,3 +166,19 @@ describe('POST /pulse/rounds', () => {
     expect(f).toMatchObject({ rule: 'silent', week: '2026-W47', studentId: student.user.id });
   });
 });
+
+describe('GET /chats', () => {
+  it('gives a student their mentor, hostel, notices and the assistant', async () => {
+    const list = (await (await t.req('GET', '/chats', undefined, student.session)).json()) as any[];
+    expect(list.map((x) => x.role)).toEqual(['mentor', 'hostel', 'notices', 'assistant']);
+    expect(list[0]).toMatchObject({ kind: 'direct', peerId: mentor.user.id, title: 'Anil Rao' });
+    expect(list.find((x) => x.role === 'notices').canPost).toBe(false);
+    expect(list.some((x) => x.role === 'mentors')).toBe(false);
+  });
+
+  it('gives a mentor their students and the private mentors room', async () => {
+    const list = (await (await t.req('GET', '/chats', undefined, mentor.session)).json()) as any[];
+    expect(list[0]).toMatchObject({ kind: 'direct', peerId: student.user.id, role: 'student', peerLang: 'mr' });
+    expect(list.some((x) => x.role === 'mentors')).toBe(true);
+  });
+});

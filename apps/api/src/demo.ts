@@ -85,6 +85,8 @@ const STEADY_NAMES: [string, string, Lang][] = [
   ['demoriya', 'Riya Das', 'en'],
   ['demosahil', 'Sahil Bhosale', 'mr'],
   ['demoishita', 'Ishita Sen', 'en'],
+  // exchange student: shows chat translation with Chinese
+  ['demolina', 'Li Na', 'zh'],
 ];
 
 /** Small deterministic PRNG so the demo looks the same on every machine. */
@@ -103,13 +105,16 @@ function steadyWeeks(seed: number, n: number): Week[] {
   return Array.from({ length: n }, () => [0, 0, 0, 0].map(() => (r() < 0.75 ? 2 : 1)) as Week);
 }
 
+/** Li Na talks to an English-speaking mentor: Chinese ↔ English is the strongest translation pair. */
+const MENTOR_OVERRIDE: Record<string, string> = { demolina: 'demorao' };
+
 const STEADY: Story[] = STEADY_NAMES.map(([id, name, lang], i) => ({
   id,
   name,
   role: 'student',
   lang,
   hostel: i % 2 === 0 ? 'hostelA' : 'hostelB',
-  mentor: MENTOR_IDS[i % MENTOR_IDS.length],
+  mentor: MENTOR_OVERRIDE[id] ?? MENTOR_IDS[i % MENTOR_IDS.length],
   weeks: steadyWeeks(i + 1, 6),
 }));
 

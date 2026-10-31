@@ -74,10 +74,16 @@ A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it show
 | Sneha Iyer (`demosneha`) | stopped replying two weeks ago | silent |
 | Aman Khan (`demoaman`) | tapped "I'd like to talk" | wants to talk |
 
-Everyone else is steady and never flags (tested).
+Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese, exchange student) talks to Prof. Rao in English: the best showcase of chat translation.
 
 ## Layout
 
 - `apps/api`: Hono on Node. Drizzle ORM (PGlite locally, Postgres via `DATABASE_URL`), join-code login, Nexconn server API client.
-- `apps/web`: React + Vite on the Nexconn web SDK (`@nexconn/chat` 26.2.1). Currently the spike lab.
+- `apps/web`: React + Vite on the Nexconn web SDK (`@nexconn/chat` 26.2.1). Mobile-first screens:
+  - **Welcome:** join with a code (then the one-time login code), log back in with a login code, or pick a demo persona.
+  - **Student:** this week's one-tap check-in card, then chats (mentor, hostel, notices, assistant).
+  - **Mentor:** inbox of flags → flag detail (reason, 6-week bars, the student's words, editable opener, send / resolve / dismiss) and chats with each student.
+  - **Warden:** send this week's check-in round; notices and hostel channels.
+  - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
+  - **Languages:** the full UI is written in English, Hindi, Marathi and Chinese (`src/i18n.ts`; hi/mr/zh need a native speaker's review). Chat works in all **211** languages Nexconn translates (`packages/shared/src/languages.ts`): pick any, and the UI falls back to English while messages are translated. Users can switch language any time (🌐 in the header, `POST /auth/me/lang`). The old spike lab is at `#/lab`.
 - `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).

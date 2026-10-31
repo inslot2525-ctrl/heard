@@ -3,11 +3,12 @@
 //   pnpm --filter @heard/api seed:demo --reset   delete demo pulses/flags first (fresh demo)
 // Uses DATABASE_URL if set, otherwise the local PGlite database.
 
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { addToCampusChat, createJoinCodes, provisionCampus } from '../src/campus.js';
 import { openDb } from '../src/db/client.js';
 import { flags, invites, mentorAssignments, pulses, users } from '../src/db/schema.js';
 import { DEMO_CAMPUS, DEMO_STAFF, DEMO_STUDENTS, demoPulses } from '../src/demo.js';
+import { evaluateStudent } from '../src/flags.js';
 import { env, nexconnConfigured } from '../src/env.js';
 import { newId } from '../src/ids.js';
 import { Nexconn, NexconnError } from '../src/nexconn.js';
@@ -41,7 +42,7 @@ await db
 await db
   .insert(mentorAssignments)
   .values(DEMO_STUDENTS.map((s) => ({ studentId: s.id, mentorId: s.mentor! })))
-  .onConflictDoNothing();
+  .onConflictDoUpdate({ target: mentorAssignments.studentId, set: { mentorId: sql`excluded.mentor_id` } });
 const pulseRows = demoPulses().map((p) => ({ id: newId('p'), ...p, note: p.note ?? null }));
 await db.insert(pulses).values(pulseRows).onConflictDoNothing();
 console.log(`database: ${people.length} demo people, ${pulseRows.length} pulses`);
@@ -59,6 +60,11 @@ if (chat) {
   }
   console.log(`nexconn: ${ok}/${people.length} demo people registered and in the community`);
 }
+
+// Run the rules so mentors' inboxes start with the four story flags (FlagCards go to their chats).
+let flagged = 0;
+for (const s of DEMO_STUDENTS) flagged += (await evaluateStudent(db, chat, s.id)).length;
+console.log(`flags: ${flagged} new`);
 
 const existing = await db.select().from(invites).where(eq(invites.campusId, campusId));
 const hostelName = (dbId: string | null) => DEMO_CAMPUS.hostels.find((h) => hostelDbId(h.id) === dbId)?.name;
