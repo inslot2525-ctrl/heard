@@ -1,35 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useMe } from '../App';
+import { ChevronRight } from 'lucide-react';
 import { api, type Flag } from '../api';
 import { onMessage } from '../chat-client';
 import { useT } from '../i18n';
-import { LanguageSwitch } from './LanguageSwitch';
 import { href } from '../router';
-import { ChatList } from './ChatList';
 
-export function MentorHome({ tab }: { tab: 'inbox' | 'chats' }) {
+export function MentorHome() {
   const t = useT();
-  const { me, logout } = useMe();
   return (
-    <>
-      <header className="topbar">
-        <h1>
-          {me.user.name}
-          <span className="sub">{me.campus.name}</span>
-        </h1>
-        <LanguageSwitch />
-        <button className="btn ghost" onClick={logout}>{t.logOut}</button>
-      </header>
-      <nav className="tabs">
-        <a href={href()} aria-current={tab === 'inbox' ? 'page' : undefined}>{t.inbox}</a>
-        <a href={href('chats')} aria-current={tab === 'chats' ? 'page' : undefined}>{t.chats}</a>
-      </nav>
-      <main className="page">{tab === 'inbox' ? <Inbox /> : <ChatList />}</main>
-    </>
+    <div className="page">
+      <h1 className="page-title">{t.inbox}</h1>
+      <p className="muted" style={{ margin: 0 }}>{t.inboxIntro}</p>
+      <Inbox />
+    </div>
   );
 }
 
-const RULE_LABEL: Record<Flag['rule'], string> = {
+const RULE_LABEL: Record<string, string> = {
   repeat_struggling: 'Struggling two weeks running',
   drop_from_baseline: 'Sudden drop',
   silent: 'Gone quiet',
@@ -37,10 +24,27 @@ const RULE_LABEL: Record<Flag['rule'], string> = {
   asked_for_help: 'Asked the assistant for help',
   safety: 'URGENT: may not be safe',
   safety_ragging: 'URGENT: reported ragging',
+  improved: 'Improved after help',
 };
 
-export function ruleLabel(rule: Flag['rule']) {
+/** Colour family per rule (same idea as the team's earlier evidence-flag colours). */
+const RULE_TONE: Record<string, string> = {
+  repeat_struggling: 'decline',
+  drop_from_baseline: 'sudden',
+  silent: 'missing',
+  wants_to_talk: 'talk',
+  asked_for_help: 'talk',
+  safety: 'urgent',
+  safety_ragging: 'urgent',
+  improved: 'improved',
+};
+
+export function ruleLabel(rule: string) {
   return RULE_LABEL[rule] ?? rule;
+}
+
+export function RulePill({ rule }: { rule: string }) {
+  return <span className={`rule-pill tone-${RULE_TONE[rule] ?? 'talk'}`}>{ruleLabel(rule)}</span>;
 }
 
 function Inbox() {
@@ -62,27 +66,38 @@ function Inbox() {
   const contacted = flags.filter((f) => f.status === 'contacted');
   return (
     <>
-      {open.length > 0 && <div className="section-title">Needs you · {open.length}</div>}
-      {open.length > 0 && <FlagList flags={open} />}
-      {contacted.length > 0 && <div className="section-title">Contacted</div>}
-      {contacted.length > 0 && <FlagList flags={contacted} />}
+      {open.length > 0 && (
+        <div className="section-title">
+          {t.needsYou} · {open.length}
+        </div>
+      )}
+      {open.map((f) => (
+        <EvidenceCard key={f.id} f={f} />
+      ))}
+      {contacted.length > 0 && <div className="section-title">{t.contacted}</div>}
+      {contacted.map((f) => (
+        <EvidenceCard key={f.id} f={f} />
+      ))}
     </>
   );
 }
 
-function FlagList({ flags }: { flags: Flag[] }) {
+/** One flag as an evidence card: who, which rule, the plain reason, their words. */
+function EvidenceCard({ f }: { f: Flag }) {
+  const isUrgent = f.rule.startsWith('safety');
   return (
-    <div className="list">
-      {flags.map((f) => (
-        <a key={f.id} href={href('flag', f.id)}>
-          <span className="avatar" aria-hidden>{f.student.name[0]}</span>
-          <span className="item-main">
-            <span className="item-title">{f.student.name}</span>
-            <span className="item-sub">{ruleLabel(f.rule)}{f.area ? ` · ${f.area}` : ''}</span>
-          </span>
-          {f.status === 'open' && <span className="badge">{f.rule.startsWith('safety') ? 'urgent' : 'new'}</span>}
-        </a>
-      ))}
-    </div>
+    <a className={`card evidence-card${isUrgent ? ' urgent' : ''}`} href={href('flag', f.id)}>
+      <span className="avatar">{f.student.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('')}</span>
+      <span className="item-main">
+        <span className="row" style={{ gap: '0.5rem' }}>
+          <span className="item-title" style={{ display: 'inline' }}>{f.student.name}</span>
+          <RulePill rule={f.rule} />
+          <span className="small muted">{f.week}</span>
+        </span>
+        <span className="evidence-reason">{f.reason}</span>
+        {f.evidence.studentWords && <span className="evidence-words">“{f.evidence.studentWords}”</span>}
+      </span>
+      <ChevronRight size={18} className="muted" aria-hidden />
+    </a>
   );
 }

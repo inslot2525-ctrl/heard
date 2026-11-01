@@ -75,3 +75,14 @@ export function ChatList({ filter }: { filter?: (c: ChatItem) => boolean }) {
     </nav>
   );
 }
+
+/** Chats as a page of its own (sidebar / bottom tab "Chats"). */
+export function ChatsPage() {
+  const t = useT();
+  return (
+    <div className="page">
+      <h1 className="page-title">{t.chats}</h1>
+      <ChatList />
+    </div>
+  );
+}

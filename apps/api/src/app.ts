@@ -8,6 +8,7 @@ import { pulseRoutes } from './routes/pulse.js';
 import { chatRoutes } from './routes/chats.js';
 import { aiRoutes } from './routes/ai.js';
 import { webhookRoutes } from './routes/webhooks.js';
+import { studentRoutes } from './routes/students.js';
 import type { Llm } from './llm.js';
 
 export interface AppDeps {
@@ -37,6 +38,7 @@ export function createApp(deps: AppDeps) {
   app.route('/pulse', pulseRoutes({ ...deps, now }));
   app.route('/flags', flagRoutes(deps));
   app.route('/chats', chatRoutes(deps));
+  app.route('/students', studentRoutes({ ...deps, now }));
   app.route('/webhooks', webhookRoutes({ db: deps.db, chat: deps.chat, nexconn: deps.nexconnWebhook ?? null, now }));
   app.route('/', aiRoutes({ ...deps, llm: deps.llm ?? null, now, fetchImpl: deps.voiceFetch }));
 

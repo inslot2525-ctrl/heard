@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useMe } from '../App';
 import { api } from '../api';
 import { useT } from '../i18n';
-import { LanguageSwitch } from './LanguageSwitch';
 import { ChatList } from './ChatList';
 
 export function WardenHome() {
   const t = useT();
-  const { me, logout } = useMe();
   const [result, setResult] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,16 +21,9 @@ export function WardenHome() {
   }
 
   return (
-    <>
-      <header className="topbar">
-        <h1>
-          {me.user.name}
-          <span className="sub">{me.campus.name}</span>
-        </h1>
-        <LanguageSwitch />
-        <button className="btn ghost" onClick={logout}>{t.logOut}</button>
-      </header>
-      <main className="page">
+    <div className="page">
+      <h1 className="page-title">{t.navOverview}</h1>
+      <div className="grid-2">
         <section className="card">
           <h2>{t.checkInTitle}</h2>
           <p className="hint">{t.sendRoundHint}</p>
@@ -41,10 +31,10 @@ export function WardenHome() {
           {result && <p className="small" role="status">{result}</p>}
         </section>
         <PilotStats />
-        <div className="section-title">{t.chats}</div>
-        <ChatList />
-      </main>
-    </>
+      </div>
+      <div className="section-title">{t.chats}</div>
+      <ChatList />
+    </div>
   );
 }
 

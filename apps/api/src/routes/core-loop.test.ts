@@ -199,3 +199,27 @@ describe('GET /pulse/stats', () => {
     expect((await t.req('GET', '/pulse/stats', undefined, mentor.session)).status).toBe(403);
   });
 });
+
+describe('mentor: students and journey', () => {
+  it('lists my students with their latest check-in and open flags, and shows a journey', async () => {
+    t.clock.set('2026-11-04');
+    await answer(student.session, '2026-W45', moneyBad);
+    t.clock.set('2026-11-11');
+    await answer(student.session, '2026-W46', moneyBad, { note: 'fees are late' });
+    const list = (await (await t.req('GET', '/students', undefined, mentor.session)).json()) as any[];
+    expect(list).toHaveLength(1);
+    expect(list[0]).toMatchObject({ name: 'Priya Patil', hostel: 'Hostel A', latest: { week: '2026-W46', money: 0 }, openFlags: ['repeat_struggling'] });
+    const j = (await (await t.req('GET', `/students/${student.user.id}/journey`, undefined, mentor.session)).json()) as any;
+    expect(j.weeks).toHaveLength(12);
+    expect(j.weeks.at(-1)).toMatchObject({ week: '2026-W46', money: 0, note: 'fees are late' });
+    expect(j.weeks.at(-3).money).toBeNull();
+    expect(j.words).toEqual([{ week: '2026-W46', text: 'fees are late' }]);
+    expect(j.flags[0]).toMatchObject({ rule: 'repeat_struggling', status: 'open' });
+  });
+
+  it('hides other mentors’ students and is mentor-only', async () => {
+    const other = await join('mentor', 'Other Mentor');
+    expect((await t.req('GET', `/students/${student.user.id}/journey`, undefined, other.session)).status).toBe(404);
+    expect((await t.req('GET', '/students', undefined, student.session)).status).toBe(403);
+  });
+});

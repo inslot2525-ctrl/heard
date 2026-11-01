@@ -9,6 +9,9 @@ import { MentorHome } from './screens/MentorHome';
 import { StudentHome } from './screens/StudentHome';
 import { WardenHome } from './screens/WardenHome';
 import { Welcome } from './screens/Welcome';
+import { AppShell } from './AppShell';
+import { ChatsPage } from './screens/ChatList';
+import { StudentScreen, StudentsPage } from './screens/Students';
 import { SpikeLab } from './SpikeLab';
 
 interface MeState {
@@ -57,19 +60,33 @@ export function App() {
   if (!me) return <Welcome onLoggedIn={refresh} initialCode={route[0] === 'join' ? route[1] : undefined} />;
 
   let screen;
+  let wide = false;
   if (route[0] === 'chat') screen = <ChatScreen route={route.slice(1)} />;
   else if (route[0] === 'flag' && route[1]) screen = <FlagScreen flagId={route[1]} />;
+  else if (route[0] === 'chats') screen = <ChatsPage />;
+  else if (route[0] === 'students' && me.user.role === 'mentor') {
+    wide = true;
+    screen = <StudentsPage />;
+  } else if (route[0] === 'student' && route[1] && me.user.role === 'mentor') {
+    wide = true;
+    screen = <StudentScreen id={route[1]} />;
+  }
   else if (me.user.role === 'student') screen = <StudentHome />;
-  else if (me.user.role === 'mentor') screen = <MentorHome tab={route[0] === 'chats' ? 'chats' : 'inbox'} />;
-  else screen = <WardenHome />;
+  else if (me.user.role === 'mentor') {
+    wide = true;
+    screen = <MentorHome />;
+  } else {
+    wide = true;
+    screen = <WardenHome />;
+  }
 
   return (
     <MeContext.Provider value={{ me, refresh, logout }}>
       <LangContext.Provider value={me.user.lang}>
-        <div className="app">
+        <AppShell wide={wide}>
           {chatError && <div className="status error">Chat unavailable: {chatError}</div>}
           {screen}
-        </div>
+        </AppShell>
       </LangContext.Provider>
     </MeContext.Provider>
   );
