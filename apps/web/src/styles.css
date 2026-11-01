@@ -152,3 +152,10 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .bars { display: flex; gap: 0.4rem; align-items: flex-end; height: 5rem; margin-top: 0.4rem; }
 .bars > div { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; font-size: 0.7rem; color: var(--muted); }
 .bars .bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+.bubble.voice { width: 270px; max-width: 100%; }
+.bubble.voice audio { display: block; width: 100%; height: 36px; }
+.transcript { margin-top: 0.35rem; font-style: italic; }
+.composer .rec { background: var(--hard); border-color: var(--hard); }
+.tone { border: 1px solid var(--ok); background: #fdf6e9; border-radius: 12px; padding: 0.75rem; }
+.tone .t { font-weight: 700; margin-bottom: 0.25rem; }
+.tone ul { margin: 0 0 0.4rem; padding-left: 1.1rem; font-size: 0.9rem; }

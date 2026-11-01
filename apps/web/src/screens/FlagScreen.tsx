@@ -5,6 +5,7 @@ import { api, ApiError, type Flag } from '../api';
 import { useT } from '../i18n';
 import { go, href } from '../router';
 import { ruleLabel } from './MentorHome';
+import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
 
 export function FlagScreen({ flagId }: { flagId: string }) {
   const t = useT();
@@ -14,6 +15,19 @@ export function FlagScreen({ flagId }: { flagId: string }) {
   const [dismissing, setDismissing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [tone, setTone] = useState<ToneResult | null>(null);
+
+  /** Opener with Tone Guard: the drafted text was already checked, edits get checked again. */
+  async function sendOpener(skipTone = false) {
+    if (!skipTone && text.trim() !== (flag?.openerDraft ?? '').trim()) {
+      setBusy(true);
+      const r = await checkTone(text.trim());
+      setBusy(false);
+      if (!r.ok) return setTone(r);
+    }
+    setTone(null);
+    await act('opener', { text });
+  }
 
   useEffect(() => {
     api<Flag>(`/flags/${flagId}`).then((f) => {
@@ -98,7 +112,18 @@ export function FlagScreen({ flagId }: { flagId: string }) {
               <textarea id="opener" rows={5} value={text} onChange={(e) => setText(e.target.value)} />
             </div>
             {err && <p className="error" role="alert">{err}</p>}
-            <button className="btn primary block" disabled={busy || !text.trim()} onClick={() => void act('opener', { text })}>
+            {tone && (
+              <TonePanel
+                result={tone}
+                onUse={(sug) => {
+                  setText(sug);
+                  setTone(null);
+                }}
+                onEdit={() => setTone(null)}
+                onSendAnyway={() => void sendOpener(true)}
+              />
+            )}
+            <button className="btn primary block" disabled={busy || !text.trim()} onClick={() => void sendOpener()}>
               {t.sendOpener}
             </button>
           </section>

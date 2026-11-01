@@ -38,15 +38,15 @@ export function testClock(start = '2026-11-04T10:00:00Z') {
 
 /** Fake LLM: returns `reply(system, user)`; records calls. */
 export function fakeLlm(reply: (system: string, user: string) => string) {
-  const calls: { system: string; user: string }[] = [];
-  return { calls, llm: { complete: async (p: { system: string; user: string }) => (calls.push(p), reply(p.system, p.user)) } };
+  const calls: { system: string; user: string; audio?: { mimeType: string; data: string } }[] = [];
+  return { calls, llm: { complete: async (p: { system: string; user: string; audio?: { mimeType: string; data: string } }) => (calls.push(p), reply(p.system, p.user)) } };
 }
 
-export async function testApp(opts: { llm?: { complete: (p: { system: string; user: string }) => Promise<string> } } = {}) {
+export async function testApp(opts: { llm?: { complete: (p: any) => Promise<string> }; voiceFetch?: typeof fetch } = {}) {
   const handle = await openDb({ memory: true });
   const fake = fakeChat();
   const clock = testClock();
-  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now, llm: opts.llm ?? null, nexconnWebhook: { appKey: 'testkey', appSecret: 'testsecret' } });
+  const app = createApp({ db: handle.db, chat: fake.chat, sessionSecret: TEST_SECRET, demoPasscode: TEST_PASSCODE, webOrigin: '*', now: clock.now, llm: opts.llm ?? null, nexconnWebhook: { appKey: 'testkey', appSecret: 'testsecret' }, voiceFetch: opts.voiceFetch });
   const req = (method: string, path: string, body?: unknown, session?: string) =>
     app.request(path, {
       method,

@@ -4,7 +4,7 @@ Two people (Aditya, Om) build this in parallel with Claude Code. Read `docs/MVP-
 
 ## Hard rules
 
-- **No Avlokan Setu or VSS code, data, names, screenshots or wording.** This is a new codebase built during the Nexconn challenge (Oct 23 – Nov 22, 2026).
+- **Avlokan Setu (the team's earlier VSS project):** feature *ideas* may be rebuilt here (Aditya, Nov 1). Never copy its code, data, VSS names, screenshots or wording; Heard has its own data model (weekly check-ins, not monthly registers). Built during the Nexconn challenge (Oct 23 – Nov 22, 2026).
 - **Never commit secrets.** The Nexconn App Secret, DB URLs and LLM keys live in `.env` (gitignored). Update `.env.example` whenever a variable is added. The App Secret is used only by `apps/api`, never by the browser.
 - **No real student data** in the repo, seeds, screenshots or the demo. Pilot data stays in the production DB only.
 - **The AI never messages a student on its own.** Mentor opening lines are drafts that a human sends. Safety detection is a fixed keyword list matched in code, not an LLM.

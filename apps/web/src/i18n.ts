@@ -5,6 +5,17 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  recordVoice: 'Record a voice note',
+  sendVoice: 'send',
+  cancel: 'Cancel',
+  micDenied: 'Microphone not available. Allow it in the browser settings.',
+  transcribing: 'Writing out the voice note…',
+  transcriptUnavailable: 'Transcript not available right now.',
+  toneTitle: 'Before you send: this may read as judgemental',
+  toneSuggestion: 'A kinder way to say it:',
+  toneUse: 'Use this',
+  toneEdit: 'Edit myself',
+  toneSendAnyway: 'Send anyway',
   sendRoundHint: 'Sends every student this week’s one-tap check-in from the Heard Assistant.',
   privacyTitle: 'Before you join',
   privacy1: 'Your check-ins and notes are seen only by your mentor, never by other students.',
@@ -99,6 +110,17 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  recordVoice: 'वॉइस नोट रिकॉर्ड करें',
+  sendVoice: 'भेजें',
+  cancel: 'रद्द करें',
+  micDenied: 'माइक्रोफ़ोन उपलब्ध नहीं है। ब्राउज़र सेटिंग में अनुमति दें।',
+  transcribing: 'वॉइस नोट लिखा जा रहा है…',
+  transcriptUnavailable: 'अभी लिखित रूप उपलब्ध नहीं है।',
+  toneTitle: 'भेजने से पहले: यह आलोचना जैसा लग सकता है',
+  toneSuggestion: 'इसे कहने का नरम तरीका:',
+  toneUse: 'यही भेजें',
+  toneEdit: 'मैं खुद बदलूँगा/बदलूँगी',
+  toneSendAnyway: 'फिर भी भेजें',
   sendRound: 'इस हफ़्ते का चेक-इन भेजें',
   sendRoundHint: 'Heard सहायक हर छात्र को इस हफ़्ते का एक-टैप चेक-इन भेजेगा।',
   roundSent: '{n} छात्रों को भेजा गया',
@@ -177,6 +199,17 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  recordVoice: 'व्हॉइस नोट रेकॉर्ड करा',
+  sendVoice: 'पाठवा',
+  cancel: 'रद्द करा',
+  micDenied: 'मायक्रोफोन उपलब्ध नाही. ब्राउझर सेटिंगमध्ये परवानगी द्या.',
+  transcribing: 'व्हॉइस नोट लिहिली जात आहे…',
+  transcriptUnavailable: 'आत्ता लिखित मजकूर उपलब्ध नाही.',
+  toneTitle: 'पाठवण्यापूर्वी: हे टीका केल्यासारखे वाटू शकते',
+  toneSuggestion: 'हे सांगण्याचा सौम्य मार्ग:',
+  toneUse: 'हेच वापरा',
+  toneEdit: 'मी स्वतः बदलतो/बदलते',
+  toneSendAnyway: 'तरीही पाठवा',
   sendRound: 'या आठवड्याचे चेक-इन पाठवा',
   sendRoundHint: 'Heard सहाय्यक प्रत्येक विद्यार्थ्याला या आठवड्याचे एक-टॅप चेक-इन पाठवेल.',
   roundSent: '{n} विद्यार्थ्यांना पाठवले',
@@ -256,6 +289,17 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  recordVoice: '录制语音消息',
+  sendVoice: '发送',
+  cancel: '取消',
+  micDenied: '无法使用麦克风，请在浏览器设置中允许。',
+  transcribing: '正在转写语音…',
+  transcriptUnavailable: '暂时无法转写。',
+  toneTitle: '发送前提醒：这句话可能显得有批评意味',
+  toneSuggestion: '更温和的说法：',
+  toneUse: '使用这个',
+  toneEdit: '我自己改',
+  toneSendAnyway: '仍然发送',
   sendRoundHint: 'Heard 助手会向每位学生发送本周的一键签到。',
   pilotTitle: '试点进展',
   statStudents: '名学生已加入',
