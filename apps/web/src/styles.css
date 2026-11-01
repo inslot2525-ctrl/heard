@@ -289,3 +289,15 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .g-row span:first-child { color: var(--muted); }
 @media (min-width: 760px) { .promise, .steps { grid-template-columns: repeat(3, 1fr); } }
 .welcome-logo { margin: 1.75rem 0 0.25rem; font-size: 1.6rem; }
+
+/* ---- Ask Heard ------------------------------------------------------------------------------------ */
+.mcard.ask { border-color: #bfd3fe; background: #fff; max-width: 520px; }
+.ask-answer { margin: 0.3rem 0 0.5rem; white-space: pre-wrap; }
+.receipts { border-top: 1px dashed var(--line); padding-top: 0.45rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.receipts .label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 700; }
+.receipt { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; text-decoration: none; border-radius: 8px; padding: 0.15rem 0.4rem; width: fit-content; }
+.receipt.ok { color: var(--good); background: #e7f6ee; }
+.receipt.bad { color: var(--hard); background: #fdecec; }
+.ask-suggest { display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; padding: 0.5rem 0; }
+.chip { border: 1px solid #bfd3fe; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 0.45rem 0.85rem; font-weight: 600; font-size: 0.88rem; cursor: pointer; }
+.chip:hover { background: var(--accent-soft-2); }

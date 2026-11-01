@@ -83,3 +83,19 @@ describe('voice notes', () => {
     expect(await t!.db.select().from(safetyEvents)).toHaveLength(1);
   });
 });
+
+describe('POST /mentor/ask', () => {
+  it('answers from my students only, checks receipts, and sends the card from the bot', async () => {
+    const { fake, mentor, student } = await setup(() =>
+      JSON.stringify({ answer: 'Priya has not checked in yet.', receipts: [{ student: 'Priya Patil', week: '2026-W45', area: 'checkin', value: 'no reply' }, { student: 'Someone Else', week: '2026-W45', area: 'money', value: 'good' }] }),
+    );
+    const r = (await (await t!.req('POST', '/mentor/ask', { text: 'Who has not checked in?' }, mentor.session)).json()) as any;
+    expect(r.answer).toBe('Priya has not checked in yet.');
+    expect(r.receipts.map((x: any) => x.verified)).toEqual([true, false]);
+    expect(fake.calls[0].system).toContain('STUDENT Priya Patil');
+    expect(fake.calls[0].system).toContain('English');
+    const card = t!.calls.find((c) => c.fn === 'sendDirect' && (c.args[0] as any).messageType === 'SA:AskAnswer')!.args[0] as any;
+    expect(card).toMatchObject({ from: 'c1bot', to: [mentor.user.id] });
+    expect((await t!.req('POST', '/mentor/ask', { text: 'hi' }, student.session)).status).toBe(403);
+  });
+});

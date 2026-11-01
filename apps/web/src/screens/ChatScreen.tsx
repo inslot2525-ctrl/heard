@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { HELPLINES, needsTranslation, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
+import { HELPLINES, needsTranslation, type AskAnswer, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
 import { useMe } from '../App';
 import { api, type ChatItem, type Lang } from '../api';
 import { chatKey, connectChat, loadHistory, onMessage, sendText, sendVoice, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
@@ -8,6 +8,7 @@ import { go, href } from '../router';
 import { chatLabels, useChats } from './ChatList';
 import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
 import { VoiceBubble, VoiceButton } from './Voice';
+import { AskCard, AskSuggestions } from './AskCard';
 
 type Person = { id: string; name: string; role: string; lang: Lang };
 
@@ -94,6 +95,11 @@ export function ChatScreen({ route }: { route: string[] }) {
       const body = text.trim();
       setText('');
       setMessages((list) => [...(list ?? []), sent]);
+      if (me.user.role === 'mentor' && item.kind === 'direct' && item.role === 'assistant') {
+        // Ask Heard: the answer arrives here from the bot as an SA:AskAnswer card.
+        setThinking(true);
+        api('/mentor/ask', { body: { text: body } }).catch(() => undefined).finally(() => setThinking(false));
+      }
       if (me.user.role === 'student') {
         if (item.kind === 'direct' && item.role === 'assistant') {
           // The answer arrives in this chat from the bot, through Nexconn.
@@ -140,7 +146,10 @@ export function ChatScreen({ route }: { route: string[] }) {
       </header>
       <div className="messages" aria-live="polite">
         {messages === null && <div className="status">{t.connecting}</div>}
-        {messages?.length === 0 && <div className="status">{t.noMessages}</div>}
+        {messages?.length === 0 && !(me.user.role === 'mentor' && item.role === 'assistant') && <div className="status">{t.noMessages}</div>}
+        {me.user.role === 'mentor' && item.kind === 'direct' && item.role === 'assistant' && messages !== null && !messages.some((m) => m.mine) && (
+          <AskSuggestions onPick={(q) => setText(q)} />
+        )}
         {messages?.map((m) => (
           <MessageView key={m.id} m={m} sender={people[m.from]} showSender={item.kind === 'community'} myLang={me.user.lang} />
         ))}
@@ -212,6 +221,8 @@ function Body({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: 
       return <PulseRespView r={m.content as PulseResponse} />;
     case 'SA:FlagCard':
       return <FlagCardView f={m.content as FlagCard} />;
+    case 'SA:AskAnswer':
+      return <AskCard a={m.content as AskAnswer} />;
     case 'SA:SafetyCard':
       return <SafetyCardView c={m.content as SafetyCard} />;
     default:

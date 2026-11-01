@@ -22,7 +22,8 @@ const ICON: Record<ChatItem['role'], string> = {
 export function chatLabels(c: ChatItem, t: Strings): { title: string; subtitle?: string } {
   switch (c.role) {
     case 'mentor': return { title: c.title, subtitle: t.yourMentor };
-    case 'assistant': return { title: t.assistantTitle, subtitle: t.assistantSub };
+    case 'assistant':
+      return c.title === 'Ask Heard' ? { title: t.askHeard, subtitle: t.askHeardSub } : { title: t.assistantTitle, subtitle: t.assistantSub };
     case 'notices': return { title: t.noticesTitle };
     case 'mentors': return { title: t.mentorsRoom, subtitle: t.mentorsRoomSub };
     default: return { title: c.title, subtitle: c.subtitle };

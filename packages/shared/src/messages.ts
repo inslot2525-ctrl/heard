@@ -7,6 +7,7 @@ export const MSG = {
   FlagCard: 'SA:FlagCard',
   Notice: 'SA:Notice',
   SafetyCard: 'SA:SafetyCard',
+  AskAnswer: 'SA:AskAnswer',
 } as const;
 
 export type MsgObjectName = (typeof MSG)[keyof typeof MSG];
@@ -71,3 +72,21 @@ export const HELPLINES: SafetyCard['helplines'] = [
 
 /** Bump when the privacy notice text changes (apps/web/src/i18n.ts privacy* strings, docs/pilot/PRIVACY.md). */
 export const PRIVACY_NOTICE_VERSION = '2026-11-01';
+
+/** One claim's evidence in an Ask Heard answer; `verified` is set by code, not by the model. */
+export interface AskReceipt {
+  student: string;
+  studentId: string | null;
+  week: string;
+  area: string;
+  value: string;
+  verified: boolean;
+}
+
+/** Ask Heard's reply to a mentor, sent by the campus bot. */
+export interface AskAnswer {
+  question: string;
+  answer: string;
+  receipts: AskReceipt[];
+  unavailable?: boolean;
+}

@@ -5,6 +5,14 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  askHeard: 'Ask Heard',
+  askHeardSub: 'Questions about your students',
+  askTry: 'Try asking:',
+  askQ1: 'Who hasn’t checked in this week?',
+  askQ2: 'Who has been struggling with money?',
+  askQ3: 'Which students asked to talk?',
+  receipts: 'Receipts (checked against the records)',
+  receiptUnverified: 'not found in the records',
   searchStudents: 'Search students',
   weeksAnswered: 'weeks answered',
   noWordsYet: 'No notes yet. When they write something with a check-in, it shows here.',
@@ -128,6 +136,14 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  askHeard: 'Heard से पूछें',
+  askHeardSub: 'अपने छात्रों के बारे में सवाल',
+  askTry: 'ऐसे पूछें:',
+  askQ1: 'इस हफ़्ते किसने चेक-इन नहीं किया?',
+  askQ2: 'किसे पैसों की दिक्कत रही है?',
+  askQ3: 'किन छात्रों ने बात करने को कहा?',
+  receipts: 'प्रमाण (रिकॉर्ड से मिलाए गए)',
+  receiptUnverified: 'रिकॉर्ड में नहीं मिला',
   searchStudents: 'छात्र खोजें',
   weeksAnswered: 'हफ़्ते जवाब दिए',
   evidenceFlags: 'प्रमाण सहित संकेत',
@@ -234,6 +250,14 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  askHeard: 'Heard ला विचारा',
+  askHeardSub: 'तुमच्या विद्यार्थ्यांबद्दल प्रश्न',
+  askTry: 'असे विचारा:',
+  askQ1: 'या आठवड्यात कोणी चेक-इन केले नाही?',
+  askQ2: 'कोणाला पैशांची अडचण आहे?',
+  askQ3: 'कोणत्या विद्यार्थ्यांनी बोलायचे आहे असे सांगितले?',
+  receipts: 'पुरावे (नोंदींशी तपासलेले)',
+  receiptUnverified: 'नोंदींमध्ये सापडले नाही',
   searchStudents: 'विद्यार्थी शोधा',
   weeksAnswered: 'आठवडे उत्तर दिले',
   evidenceFlags: 'पुराव्यासह संकेत',
@@ -341,6 +365,14 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  askHeard: '问问 Heard',
+  askHeardSub: '关于你的学生的问题',
+  askTry: '可以这样问：',
+  askQ1: '这周谁还没签到？',
+  askQ2: '谁最近经济上有困难？',
+  askQ3: '哪些学生想聊一聊？',
+  receipts: '依据（已与记录核对）',
+  receiptUnverified: '记录中未找到',
   searchStudents: '搜索学生',
   weeksAnswered: '周已签到',
   evidenceFlags: '证据提示',

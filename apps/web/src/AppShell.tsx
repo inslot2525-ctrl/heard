@@ -33,7 +33,8 @@ function useNav(): NavItem[] {
     return [
       { key: 'inbox', label: t.inbox, icon: Inbox, to: href(), match: (r) => r.length === 0 || r[0] === 'flag' },
       { key: 'students', label: t.students, icon: Users, to: href('students'), match: (r) => r[0] === 'students' || r[0] === 'student' },
-      { key: 'chats', label: t.chats, icon: MessageCircle, to: href('chats'), match: (r) => r[0] === 'chats' || r[0] === 'chat' },
+      { key: 'chats', label: t.chats, icon: MessageCircle, to: href('chats'), match: (r) => r[0] === 'chats' || (r[0] === 'chat' && r[2] !== `${campus}bot`) },
+      { key: 'ask', label: t.askHeard, icon: Sparkles, to: href('chat', 'direct', `${campus}bot`), match: (r) => r[0] === 'chat' && r[2] === `${campus}bot` },
     ];
   }
   return [
