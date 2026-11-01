@@ -20,9 +20,10 @@ export interface FactSheet {
   students: { id: string; name: string }[];
 }
 
-export async function buildFactSheet(db: Db, mentorId: string, now: Date): Promise<FactSheet> {
+/** `onlyStudentId`: build the sheet for one of the mentor's students (meeting card). */
+export async function buildFactSheet(db: Db, mentorId: string, now: Date, onlyStudentId?: string): Promise<FactSheet> {
   const assigned = await db.select({ id: mentorAssignments.studentId }).from(mentorAssignments).where(eq(mentorAssignments.mentorId, mentorId));
-  const ids = assigned.map((a) => a.id);
+  const ids = assigned.map((a) => a.id).filter((id) => !onlyStudentId || id === onlyStudentId);
   const facts = new Map<string, string>();
   if (!ids.length) return { text: '(no students yet)', facts, students: [] };
   const people = await db.select({ id: users.id, name: users.name }).from(users).where(inArray(users.id, ids));

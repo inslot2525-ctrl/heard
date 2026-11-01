@@ -99,3 +99,18 @@ describe('POST /mentor/ask', () => {
     expect((await t!.req('POST', '/mentor/ask', { text: 'hi' }, student.session)).status).toBe(403);
   });
 });
+
+describe('POST /mentor/meeting-card', () => {
+  it('builds a card for my own flag only', async () => {
+    const { mentor, student } = await setup(() =>
+      JSON.stringify({ strengths: [], changes: [], questions: ['What would help most right now?'], avoid: ['Lecturing'] }),
+    );
+    t!.clock.set('2026-11-04');
+    await t!.req('POST', '/pulse', { week: '2026-W45', levels: { studies: 2, money: 2, health: 2, home: 2 }, wantsToTalk: true }, student.session);
+    const flag = ((await (await t!.req('GET', '/flags', undefined, mentor.session)).json()) as any[])[0];
+    const card = (await (await t!.req('POST', '/mentor/meeting-card', { flagId: flag.id }, mentor.session)).json()) as any;
+    expect(card).toMatchObject({ student: 'Priya Patil', questions: ['What would help most right now?'], avoid: ['Lecturing'] });
+    expect((await t!.req('POST', '/mentor/meeting-card', { flagId: 'nope' }, mentor.session)).status).toBe(404);
+    expect((await t!.req('POST', '/mentor/meeting-card', { flagId: flag.id }, student.session)).status).toBe(403);
+  });
+});

@@ -5,6 +5,17 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  prepareTalk: 'Prepare for the talk',
+  preparing: 'Preparing…',
+  meetingTitle: 'Before you talk',
+  meetingStrengths: 'Start with what’s going well',
+  meetingChanges: 'What changed',
+  meetingQuestions: 'Questions you could ask',
+  meetingAvoid: 'Try not to',
+  meetingFootnote: 'Every fact above was checked against their check-ins.',
+  meetingRemoved: '{n} point(s) that didn’t match the records were removed.',
+  meetingUnavailable: 'The brief isn’t available right now. The evidence above is all you need.',
+  print: 'Print',
   askHeard: 'Ask Heard',
   askHeardSub: 'Questions about your students',
   askTry: 'Try asking:',
@@ -136,6 +147,15 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  prepareTalk: 'बातचीत की तैयारी',
+  preparing: 'तैयार हो रहा है…',
+  meetingTitle: 'बात करने से पहले',
+  meetingStrengths: 'जो अच्छा चल रहा है, वहाँ से शुरू करें',
+  meetingChanges: 'क्या बदला',
+  meetingQuestions: 'आप ये पूछ सकते हैं',
+  meetingAvoid: 'ये न करें',
+  meetingFootnote: 'ऊपर का हर तथ्य उनके चेक-इन से मिलाया गया है।',
+  print: 'प्रिंट',
   askHeard: 'Heard से पूछें',
   askHeardSub: 'अपने छात्रों के बारे में सवाल',
   askTry: 'ऐसे पूछें:',
@@ -250,6 +270,15 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  prepareTalk: 'बोलण्याची तयारी',
+  preparing: 'तयार होत आहे…',
+  meetingTitle: 'बोलण्यापूर्वी',
+  meetingStrengths: 'जे चांगले चालले आहे तिथून सुरुवात करा',
+  meetingChanges: 'काय बदलले',
+  meetingQuestions: 'तुम्ही हे विचारू शकता',
+  meetingAvoid: 'हे टाळा',
+  meetingFootnote: 'वरील प्रत्येक तथ्य त्यांच्या चेक-इनशी तपासले आहे.',
+  print: 'प्रिंट',
   askHeard: 'Heard ला विचारा',
   askHeardSub: 'तुमच्या विद्यार्थ्यांबद्दल प्रश्न',
   askTry: 'असे विचारा:',
@@ -365,6 +394,15 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  prepareTalk: '准备谈话',
+  preparing: '准备中…',
+  meetingTitle: '谈话之前',
+  meetingStrengths: '先从做得好的地方说起',
+  meetingChanges: '最近的变化',
+  meetingQuestions: '可以问的问题',
+  meetingAvoid: '尽量避免',
+  meetingFootnote: '以上每条事实都已与签到记录核对。',
+  print: '打印',
   askHeard: '问问 Heard',
   askHeardSub: '关于你的学生的问题',
   askTry: '可以这样问：',

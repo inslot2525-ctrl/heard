@@ -301,3 +301,17 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .ask-suggest { display: flex; flex-direction: column; align-items: flex-start; gap: 0.45rem; padding: 0.5rem 0; }
 .chip { border: 1px solid #bfd3fe; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 0.45rem 0.85rem; font-weight: 600; font-size: 0.88rem; cursor: pointer; }
 .chip:hover { background: var(--accent-soft-2); }
+
+/* ---- meeting card ------------------------------------------------------------------------------- */
+.meeting h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0.9rem 0 0.3rem; }
+.m-points { margin: 0; padding-left: 1.1rem; }
+.m-points li { margin: 0.3rem 0; }
+.m-receipts { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+.m-receipts .receipt { font-size: 0.72rem; }
+@media print {
+  .sidebar, .appbar, .bottom-nav, .no-print { display: none !important; }
+  .shell { display: block; }
+  body { background: #fff; }
+  body.print-meeting .topbar, body.print-meeting .page > :not(.meeting) { display: none !important; }
+  body.print-meeting .meeting { border: 0; box-shadow: none; }
+}

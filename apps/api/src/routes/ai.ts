@@ -11,6 +11,9 @@ import { rateLimit } from '../rate-limit.js';
 import { checkAndAlert } from '../safety.js';
 import { checkTone } from '../tone.js';
 import { askHeard, buildFactSheet } from '../ask.js';
+import { meetingCard } from '../meeting.js';
+import { flags as flagsTable } from '../db/schema.js';
+import { and } from 'drizzle-orm';
 import { botIdFor } from '../campus.js';
 import { MSG } from '@heard/shared';
 import { NexconnError } from '../nexconn.js';
@@ -120,6 +123,21 @@ export function aiRoutes({ db, chat, llm, sessionSecret, now, voiceHosts = DEFAU
       }
     }
     return c.json(answer);
+  });
+
+  /** Mentor: meeting card for one of my flags. Body: { flagId } → MeetingCard (fact-checked). */
+  r.post('/mentor/meeting-card', requireRole('mentor'), async (c) => {
+    const { flagId } = (await c.req.json().catch(() => ({}))) as { flagId?: string };
+    const { sub } = c.get('session');
+    const [row] = await db
+      .select({ flag: flagsTable, name: users.name })
+      .from(flagsTable)
+      .innerJoin(users, eq(users.id, flagsTable.studentId))
+      .where(and(eq(flagsTable.id, flagId ?? ''), eq(flagsTable.mentorId, sub)));
+    if (!row) return c.json({ error: 'not_found' }, 404);
+    const [me] = await db.select({ lang: users.lang }).from(users).where(eq(users.id, sub));
+    const sheet = await buildFactSheet(db, sub, now(), row.flag.studentId);
+    return c.json(await meetingCard(llm, sheet, row.name, row.flag.reason, me?.lang ?? 'en'));
   });
 
   /** Mentor/warden: check a message's tone before sending. Body: { text } → ToneResult */
