@@ -252,3 +252,40 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .status-resolved { color: var(--good); }
 @media (min-width: 700px) { .charts { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1100px) { .journey { grid-template-columns: 1fr 320px; align-items: start; } }
+
+/* ---- landing ------------------------------------------------------------------------------------ */
+.landing { background: #fff; }
+.hero { background: linear-gradient(180deg, #1d4ed8 0%, #3b6ff5 55%, #bfd3fe 100%); color: #fff; padding: 1.25rem 1rem 3.5rem; }
+.hero-nav { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; background: #fff; border-radius: 999px; padding: 0.5rem 0.6rem 0.5rem 1.1rem; box-shadow: 0 6px 24px rgb(15 23 42 / 0.12); }
+.nav-link { color: #334155; text-decoration: none; font-weight: 550; font-size: 0.92rem; }
+.hero-body { max-width: 900px; margin: 0 auto; text-align: center; padding-top: 3rem; }
+.hero-badge { display: inline-block; background: rgb(255 255 255 / 0.16); border: 1px solid rgb(255 255 255 / 0.3); border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.85rem; font-weight: 600; }
+.hero h1 { font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 1.05; letter-spacing: -0.04em; font-weight: 800; margin: 1.2rem 0 1rem; }
+.hero-body > p { font-size: 1.12rem; max-width: 640px; margin: 0 auto; color: rgb(255 255 255 / 0.92); }
+.hero-cta { justify-content: center; margin-top: 1.75rem; }
+.btn.white { background: #fff; color: var(--accent); border-color: #fff; }
+.btn.outline-white { background: transparent; color: #fff; border-color: rgb(255 255 255 / 0.7); }
+.btn.outline-white:hover { background: rgb(255 255 255 / 0.12); }
+.promise { display: grid; grid-template-columns: 1fr; gap: 0.9rem; margin-top: 2.75rem; }
+.promise > div { background: rgb(255 255 255 / 0.94); color: var(--ink); border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; box-shadow: 0 6px 24px rgb(15 23 42 / 0.1); }
+.promise b { color: var(--accent); font-size: 1.05rem; }
+.promise svg { color: var(--accent); }
+.promise span { color: var(--muted); font-size: 0.9rem; }
+.landing-section { max-width: 1120px; margin: 0 auto; padding: 3.5rem 1rem 1rem; text-align: center; }
+.landing-section h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: -0.03em; font-weight: 800; margin: 0.8rem 0 1.8rem; }
+.section-badge { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #334155; }
+.steps { display: grid; grid-template-columns: 1fr; gap: 1rem; text-align: left; }
+.step { position: relative; padding: 1.4rem; }
+.step-n { position: absolute; top: 1rem; right: 1.1rem; font-weight: 800; font-size: 1.6rem; color: var(--accent-soft-2); }
+.step-icon { color: var(--accent); }
+.step h3 { margin: 0.6rem 0 0.35rem; font-size: 1.08rem; }
+.step p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.guardrails { padding: 0; overflow: hidden; text-align: left; }
+.g-head, .g-row { display: grid; grid-template-columns: 1fr 1.3fr; gap: 1rem; padding: 0.8rem 1.2rem; }
+.g-head { background: var(--bg); font-weight: 700; font-size: 0.85rem; }
+.g-head span:first-child { color: var(--hard); }
+.g-head span:last-child { color: var(--good); }
+.g-row { border-top: 1px solid var(--line); font-size: 0.95rem; }
+.g-row span:first-child { color: var(--muted); }
+@media (min-width: 760px) { .promise, .steps { grid-template-columns: repeat(3, 1fr); } }
+.welcome-logo { margin: 1.75rem 0 0.25rem; font-size: 1.6rem; }

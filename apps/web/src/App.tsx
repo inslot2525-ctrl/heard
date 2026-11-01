@@ -10,6 +10,7 @@ import { StudentHome } from './screens/StudentHome';
 import { WardenHome } from './screens/WardenHome';
 import { Welcome } from './screens/Welcome';
 import { AppShell } from './AppShell';
+import { Landing } from './screens/Landing';
 import { ChatsPage } from './screens/ChatList';
 import { StudentScreen, StudentsPage } from './screens/Students';
 import { SpikeLab } from './SpikeLab';
@@ -57,7 +58,11 @@ export function App() {
 
   if (route[0] === 'lab') return <SpikeLab />;
   if (loading) return <div className="app"><div className="page center muted">…</div></div>;
-  if (!me) return <Welcome onLoggedIn={refresh} initialCode={route[0] === 'join' ? route[1] : undefined} />;
+  if (!me) {
+    // Landing for visitors; #/start opens the app (join / log in / demo); join links skip the landing.
+    if (route.length === 0) return <Landing />;
+    return <Welcome onLoggedIn={refresh} initialCode={route[0] === 'join' ? route[1] : undefined} initialMode={route[1] === 'demo' ? 'demo' : undefined} />;
+  }
 
   let screen;
   let wide = false;
