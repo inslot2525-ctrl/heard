@@ -5,7 +5,8 @@ import { LanguagePicker } from '../LanguagePicker';
 
 type Mode = 'join' | 'login' | 'demo';
 
-export function Welcome({ onLoggedIn }: { onLoggedIn: () => Promise<void> }) {
+/** initialCode: from a join link or QR poster, #/join/GODAV-7K2M */
+export function Welcome({ onLoggedIn, initialCode }: { onLoggedIn: () => Promise<void>; initialCode?: string }) {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('heard.lang') as Lang) || 'en');
   const [mode, setMode] = useState<Mode>('join');
   const [newCode, setNewCode] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export function Welcome({ onLoggedIn }: { onLoggedIn: () => Promise<void> }) {
             <p className="tagline">{t.appTagline}</p>
           </div>
           <LanguagePicker value={lang} onChange={setLang} />
-          {mode === 'join' && <JoinForm lang={lang} onJoined={setNewCode} />}
+          {mode === 'join' && <JoinForm lang={lang} onJoined={setNewCode} initialCode={initialCode} />}
           {mode === 'login' && <LoginForm lang={lang} onDone={onLoggedIn} />}
           {mode === 'demo' && <DemoForm lang={lang} onDone={onLoggedIn} />}
           <div className="row" style={{ justifyContent: 'center' }}>
@@ -50,9 +51,10 @@ function errorText(e: unknown, lang: Lang) {
   return t.error;
 }
 
-function JoinForm({ lang, onJoined }: { lang: Lang; onJoined: (loginCode: string) => void }) {
+function JoinForm({ lang, onJoined, initialCode }: { lang: Lang; onJoined: (loginCode: string) => void; initialCode?: string }) {
   const t = strings(lang);
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(initialCode ?? '');
+  const [agreed, setAgreed] = useState(false);
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -62,7 +64,7 @@ function JoinForm({ lang, onJoined }: { lang: Lang; onJoined: (loginCode: string
     setBusy(true);
     setErr(null);
     try {
-      const r = await api<{ session: string; user: User; loginCode: string }>('/auth/join', { body: { code, name, lang } });
+      const r = await api<{ session: string; user: User; loginCode: string }>('/auth/join', { body: { code, name, lang, acceptedPrivacy: agreed } });
       session.set(r.session);
       onJoined(r.loginCode);
     } catch (e) {
@@ -84,8 +86,20 @@ function JoinForm({ lang, onJoined }: { lang: Lang; onJoined: (loginCode: string
         <label htmlFor="name">{t.yourName}</label>
         <input id="name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
       </div>
+      <div className="privacy" aria-labelledby="privacy-title">
+        <div id="privacy-title" className="t">{t.privacyTitle}</div>
+        <ul>
+          {[t.privacy1, t.privacy2, t.privacy3, t.privacy4, t.privacy5].map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+        <label className="check">
+          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} required />
+          {t.privacyAgree}
+        </label>
+      </div>
       {err && <p className="error" role="alert">{err}</p>}
-      <button className="btn primary block" disabled={busy}>{busy ? t.sending : t.join}</button>
+      <button className="btn primary block" disabled={busy || !agreed}>{busy ? t.sending : t.join}</button>
     </form>
   );
 }

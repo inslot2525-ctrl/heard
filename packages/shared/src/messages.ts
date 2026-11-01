@@ -68,3 +68,6 @@ export const HELPLINES: SafetyCard['helplines'] = [
   { name: 'Tele-MANAS toll-free', number: '1-800-891-4416' },
   { name: 'Emergency', number: '112' },
 ];
+
+/** Bump when the privacy notice text changes (apps/web/src/i18n.ts privacy* strings, docs/pilot/PRIVACY.md). */
+export const PRIVACY_NOTICE_VERSION = '2026-11-01';

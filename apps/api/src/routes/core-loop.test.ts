@@ -16,7 +16,7 @@ const good = { studies: 2, money: 2, health: 2, home: 2 };
 const moneyBad = { ...good, money: 0 };
 
 async function join(role: string, name: string, lang = 'en') {
-  const res = await t.req('POST', '/auth/join', { code: code(role), name, lang });
+  const res = await t.req('POST', '/auth/join', { acceptedPrivacy: true,  code: code(role), name, lang });
   return (await res.json()) as { session: string; user: { id: string } };
 }
 async function answer(session: string, week: string, levels: object, extra: object = {}) {
@@ -180,5 +180,22 @@ describe('GET /chats', () => {
     const list = (await (await t.req('GET', '/chats', undefined, mentor.session)).json()) as any[];
     expect(list[0]).toMatchObject({ kind: 'direct', peerId: student.user.id, role: 'student', peerLang: 'mr' });
     expect(list.some((x) => x.role === 'mentors')).toBe(true);
+  });
+});
+
+describe('GET /pulse/stats', () => {
+  it('gives the warden counts (and nothing personal); others are refused', async () => {
+    const warden = (await (await t.req('POST', '/auth/join', { acceptedPrivacy: true, code: code('warden'), name: 'Sunita', lang: 'mr' })).json()) as any;
+    t.clock.set('2026-11-04');
+    await answer(student.session, '2026-W45', moneyBad);
+    t.clock.set('2026-11-11');
+    await answer(student.session, '2026-W46', moneyBad);
+    const [f] = await t.db.select().from(flags);
+    await t.req('POST', `/flags/${f.id}/opener`, { text: 'Shall we talk?' }, mentor.session);
+    const stats = (await (await t.req('GET', '/pulse/stats', undefined, warden.session)).json()) as any;
+    expect(stats).toMatchObject({ students: 1, mentors: 1, wardens: 1, conversationsStarted: 1, safetyAlerts: 0, flags: { contacted: 1 } });
+    expect(stats.checkIns.map((w: any) => w.answered)).toEqual([0, 0, 1, 1]);
+    expect(JSON.stringify(stats)).not.toContain('Priya');
+    expect((await t.req('GET', '/pulse/stats', undefined, mentor.session)).status).toBe(403);
   });
 });

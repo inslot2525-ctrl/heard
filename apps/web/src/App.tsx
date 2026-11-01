@@ -54,7 +54,7 @@ export function App() {
 
   if (route[0] === 'lab') return <SpikeLab />;
   if (loading) return <div className="app"><div className="page center muted">…</div></div>;
-  if (!me) return <Welcome onLoggedIn={refresh} />;
+  if (!me) return <Welcome onLoggedIn={refresh} initialCode={route[0] === 'join' ? route[1] : undefined} />;
 
   let screen;
   if (route[0] === 'chat') screen = <ChatScreen route={route.slice(1)} />;

@@ -13,6 +13,7 @@ Today is Sat Oct 31, 2026. **Internal deadline: Sun Nov 22, 21:00 IST.** The har
 - **Oct 31 (later):** core loop done ahead of Nov 10–12: personal login codes, weekly rounds, `POST /pulse`, flags engine, mentor inbox API with opener drafts (templates in en/hi/mr; LLM drafts later). Verified live on Nexconn: answer → flag card to mentor → opener reaches student.
 - **Oct 31 (night):** first version of all screens (welcome, student home + check-in, chat with cards and translation, mentor inbox + flag detail, warden home), checked in the browser with the demo campus. Om takes these over for polish when he's back. Found: Nexconn translation garbles Marathi; switching mr/hi to Gemini.
 - **Oct 31 (late):** Gemini in: Indian-language translation (fixes Marathi), the Heard Assistant answering from the handbook with hand-off to mentors, and the safety path (keywords in 4 languages → helplines, urgent flag, warden alert). All verified live in the browser.
+- **Oct 31–Nov 1:** deployed (Render + Neon, Singapore), Nexconn webhooks live, pilot kit: join links + QR posters (`campus posters`), privacy notice + consent at join, warden pilot stats, `campus create/users/forget` (deletion incl. Nexconn soft-delete), guides in docs/pilot. Next: warden permission and the real handbook (people), then the pilot from Nov 12.
 
 ## Who owns what
 

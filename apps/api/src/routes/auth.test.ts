@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createJoinCodes, provisionCampus } from '../campus.js';
-import { invites, mentorAssignments, users } from '../db/schema.js';
+import { PRIVACY_NOTICE_VERSION } from '@heard/shared';
+import { consents, invites, mentorAssignments, users } from '../db/schema.js';
 import { testApp, TEST_PASSCODE } from '../test-helpers.js';
 
 let t: Awaited<ReturnType<typeof testApp>>;
@@ -17,7 +18,7 @@ beforeEach(async () => {
 afterEach(() => t.close());
 
 async function join(c: string, name = 'Priya', lang = 'mr') {
-  const res = await t.req('POST', '/auth/join', { code: c, name, lang });
+  const res = await t.req('POST', '/auth/join', { acceptedPrivacy: true,  code: c, name, lang });
   return { status: res.status, body: (await res.json()) as any };
 }
 
@@ -144,5 +145,16 @@ describe('languages', () => {
     const res = await t.req('POST', '/auth/me/lang', { lang: 'zh' }, j.body.session);
     expect(((await res.json()) as any).user.lang).toBe('zh');
     expect((await t.req('POST', '/auth/me/lang', { lang: 'klingon' }, j.body.session)).status).toBe(400);
+  });
+});
+
+describe('privacy notice', () => {
+  it('refuses to join without accepting it, and records the accepted version', async () => {
+    const refused = await t.req('POST', '/auth/join', { code: code('student'), name: 'Priya', lang: 'mr' });
+    expect(refused.status).toBe(400);
+    expect(((await refused.json()) as any).error).toBe('privacy_not_accepted');
+    const ok = await join(code('student'), 'Priya');
+    const [c] = await t.db.select().from(consents).where(eq(consents.studentId, ok.body.user.id));
+    expect(c).toMatchObject({ kind: 'privacy_notice', granted: true, version: PRIVACY_NOTICE_VERSION });
   });
 });

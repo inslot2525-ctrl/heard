@@ -15,7 +15,7 @@ beforeEach(async () => {
   await provisionCampus(t.db, t.chat, { id: 'c1', name: 'Campus', hostels: [{ id: 'hA', name: 'Hostel A' }] });
   const codes = await createJoinCodes(t.db, 'c1');
   const join = async (role: string, name: string) =>
-    (await (await t.req('POST', '/auth/join', { code: codes.find((c) => c.role === role)!.code, name, lang: 'en' })).json()) as typeof student;
+    (await (await t.req('POST', '/auth/join', { acceptedPrivacy: true,  code: codes.find((c) => c.role === role)!.code, name, lang: 'en' })).json()) as typeof student;
   mentor = await join('mentor', 'Anil Rao');
   student = await join('student', 'Priya Patil');
   t.calls.length = 0;
