@@ -174,6 +174,13 @@ export async function sendVoice(c: ChatItem, file: File): Promise<ChatMessage | 
   return r.isOk && r.data ? toChatMessage(r.data, me) : null;
 }
 
+/** Clear this chat's history for the signed-in user only (Nexconn keeps it for the other person). */
+export async function clearChatForMe(c: ChatItem): Promise<boolean> {
+  const channel = c.kind === 'direct' ? new DirectChannel(c.peerId) : new CommunitySubChannel(c.channelId, c.subChannelId);
+  const r = await channel.deleteMessagesForMeByTimestamp({ timestamp: Date.now() });
+  return r.code === 0;
+}
+
 export async function disconnectChat() {
   try {
     await NCEngine.disconnect();
