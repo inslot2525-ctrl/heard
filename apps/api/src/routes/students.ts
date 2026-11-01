@@ -5,7 +5,9 @@ import { lastWeeks } from '@heard/shared';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Db } from '../db/client.js';
-import { flags, hostels, mentorAssignments, pulses, users } from '../db/schema.js';
+import { flags, hostels, INTERVENTION_KINDS, interventions, mentorAssignments, pulses, users, type InterventionKind } from '../db/schema.js';
+import { isoWeek } from '@heard/shared';
+import { newId } from '../ids.js';
 import { requireSession, type AuthVars } from '../session.js';
 import { requireRole } from '../session-guards.js';
 
@@ -66,13 +68,34 @@ export function studentRoutes({ db, sessionSecret, now }: { db: Db; sessionSecre
         : { week, studies: null, money: null, health: null, home: null, note: null, wantsToTalk: false };
     });
     const flagRows = await db.select().from(flags).where(eq(flags.studentId, id)).orderBy(desc(flags.createdAt));
+    const helps = await db.select().from(interventions).where(eq(interventions.studentId, id)).orderBy(desc(interventions.createdAt));
     return c.json({
       student,
       weeks: series,
       flags: flagRows.map((f) => ({ id: f.id, rule: f.rule, area: f.area, week: f.week, reason: f.reason, status: f.status, openerSent: f.openerSent, dismissReason: f.dismissReason, createdAt: f.createdAt, updatedAt: f.updatedAt })),
+      interventions: helps.map((h) => ({ id: h.id, kind: h.kind, note: h.note, week: h.week, flagId: h.flagId, createdAt: h.createdAt })),
       /** The student's own words, newest first (check-in notes). */
       words: series.filter((w) => w.note).map((w) => ({ week: w.week, text: w.note! })).reverse(),
     });
+  });
+
+  /** Log what I did for one of my students. Body: { kind, note?, flagId? } */
+  r.post('/:id/interventions', async (c) => {
+    const id = c.req.param('id');
+    const mentorId = c.get('session').sub;
+    if (!(await myStudentIds(mentorId)).includes(id)) return c.json({ error: 'not_found' }, 404);
+    const body = (await c.req.json().catch(() => ({}))) as { kind?: string; note?: string; flagId?: string };
+    if (!(INTERVENTION_KINDS as readonly string[]).includes(body.kind ?? '')) return c.json({ error: 'bad_kind' }, 400);
+    let flagId: string | null = null;
+    if (body.flagId) {
+      const [f] = await db.select({ id: flags.id }).from(flags).where(and(eq(flags.id, body.flagId), eq(flags.studentId, id), eq(flags.mentorId, mentorId)));
+      flagId = f?.id ?? null;
+    }
+    const [row] = await db
+      .insert(interventions)
+      .values({ id: newId('i'), studentId: id, mentorId, kind: body.kind as InterventionKind, note: body.note?.trim().slice(0, 500) || null, week: isoWeek(now()), flagId })
+      .returning();
+    return c.json(row);
   });
 
   return r;

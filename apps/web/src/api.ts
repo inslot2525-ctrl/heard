@@ -45,7 +45,7 @@ export interface Pulse {
 export interface Flag {
   id: string;
   studentId: string;
-  rule: 'repeat_struggling' | 'drop_from_baseline' | 'silent' | 'wants_to_talk' | 'asked_for_help' | 'safety' | 'safety_ragging';
+  rule: 'repeat_struggling' | 'drop_from_baseline' | 'silent' | 'wants_to_talk' | 'asked_for_help' | 'safety' | 'safety_ragging' | 'improved';
   area: '' | 'studies' | 'money' | 'health' | 'home';
   week: string;
   reason: string;

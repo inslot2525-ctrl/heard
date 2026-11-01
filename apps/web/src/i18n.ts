@@ -5,6 +5,18 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  helpTitle: 'What you did',
+  helpEmpty: 'Nothing logged yet. Sending an opener logs “reached out” automatically.',
+  helpKind: 'What did you do?',
+  helpNote: 'Note (optional)',
+  helpLog: 'Log',
+  help_reached_out: 'Reached out',
+  help_talked: 'Talked in person',
+  help_counsellor: 'Referred to counsellor',
+  help_fee_support: 'Fee or money support',
+  help_academic_help: 'Academic help',
+  help_peer_buddy: 'Paired with a peer buddy',
+  help_other: 'Other',
   prepareTalk: 'Prepare for the talk',
   preparing: 'Preparing…',
   meetingTitle: 'Before you talk',
@@ -147,6 +159,15 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  helpTitle: 'आपने क्या किया',
+  helpLog: 'दर्ज करें',
+  help_reached_out: 'संपर्क किया',
+  help_talked: 'आमने-सामने बात की',
+  help_counsellor: 'काउंसलर के पास भेजा',
+  help_fee_support: 'फ़ीस/पैसों में मदद',
+  help_academic_help: 'पढ़ाई में मदद',
+  help_peer_buddy: 'साथी छात्र से जोड़ा',
+  help_other: 'अन्य',
   prepareTalk: 'बातचीत की तैयारी',
   preparing: 'तैयार हो रहा है…',
   meetingTitle: 'बात करने से पहले',
@@ -270,6 +291,15 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  helpTitle: 'तुम्ही काय केले',
+  helpLog: 'नोंद करा',
+  help_reached_out: 'संपर्क केला',
+  help_talked: 'प्रत्यक्ष बोललो',
+  help_counsellor: 'समुपदेशकाकडे पाठवले',
+  help_fee_support: 'फी/पैशांची मदत',
+  help_academic_help: 'अभ्यासात मदत',
+  help_peer_buddy: 'सहविद्यार्थ्याशी जोडले',
+  help_other: 'इतर',
   prepareTalk: 'बोलण्याची तयारी',
   preparing: 'तयार होत आहे…',
   meetingTitle: 'बोलण्यापूर्वी',
@@ -394,6 +424,15 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  helpTitle: '你做了什么',
+  helpLog: '记录',
+  help_reached_out: '主动联系',
+  help_talked: '当面谈话',
+  help_counsellor: '转介心理咨询',
+  help_fee_support: '学费/经济帮助',
+  help_academic_help: '学业帮助',
+  help_peer_buddy: '安排同伴互助',
+  help_other: '其他',
   prepareTalk: '准备谈话',
   preparing: '准备中…',
   meetingTitle: '谈话之前',

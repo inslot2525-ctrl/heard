@@ -1,12 +1,12 @@
 // Flags engine: runs the shared rules over a student's last 6 weeks and opens new flags.
 // Deterministic; the only "AI" part is the opener draft, which a mentor must edit and send.
 
-import { evaluate, lastWeeks, MSG, type FlagCard, type PulseArea, type PulseLevel, type WeekPulse } from '@heard/shared';
+import { evaluate, improvedAfterHelp, lastWeeks, MSG, type FlagHit, type FlagCard, type PulseArea, type PulseLevel, type WeekPulse } from '@heard/shared';
 import { and, eq, inArray } from 'drizzle-orm';
 import { botIdFor } from './campus.js';
 import type { Chat } from './chat.js';
 import type { Db } from './db/client.js';
-import { flags, mentorAssignments, pulses, users } from './db/schema.js';
+import { flags, interventions, mentorAssignments, pulses, users } from './db/schema.js';
 import { newId } from './ids.js';
 import { NexconnError } from './nexconn.js';
 import { draftOpener } from './openers.js';
@@ -53,7 +53,21 @@ export async function evaluateStudent(db: Db, chat: Chat | null, studentId: stri
   const history = await loadHistory(db, studentId, now);
   const week = history.at(-1)!.week;
   const created = [];
-  for (const hit of evaluate(history)) {
+  // Improved after help: one green flag per intervention, judged on the area of the flag it answered.
+  const helps = await db.select().from(interventions).where(eq(interventions.studentId, studentId));
+  const priorImproved = await db.select({ evidence: flags.evidence }).from(flags).where(and(eq(flags.studentId, studentId), eq(flags.rule, 'improved')));
+  const doneFor = new Set(priorImproved.map((f) => (f.evidence as { interventionId?: string } | null)?.interventionId).filter(Boolean));
+  const improvedHits: (FlagHit & { interventionId: string })[] = [];
+  for (const iv of helps) {
+    if (doneFor.has(iv.id) || !history.some((w) => w.week === iv.week)) continue;
+    const [answered] = iv.flagId ? await db.select({ area: flags.area }).from(flags).where(eq(flags.id, iv.flagId)) : [];
+    const hit = improvedAfterHelp(history, iv.week, (answered?.area || undefined) as PulseArea | undefined);
+    if (hit) {
+      improvedHits.push({ ...hit, interventionId: iv.id });
+      doneFor.add(iv.id);
+    }
+  }
+  for (const hit of [...evaluate(history), ...improvedHits] as (FlagHit & { interventionId?: string })[]) {
     const area = (hit.area ?? '') as PulseArea | '';
     const values = {
       id: newId('f'),
@@ -63,7 +77,7 @@ export async function evaluateStudent(db: Db, chat: Chat | null, studentId: stri
       area,
       week,
       reason: hit.reason,
-      evidence: { history: hit.history ?? null, studentWords: hit.studentWords ?? null },
+      evidence: { history: hit.history ?? null, studentWords: hit.studentWords ?? null, ...(hit.interventionId ? { interventionId: hit.interventionId } : {}) },
       openerDraft: draftOpener(hit.rule, area, row.student.name, mentor.lang),
     };
     const [inserted] = await db.insert(flags).values(values).onConflictDoNothing().returning();

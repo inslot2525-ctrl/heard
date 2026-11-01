@@ -223,3 +223,34 @@ describe('mentor: students and journey', () => {
     expect((await t.req('GET', '/students', undefined, student.session)).status).toBe(403);
   });
 });
+
+describe('interventions and improved after help', () => {
+  it('reaching out logs help; recovery afterwards opens one green "improved" flag', async () => {
+    t.clock.set('2026-11-04');
+    await answer(student.session, '2026-W45', moneyBad);
+    t.clock.set('2026-11-11');
+    await answer(student.session, '2026-W46', moneyBad);
+    const [f] = await t.db.select().from(flags);
+    await t.req('POST', `/flags/${f.id}/opener`, { text: 'Shall we talk about fees?' }, mentor.session);
+    const j1 = (await (await t.req('GET', `/students/${student.user.id}/journey`, undefined, mentor.session)).json()) as any;
+    expect(j1.interventions[0]).toMatchObject({ kind: 'reached_out', week: '2026-W46', flagId: f.id });
+
+    t.clock.set('2026-11-18');
+    await answer(student.session, '2026-W47', good);
+    t.clock.set('2026-11-25');
+    await answer(student.session, '2026-W48', good);
+    await answer(student.session, '2026-W48', good, { note: 'fees sorted, thanks' }); // re-answer: no duplicate
+    const improved = (await t.db.select().from(flags)).filter((x) => x.rule === 'improved');
+    expect(improved).toHaveLength(1);
+    expect(improved[0]).toMatchObject({ area: 'money', week: '2026-W48' });
+    expect(improved[0].reason).toContain('0.0 in 2026-W45, 2026-W46, 2.0 in 2026-W47, 2026-W48');
+  });
+
+  it('lets a mentor log what they did, for their own students only', async () => {
+    const r = await t.req('POST', `/students/${student.user.id}/interventions`, { kind: 'counsellor', note: 'Booked a counsellor slot' }, mentor.session);
+    expect(((await r.json()) as any).kind).toBe('counsellor');
+    expect((await t.req('POST', `/students/${student.user.id}/interventions`, { kind: 'magic' }, mentor.session)).status).toBe(400);
+    const other = await join('mentor', 'Other Mentor');
+    expect((await t.req('POST', `/students/${student.user.id}/interventions`, { kind: 'talked' }, other.session)).status).toBe(404);
+  });
+});

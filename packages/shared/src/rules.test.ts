@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { PulseLevel, PulseResponse } from './messages.js';
-import { dropFromBaseline, evaluate, repeatStruggling, silent, wantsToTalk, type WeekPulse } from './rules.js';
+import { dropFromBaseline, evaluate, improvedAfterHelp, repeatStruggling, silent, wantsToTalk, type WeekPulse } from './rules.js';
 
 type L = PulseLevel;
 const resp = (week: string, s: L, m: L, h: L, f: L, extra: Partial<PulseResponse> = {}): WeekPulse => ({
@@ -62,5 +62,26 @@ describe('evaluate', () => {
   });
   it('returns nothing for a steady student', () => {
     expect(evaluate([resp('W1', 2, 1, 2, 2), resp('W2', 2, 1, 2, 2), resp('W3', 1, 1, 2, 2)])).toEqual([]);
+  });
+});
+
+describe('improvedAfterHelp', () => {
+  const weeks = [resp('W1', 2, 2, 2, 2), resp('W2', 2, 0, 2, 2), resp('W3', 2, 0, 2, 2), resp('W4', 2, 2, 2, 2), resp('W5', 2, 2, 2, 2)];
+  it('fires when the flagged area recovers after the help week', () => {
+    const hit = improvedAfterHelp(weeks, 'W3', 'money');
+    expect(hit).toMatchObject({ rule: 'improved', area: 'money' });
+    expect(hit!.reason).toContain('average 0.0 in W2, W3, 2.0 in W4, W5');
+  });
+  it('needs two answered weeks after the help', () => {
+    expect(improvedAfterHelp(weeks.slice(0, 4), 'W3', 'money')).toBeNull();
+  });
+  it('ignores small changes', () => {
+    const flat = [resp('W1', 1, 1, 1, 1), resp('W2', 1, 1, 1, 1), resp('W3', 1, 2, 1, 1), resp('W4', 1, 2, 1, 1)];
+    expect(improvedAfterHelp(flat, 'W2')).toBeNull(); // overall 1.0 → 1.25
+  });
+  it('uses all four areas when no area is given', () => {
+    const w = [resp('W1', 1, 0, 1, 1), resp('W2', 1, 0, 1, 1), resp('W3', 2, 2, 2, 1), resp('W4', 2, 2, 2, 2)];
+    expect(improvedAfterHelp(w, 'W2')?.area).toBeUndefined();
+    expect(improvedAfterHelp(w, 'W2')).not.toBeNull(); // 0.75 → 1.875
   });
 });

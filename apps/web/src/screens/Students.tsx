@@ -7,6 +7,7 @@ import { api, type Level } from '../api';
 import { useT, type Strings } from '../i18n';
 import { href } from '../router';
 import { RulePill } from './MentorHome';
+import { HelpLog } from './HelpLog';
 
 type Area = 'studies' | 'money' | 'health' | 'home';
 const AREAS: Area[] = ['studies', 'money', 'health', 'home'];
@@ -78,6 +79,7 @@ interface Journey {
   weeks: ({ week: string; note: string | null; wantsToTalk: boolean } & Record<Area, Level | null>)[];
   flags: { id: string; rule: string; area: string; week: string; reason: string; status: string; openerSent: string | null; dismissReason: string | null }[];
   words: { week: string; text: string }[];
+  interventions: { id: string; kind: string; note: string | null; week: string; flagId: string | null }[];
 }
 
 const AREA_COLOR: Record<Area, string> = { studies: '#1d4ed8', money: '#c63b3b', health: '#1e8e4e', home: '#6b4bc8' };
@@ -86,7 +88,7 @@ function levelLabel(t: Strings, v: number | null) {
   return v === null ? t.noReply : [t.struggling, t.ok, t.good][v];
 }
 
-function AreaChart({ area, data, flagWeeks, t }: { area: Area; data: Journey['weeks']; flagWeeks: string[]; t: Strings }) {
+function AreaChart({ area, data, flagWeeks, helpWeeks, t }: { area: Area; data: Journey['weeks']; flagWeeks: string[]; helpWeeks: string[]; t: Strings }) {
   const rows = data.map((w) => ({ week: w.week.slice(-3), value: w[area] }));
   return (
     <section className="card chart-card">
@@ -99,7 +101,10 @@ function AreaChart({ area, data, flagWeeks, t }: { area: Area; data: Journey['we
             <YAxis domain={[0, 2]} ticks={[0, 1, 2]} tickFormatter={(v: number) => ['✕', '–', '✓'][v]} tick={{ fontSize: 10, fill: '#64748b' }} tickLine={false} axisLine={false} width={40} />
             <Tooltip formatter={(v) => levelLabel(t, v as number | null)} labelFormatter={(l) => `${l}`} />
             {flagWeeks.map((w) => (
-              <ReferenceLine key={w} x={w.slice(-3)} stroke="#c63b3b" strokeDasharray="4 3" />
+              <ReferenceLine key={`f${w}`} x={w.slice(-3)} stroke="#c63b3b" strokeDasharray="4 3" />
+            ))}
+            {helpWeeks.map((w) => (
+              <ReferenceLine key={`h${w}`} x={w.slice(-3)} stroke="#1e8e4e" strokeWidth={2} label={{ value: 'help', position: 'insideTopRight', fontSize: 9, fill: '#1e8e4e' }} />
             ))}
             <Line type="monotone" dataKey="value" stroke={AREA_COLOR[area]} strokeWidth={2.2} dot={{ r: 3.5, strokeWidth: 2, fill: '#fff' }} connectNulls={false} isAnimationActive={false} />
           </LineChart>
@@ -139,10 +144,11 @@ export function StudentScreen({ id }: { id: string }) {
       <div className="journey">
         <div className="charts">
           {AREAS.map((a) => (
-            <AreaChart key={a} area={a} data={j.weeks} flagWeeks={flagWeeksByArea(a)} t={t} />
+            <AreaChart key={a} area={a} data={j.weeks} flagWeeks={flagWeeksByArea(a).filter((w) => !j.flags.some((f) => f.rule === 'improved' && f.week === w))} helpWeeks={[...new Set(j.interventions.map((h) => h.week))]} t={t} />
           ))}
         </div>
         <aside className="side">
+          <HelpLog studentId={j.student.id} items={j.interventions} onLogged={(row) => setJ((old) => (old ? { ...old, interventions: [row, ...old.interventions] } : old))} />
           <section className="card">
             <h2>
               <Quote size={16} aria-hidden /> {t.studentWords}

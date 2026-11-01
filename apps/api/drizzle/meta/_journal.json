@@ -29,6 +29,13 @@
       "when": 1793507500023,
       "tag": "0003_boring_thunderbolt_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793513283686,
+      "tag": "0004_wandering_rhino",
+      "breakpoints": true
     }
   ]
 }

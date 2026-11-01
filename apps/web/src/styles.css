@@ -315,3 +315,10 @@ textarea { resize: vertical; min-height: 4.5rem; }
   body.print-meeting .topbar, body.print-meeting .page > :not(.meeting) { display: none !important; }
   body.print-meeting .meeting { border: 0; box-shadow: none; }
 }
+
+/* ---- what you did -------------------------------------------------------------------------------- */
+.help-list { list-style: none; margin: 0.4rem 0 0.8rem; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+.help-list li { display: flex; gap: 0.55rem; align-items: flex-start; }
+.help-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--good); margin-top: 0.45rem; flex: none; }
+.block { display: block; }
+.help-form { display: grid; grid-template-columns: 1fr; gap: 0.45rem; }
