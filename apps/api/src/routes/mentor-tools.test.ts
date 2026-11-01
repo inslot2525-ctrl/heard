@@ -114,3 +114,20 @@ describe('POST /mentor/meeting-card', () => {
     expect((await t!.req('POST', '/mentor/meeting-card', { flagId: flag.id }, student.session)).status).toBe(403);
   });
 });
+
+describe('themes and fairness', () => {
+  it('tags a note in the background, and the warden sees theme counts and flag rates (no names)', async () => {
+    const { student } = await setup((system) => (system.includes('tag what a short note') ? '{"themes":["fees_money"]}' : 'OK'));
+    const codes = await t!.db.select().from((await import('../db/schema.js')).invites);
+    const wardenCode = codes.find((c) => c.role === 'warden')!.code;
+    const warden = (await (await t!.req('POST', '/auth/join', { acceptedPrivacy: true, code: wardenCode, name: 'Sunita', lang: 'mr' })).json()) as any;
+    t!.clock.set('2026-11-04');
+    await t!.req('POST', '/pulse', { week: '2026-W45', levels: { studies: 2, money: 0, health: 2, home: 2 }, note: 'fees are late this month', wantsToTalk: true }, student.session);
+    await new Promise((r) => setTimeout(r, 300)); // background tagging
+    const stats = (await (await t!.req('GET', '/pulse/stats', undefined, warden.session)).json()) as any;
+    expect(stats.themes).toEqual([{ theme: 'fees_money', n: 1 }]);
+    expect(stats.fairness.byHostel).toEqual([{ group: 'Hostel A', students: 1, flagged: 1, rate: 1 }]);
+    expect(stats.fairness.byLanguage).toEqual([{ group: 'mr', students: 1, flagged: 1, rate: 1 }]);
+    expect(JSON.stringify(stats)).not.toContain('fees are late');
+  });
+});

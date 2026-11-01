@@ -35,7 +35,7 @@ export function createApp(deps: AppDeps) {
 
   app.get('/health', (c) => c.json({ ok: true, nexconn: Boolean(deps.chat), llm: Boolean(deps.llm) }));
   app.route('/auth', authRoutes(deps));
-  app.route('/pulse', pulseRoutes({ ...deps, now }));
+  app.route('/pulse', pulseRoutes({ ...deps, now, llm: deps.llm ?? null }));
   app.route('/flags', flagRoutes({ ...deps, now }));
   app.route('/chats', chatRoutes(deps));
   app.route('/students', studentRoutes({ ...deps, now }));

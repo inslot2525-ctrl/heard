@@ -8,6 +8,8 @@ import { useT, type Strings } from '../i18n';
 import { href } from '../router';
 import { RulePill } from './MentorHome';
 import { HelpLog } from './HelpLog';
+import { NoteText, ThemeChips } from './NoteText';
+import { useMe } from '../App';
 
 type Area = 'studies' | 'money' | 'health' | 'home';
 const AREAS: Area[] = ['studies', 'money', 'health', 'home'];
@@ -78,7 +80,7 @@ interface Journey {
   student: { id: string; name: string; lang: string; hostel: string | null };
   weeks: ({ week: string; note: string | null; wantsToTalk: boolean } & Record<Area, Level | null>)[];
   flags: { id: string; rule: string; area: string; week: string; reason: string; status: string; openerSent: string | null; dismissReason: string | null }[];
-  words: { week: string; text: string }[];
+  words: { week: string; text: string; themes: string[] }[];
   interventions: { id: string; kind: string; note: string | null; week: string; flagId: string | null }[];
 }
 
@@ -116,6 +118,7 @@ function AreaChart({ area, data, flagWeeks, helpWeeks, t }: { area: Area; data: 
 
 export function StudentScreen({ id }: { id: string }) {
   const t = useT();
+  const { me } = useMe();
   const [j, setJ] = useState<Journey | null>(null);
   const [missing, setMissing] = useState(false);
   useEffect(() => {
@@ -156,8 +159,10 @@ export function StudentScreen({ id }: { id: string }) {
             {j.words.length === 0 && <p className="small muted">{t.noWordsYet}</p>}
             {j.words.map((w) => (
               <div key={w.week} className="word">
-                <div className="quote">{w.text}</div>
-                <div className="small muted">{w.week}</div>
+                <NoteText text={w.text} lang={me.user.lang} />
+                <div className="row small muted" style={{ marginTop: '0.25rem' }}>
+                  {w.week} <ThemeChips themes={w.themes} />
+                </div>
               </div>
             ))}
           </section>

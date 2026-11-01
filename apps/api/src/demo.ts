@@ -38,6 +38,8 @@ type Week = [PulseLevel, PulseLevel, PulseLevel, PulseLevel] | null;
 interface Story extends DemoPerson {
   weeks: Week[];
   note?: string;
+  /** Fixed tags for the hand-written demo notes (live notes are tagged by Gemini). */
+  themes?: string[];
   wantsToTalk?: boolean;
 }
 
@@ -47,12 +49,14 @@ const STORIES: Story[] = [
     id: 'demopriya', name: 'Priya Patil', role: 'student', lang: 'mr', hostel: 'hostelA', mentor: 'demorao',
     weeks: [[2, 2, 2, 2], [2, 2, 2, 1], [2, 2, 2, 2], [1, 1, 2, 2], [1, 0, 2, 2], [1, 0, 2, 1]],
     note: 'या महिन्याची फी भरायला मदत हवी आहे',
+    themes: ['fees_money'],
   },
   {
     // drop_from_baseline (health)
     id: 'demorohan', name: 'Rohan Yadav', role: 'student', lang: 'hi', hostel: 'hostelA', mentor: 'demokulkarni',
     weeks: [[2, 2, 2, 2], [2, 1, 2, 2], [2, 2, 2, 2], [2, 2, 2, 2], [1, 2, 2, 2], [1, 2, 0, 2]],
     note: 'रात को नींद नहीं आती',
+    themes: ['health_sleep'],
   },
   {
     // silent: replied for four weeks, then stopped
@@ -64,6 +68,7 @@ const STORIES: Story[] = [
     id: 'demoaman', name: 'Aman Khan', role: 'student', lang: 'en', hostel: 'hostelB', mentor: 'demorao',
     weeks: [[2, 2, 2, 2], [2, 2, 2, 2], [1, 2, 2, 2], [1, 2, 2, 2], [2, 2, 2, 2], [1, 2, 2, 2]],
     note: 'Can we talk about my internship options?',
+    themes: ['career_internship'],
     wantsToTalk: true,
   },
 ];
@@ -128,6 +133,7 @@ export interface DemoPulse {
   health: PulseLevel;
   home: PulseLevel;
   note?: string;
+  themes?: string[];
   wantsToTalk: boolean;
 }
 
@@ -148,6 +154,7 @@ export function demoPulses(today = new Date()): DemoPulse[] {
         health: w[2],
         home: w[3],
         note: latest ? s.note : undefined,
+        themes: latest ? s.themes : undefined,
         wantsToTalk: latest ? Boolean(s.wantsToTalk) : false,
       });
     });

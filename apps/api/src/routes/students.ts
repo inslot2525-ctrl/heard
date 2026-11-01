@@ -64,8 +64,8 @@ export function studentRoutes({ db, sessionSecret, now }: { db: Db; sessionSecre
     const series = weeks.map((week) => {
       const p = rows.find((r) => r.week === week);
       return p
-        ? { week, studies: p.studies, money: p.money, health: p.health, home: p.home, note: p.note, wantsToTalk: p.wantsToTalk }
-        : { week, studies: null, money: null, health: null, home: null, note: null, wantsToTalk: false };
+        ? { week, studies: p.studies, money: p.money, health: p.health, home: p.home, note: p.note, wantsToTalk: p.wantsToTalk, themes: p.themes ?? [] }
+        : { week, studies: null, money: null, health: null, home: null, note: null, wantsToTalk: false, themes: [] as string[] };
     });
     const flagRows = await db.select().from(flags).where(eq(flags.studentId, id)).orderBy(desc(flags.createdAt));
     const helps = await db.select().from(interventions).where(eq(interventions.studentId, id)).orderBy(desc(interventions.createdAt));
@@ -75,7 +75,7 @@ export function studentRoutes({ db, sessionSecret, now }: { db: Db; sessionSecre
       flags: flagRows.map((f) => ({ id: f.id, rule: f.rule, area: f.area, week: f.week, reason: f.reason, status: f.status, openerSent: f.openerSent, dismissReason: f.dismissReason, createdAt: f.createdAt, updatedAt: f.updatedAt })),
       interventions: helps.map((h) => ({ id: h.id, kind: h.kind, note: h.note, week: h.week, flagId: h.flagId, createdAt: h.createdAt })),
       /** The student's own words, newest first (check-in notes). */
-      words: series.filter((w) => w.note).map((w) => ({ week: w.week, text: w.note! })).reverse(),
+      words: series.filter((w) => w.note).map((w) => ({ week: w.week, text: w.note!, themes: w.themes })).reverse(),
     });
   });
 

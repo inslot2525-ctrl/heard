@@ -90,3 +90,7 @@ export interface AskAnswer {
   receipts: AskReceipt[];
   unavailable?: boolean;
 }
+
+/** Topics a check-in note can be tagged with: what the student wrote ABOUT, never how they feel. */
+export const THEMES = ['fees_money', 'homesick', 'exams_studies', 'health_sleep', 'mess_food', 'friends_roommates', 'family', 'career_internship', 'hostel_facilities', 'other'] as const;
+export type Theme = (typeof THEMES)[number];

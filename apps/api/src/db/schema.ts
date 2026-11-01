@@ -85,6 +85,8 @@ export const pulses = pgTable(
     home: smallint('home').notNull(),
     note: text('note'),
     wantsToTalk: boolean('wants_to_talk').notNull().default(false),
+    /** Themes from the note's own words (fixed list, see themes.ts); null = not tagged (yet). */
+    themes: jsonb('themes').$type<string[]>(),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex('pulses_student_week_uq').on(t.studentId, t.week)],

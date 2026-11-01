@@ -213,7 +213,7 @@ describe('mentor: students and journey', () => {
     expect(j.weeks).toHaveLength(12);
     expect(j.weeks.at(-1)).toMatchObject({ week: '2026-W46', money: 0, note: 'fees are late' });
     expect(j.weeks.at(-3).money).toBeNull();
-    expect(j.words).toEqual([{ week: '2026-W46', text: 'fees are late' }]);
+    expect(j.words).toEqual([{ week: '2026-W46', text: 'fees are late', themes: [] }]); // no LLM in this test
     expect(j.flags[0]).toMatchObject({ rule: 'repeat_struggling', status: 'open' });
   });
 

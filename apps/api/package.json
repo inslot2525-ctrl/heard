@@ -11,7 +11,8 @@
     "spike": "tsx scripts/spike.ts",
     "db:generate": "drizzle-kit generate",
     "seed:demo": "tsx scripts/seed-demo.ts",
-    "campus": "tsx scripts/campus.ts"
+    "campus": "tsx scripts/campus.ts",
+    "proof": "tsx scripts/proof.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.14",
