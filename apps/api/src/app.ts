@@ -21,6 +21,8 @@ export interface AppDeps {
   llm?: Llm | null;
   /** App Key + Secret for verifying Nexconn webhooks; null = webhooks off. */
   nexconnWebhook?: { appKey: string; appSecret: string } | null;
+  /** Tests: replaces fetch when downloading voice notes. */
+  voiceFetch?: typeof fetch;
   /** Injectable clock, so tests can move through weeks. */
   now?: () => Date;
 }
@@ -36,7 +38,7 @@ export function createApp(deps: AppDeps) {
   app.route('/flags', flagRoutes(deps));
   app.route('/chats', chatRoutes(deps));
   app.route('/webhooks', webhookRoutes({ db: deps.db, chat: deps.chat, nexconn: deps.nexconnWebhook ?? null, now }));
-  app.route('/', aiRoutes({ ...deps, llm: deps.llm ?? null, now }));
+  app.route('/', aiRoutes({ ...deps, llm: deps.llm ?? null, now, fetchImpl: deps.voiceFetch }));
 
   return app;
 }

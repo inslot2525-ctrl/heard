@@ -290,6 +290,70 @@ export function languageName(code: string): string {
  */
 export const LLM_TRANSLATED = new Set(['hi', 'mr', 'bn', 'ta', 'te', 'kn', 'ml', 'gu', 'pa', 'ur', 'or', 'as', 'ne', 'si']);
 
-export function useLlmTranslation(from: string | undefined, to: string) {
-  return LLM_TRANSLATED.has(to) || (from !== undefined && LLM_TRANSLATED.has(from));
+/**
+ * Gemini when either side is an Indian language, judged by the chosen languages AND by the script the
+ * text is actually written in (a Marathi message from someone who picked English must still go through
+ * Gemini: Nexconn turned a safety-relevant Marathi sentence into nonsense).
+ */
+export function useLlmTranslation(from: string | undefined, to: string, text?: string) {
+  if (LLM_TRANSLATED.has(to) || (from !== undefined && LLM_TRANSLATED.has(from))) return true;
+  const s = text ? scriptOf(text) : null;
+  return s !== null && INDIC_SCRIPTS.has(s);
+}
+
+const INDIC_SCRIPTS = new Set<string>(['devanagari', 'bengali', 'gurmukhi', 'gujarati', 'oriya', 'tamil', 'telugu', 'kannada', 'malayalam']);
+
+// ---- script detection (for auto-translate) -------------------------------------------------------
+// People often write in a different language than the one they picked (a Marathi speaker who chose
+// English for the UI). So besides comparing chosen languages, we compare the message's script with the
+// script the reader's language uses. Different scripts → translate.
+
+export type Script = 'latin' | 'devanagari' | 'han' | 'arabic' | 'bengali' | 'tamil' | 'telugu' | 'kannada' | 'malayalam' | 'gujarati' | 'gurmukhi' | 'oriya' | 'other';
+
+const SCRIPT_RANGES: [Script, RegExp][] = [
+  ['devanagari', /[ऀ-ॿ]/g],
+  ['bengali', /[ঀ-৿]/g],
+  ['gurmukhi', /[਀-੿]/g],
+  ['gujarati', /[઀-૿]/g],
+  ['oriya', /[଀-୿]/g],
+  ['tamil', /[஀-௿]/g],
+  ['telugu', /[ఀ-౿]/g],
+  ['kannada', /[ಀ-೿]/g],
+  ['malayalam', /[ഀ-ൿ]/g],
+  ['arabic', /[؀-ۿ]/g],
+  ['han', /[一-鿿㐀-䶿]/g],
+  ['latin', /[A-Za-zÀ-ɏ]/g],
+];
+
+/** The script most of the message's letters are in, or null for no letters (emoji, numbers). */
+export function scriptOf(text: string): Script | null {
+  let best: Script | null = null;
+  let max = 0;
+  for (const [script, re] of SCRIPT_RANGES) {
+    const n = text.match(re)?.length ?? 0;
+    if (n > max) [best, max] = [script, n];
+  }
+  return best;
+}
+
+const LANG_SCRIPT: Record<string, Script> = {
+  hi: 'devanagari', mr: 'devanagari', ne: 'devanagari', sa: 'devanagari', bn: 'bengali', as: 'bengali', pa: 'gurmukhi',
+  gu: 'gujarati', or: 'oriya', ta: 'tamil', te: 'telugu', kn: 'kannada', ml: 'malayalam', ur: 'arabic', ar: 'arabic',
+  fa: 'arabic', zh: 'han', ja: 'han',
+};
+
+/** Script a language is normally written in; anything unlisted is treated as Latin. */
+export function scriptForLanguage(lang: string): Script {
+  return LANG_SCRIPT[lang] ?? 'latin';
+}
+
+/**
+ * Should a received message be auto-translated for this reader? Yes if the sender chose another
+ * language, or if the message is visibly in another script than the reader's language uses.
+ */
+export function needsTranslation(text: string, readerLang: string, senderLang?: string) {
+  if (!text.trim()) return false;
+  if (senderLang && senderLang !== readerLang) return true;
+  const s = scriptOf(text);
+  return s !== null && s !== scriptForLanguage(readerLang);
 }

@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { HELPLINES, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
+import { HELPLINES, needsTranslation, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
 import { useMe } from '../App';
 import { api, type ChatItem, type Lang } from '../api';
-import { chatKey, connectChat, loadHistory, onMessage, sendText, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
+import { chatKey, connectChat, loadHistory, onMessage, sendText, sendVoice, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
 import { useT } from '../i18n';
 import { go, href } from '../router';
 import { chatLabels, useChats } from './ChatList';
+import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
+import { VoiceBubble, VoiceButton } from './Voice';
 
 type Person = { id: string; name: string; role: string; lang: Lang };
 
@@ -41,6 +43,7 @@ export function ChatScreen({ route }: { route: string[] }) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [thinking, setThinking] = useState(false);
+  const [tone, setTone] = useState<ToneResult | null>(null);
   // Shown right here when the safety check fires (the helpline card also goes to the assistant chat).
   const [showHelp, setShowHelp] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
@@ -70,10 +73,21 @@ export function ChatScreen({ route }: { route: string[] }) {
     bottom.current?.scrollIntoView({ block: 'end' });
   }, [messages?.length]);
 
-  async function send(e: React.FormEvent) {
-    e.preventDefault();
+  /** skipTone: the mentor already saw the Tone Guard and chose to send. */
+  async function send(e: React.FormEvent | null, skipTone = false) {
+    e?.preventDefault();
     if (!item || !text.trim()) return;
     setSending(true);
+    // Tone Guard: mentors and wardens writing to a student get a check before it goes out.
+    if (!skipTone && me.user.role !== 'student' && item.kind === 'direct' && item.role === 'student') {
+      const r = await checkTone(text.trim());
+      if (!r.ok) {
+        setSending(false);
+        setTone(r);
+        return;
+      }
+    }
+    setTone(null);
     const sent = await sendText(item, text.trim()).catch(() => null);
     setSending(false);
     if (sent) {
@@ -92,6 +106,22 @@ export function ChatScreen({ route }: { route: string[] }) {
             .catch(() => undefined);
         }
       }
+    }
+  }
+
+  async function sendVoiceNote(file: File) {
+    if (!item) return;
+    setSending(true);
+    const sent = await sendVoice(item, file).catch(() => null);
+    setSending(false);
+    if (!sent) return;
+    setMessages((list) => [...(list ?? []), sent]);
+    const url = (sent.content as { remoteUrl?: string })?.remoteUrl;
+    // A student's own voice note goes through the safety check too (the transcript is checked).
+    if (me.user.role === 'student' && url) {
+      api<{ alerted: boolean }>('/voice/transcribe', { body: { url, own: true, messageId: sent.id } })
+        .then((r) => r.alerted && setShowHelp(true))
+        .catch(() => undefined);
     }
   }
 
@@ -116,10 +146,22 @@ export function ChatScreen({ route }: { route: string[] }) {
         ))}
         {thinking && <div className="status">{t.assistantTyping}</div>}
         {showHelp && <SafetyCardView c={{ helplines: HELPLINES }} />}
+        {tone && (
+          <TonePanel
+            result={tone}
+            onUse={(s) => {
+              setText(s);
+              setTone(null);
+            }}
+            onEdit={() => setTone(null)}
+            onSendAnyway={() => void send(null, true)}
+          />
+        )}
         <div ref={bottom} />
       </div>
       {canPost ? (
-        <form className="composer" onSubmit={send}>
+        <form className="composer" onSubmit={(e) => void send(e)}>
+          <VoiceButton disabled={sending} onRecorded={(f) => void sendVoiceNote(f)} />
           <textarea
             aria-label={t.typeMessage}
             placeholder={t.typeMessage}
@@ -129,7 +171,7 @@ export function ChatScreen({ route }: { route: string[] }) {
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                void send(e);
+                void send(null);
               }
             }}
           />
@@ -160,6 +202,8 @@ function Body({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: 
   switch (m.type) {
     case 'RC:TxtMsg':
       return <TextBubble m={m} sender={sender} myLang={myLang} />;
+    case 'RC:HQVCMsg':
+      return <VoiceBubble url={m.content?.remoteUrl} duration={m.content?.duration} myLang={myLang} />;
     case 'RC:StreamMsg':
       return <div className="bubble">{m.content?.content ?? ''}</div>;
     case 'SA:PulseCard':
@@ -183,7 +227,8 @@ function Body({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: 
 function TextBubble({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: Lang }) {
   const t = useT();
   const text: string = m.content?.text ?? '';
-  const auto = !m.mine && Boolean(sender) && sender!.lang !== myLang;
+  // Auto-translate when the sender chose another language OR the text is visibly in another script.
+  const auto = !m.mine && needsTranslation(text, myLang, sender?.lang);
   const [translation, setTranslation] = useState<string | null>(() => cachedTranslation(m.id, myLang));
   const [state, setState] = useState<'idle' | 'busy' | 'hidden' | 'failed'>('idle');
 

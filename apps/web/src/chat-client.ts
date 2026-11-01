@@ -9,6 +9,7 @@ import {
   CommunitySubChannelIdentifier,
   DirectChannel,
   DirectChannelIdentifier,
+  Helper,
   MessageHandler,
   NCEngine,
   SendTextMessageParams,
@@ -54,7 +55,8 @@ let connected: Promise<void> | null = null;
 
 // --- translation: one request per message (batches can fail, see SPIKES C), cached by message ID ---
 const pending = new Map<string, (text: string | null) => void>();
-const cacheKey = (id: string, lang: Lang) => `heard.tr.${lang}.${id}`;
+// v2: entries cached before Indian-script text was routed to Gemini may hold bad Nexconn translations.
+const cacheKey = (id: string, lang: Lang) => `heard.tr2.${lang}.${id}`;
 
 export function cachedTranslation(id: string, lang: Lang) {
   return localStorage.getItem(cacheKey(id, lang));
@@ -69,7 +71,7 @@ export async function translateMessage(m: ChatMessage, lang: Lang, fromLang?: La
   if (cached !== null) return cached;
   const text = typeof m.content?.text === 'string' ? m.content.text : null;
   if (!text) return null;
-  if (useLlmTranslation(fromLang, lang)) {
+  if (useLlmTranslation(fromLang, lang, text)) {
     try {
       const r = await api<{ text: string }>('/translate', { body: { text, to: lang } });
       localStorage.setItem(cacheKey(m.id, lang), r.text);
@@ -160,6 +162,15 @@ export async function loadHistory(c: ChatItem, pageSize = 40): Promise<ChatMessa
 export async function sendText(c: ChatItem, text: string): Promise<ChatMessage | null> {
   const channel = c.kind === 'direct' ? new DirectChannel(c.peerId) : new CommunitySubChannel(c.channelId, c.subChannelId);
   const r = await channel.sendMessage(new SendTextMessageParams({ text }));
+  return r.isOk && r.data ? toChatMessage(r.data, me) : null;
+}
+
+/** Voice note as a Nexconn HD voice message (uploaded by the SDK). */
+export async function sendVoice(c: ChatItem, file: File): Promise<ChatMessage | null> {
+  const params = await Helper.createSendHDVoiceMessageParams(file);
+  if (!params.isOk || !params.data) return null;
+  const channel = c.kind === 'direct' ? new DirectChannel(c.peerId) : new CommunitySubChannel(c.channelId, c.subChannelId);
+  const r = await channel.sendMediaMessage(params.data);
   return r.isOk && r.data ? toChatMessage(r.data, me) : null;
 }
 
