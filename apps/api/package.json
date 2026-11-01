@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "spike": "tsx scripts/spike.ts",
     "db:generate": "drizzle-kit generate",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "campus": "tsx scripts/campus.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.14",
@@ -24,7 +25,9 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/qrcode": "^1.5.6",
     "drizzle-kit": "^0.31.11",
+    "qrcode": "^1.5.4",
     "typescript": "^5.9.0",
     "vitest": "^3.2.0"
   }

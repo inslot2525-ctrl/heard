@@ -8,6 +8,7 @@ Hostel students heard early: weekly one-tap check-ins, mentor conversations star
 - Plan: [docs/PLAN.md](docs/PLAN.md)
 - Handover: [HANDOVER.md](HANDOVER.md)
 - Rules for Claude Code sessions: [CLAUDE.md](CLAUDE.md)
+- **Pilot:** [docs/pilot/README.md](docs/pilot/README.md) (runbook), guides for [wardens](docs/pilot/WARDEN.md), [mentors](docs/pilot/MENTOR.md), [students](docs/pilot/STUDENT.md), and the [privacy notice](docs/pilot/PRIVACY.md)
 
 ## Run locally
 

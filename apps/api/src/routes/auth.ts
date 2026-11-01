@@ -4,7 +4,8 @@ import { addToCampusChat, adoptUnassignedStudents, leastLoadedMentor } from '../
 import type { Chat } from '../chat.js';
 import type { Db } from '../db/client.js';
 import { isLanguage } from '@heard/shared';
-import { campuses, hostels, invites, mentorAssignments, users } from '../db/schema.js';
+import { PRIVACY_NOTICE_VERSION } from '@heard/shared';
+import { campuses, consents, hostels, invites, mentorAssignments, users } from '../db/schema.js';
 import { hashLoginCode, newId, newLoginCode } from '../ids.js';
 import { NexconnError } from '../nexconn.js';
 import { rateLimit } from '../rate-limit.js';
@@ -41,12 +42,14 @@ export function authRoutes({ db, chat, sessionSecret, demoPasscode }: AuthDeps) 
    * user log back in on another device. Only its hash is stored.
    */
   r.post('/join', async (c) => {
-    const body = (await c.req.json().catch(() => ({}))) as { code?: string; name?: string; lang?: string };
+    const body = (await c.req.json().catch(() => ({}))) as { code?: string; name?: string; lang?: string; acceptedPrivacy?: boolean };
     const code = body.code?.trim().toUpperCase();
     const name = cleanName(body.name);
     const lang = isLanguage(body.lang) ? body.lang : 'en';
     if (!code) return c.json({ error: 'missing_code' }, 400);
     if (name.length < 2) return c.json({ error: 'missing_name' }, 400);
+    // Real students' check-ins: nobody joins without seeing and accepting the privacy notice.
+    if (body.acceptedPrivacy !== true) return c.json({ error: 'privacy_not_accepted' }, 400);
 
     // Claim one use atomically, so a code can't be over-used by parallel joins.
     const [invite] = await db
@@ -73,6 +76,7 @@ export function authRoutes({ db, chat, sessionSecret, demoPasscode }: AuthDeps) 
       hostelId: invite.hostelId,
     };
     await db.insert(users).values({ ...user, loginCodeHash: hashLoginCode(loginCode) });
+    await db.insert(consents).values({ studentId: user.id, kind: 'privacy_notice', granted: true, version: PRIVACY_NOTICE_VERSION });
 
     if (user.role === 'student') {
       const mentorId = await leastLoadedMentor(db, user.campusId);

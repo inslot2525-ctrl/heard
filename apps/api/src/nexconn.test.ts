@@ -69,3 +69,14 @@ describe('Nexconn.sendDirectStream', () => {
     expect(bodies[0].content.type).toBe('text');
   });
 });
+
+describe('Nexconn.softDeleteUsers', () => {
+  it('posts the user IDs to the soft-delete endpoint (max 100)', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ code: 0, result: { operationId: 'op1' } })));
+    const n = new Nexconn(cfg, fetchMock as unknown as typeof fetch);
+    await n.softDeleteUsers(Array.from({ length: 120 }, (_, i) => `u${i}`));
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('https://api.sg-light-api.com/v4/user/soft-delete');
+    expect(JSON.parse(init.body as string).userIds).toHaveLength(100);
+  });
+});

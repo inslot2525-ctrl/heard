@@ -146,8 +146,10 @@ export const consents = pgTable(
     studentId: text('student_id')
       .notNull()
       .references(() => users.id),
-    kind: text('kind', { enum: ['parent_digest'] }).notNull(),
+    /** privacy_notice: agreed at join (granted always true; the version is in `version`). */
+    kind: text('kind', { enum: ['parent_digest', 'privacy_notice'] }).notNull(),
     granted: boolean('granted').notNull(),
+    version: text('version'),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.studentId, t.kind] })],

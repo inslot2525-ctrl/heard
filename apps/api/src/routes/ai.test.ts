@@ -16,7 +16,7 @@ async function setup(reply: (system: string, user: string) => string) {
   await provisionCampus(t.db, t.chat, { id: 'heardDemo', name: 'Demo', hostels: [{ id: 'hostelA', name: 'Hostel A' }] });
   const codes = await createJoinCodes(t.db, 'heardDemo');
   const join = async (role: string, name: string, lang: string) =>
-    (await (await t.req('POST', '/auth/join', { code: codes.find((c) => c.role === role)!.code, name, lang })).json()) as { session: string; user: { id: string } };
+    (await (await t.req('POST', '/auth/join', { acceptedPrivacy: true,  code: codes.find((c) => c.role === role)!.code, name, lang })).json()) as { session: string; user: { id: string } };
   const mentor = await join('mentor', 'Anil Rao', 'en');
   const warden = await join('warden', 'Sunita Shinde', 'mr');
   const student = await join('student', 'Priya Patil', 'mr');

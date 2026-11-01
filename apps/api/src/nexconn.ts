@@ -98,6 +98,14 @@ export class Nexconn {
     return messageId;
   }
 
+  /**
+   * docs: platform-chat-api/user/deactivation/deactivate. Permanently removes the users' personal data
+   * from Nexconn (profile, message history, channels, push). Max 100 per call. Used for deletion requests.
+   */
+  softDeleteUsers(userIds: string[]) {
+    return this.call<{ operationId?: string }>('/v4/user/soft-delete', { userIds: userIds.slice(0, 100) });
+  }
+
   // ---- community channels ------------------------------------------------------------------------
   // IDs: letters and digits only. Community ID ≤64 chars, subchannel ID ≤20. Max 50 subchannels.
 
