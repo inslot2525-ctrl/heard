@@ -3,8 +3,10 @@ import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Chat } from '../chat.js';
 import type { Db } from '../db/client.js';
-import { campuses, flags, pulses, safetyEvents, users } from '../db/schema.js';
+import { campuses, flags, hostels, pulses, safetyEvents, users } from '../db/schema.js';
 import { recordPulse, sendPulseRound, validatePulse, type PulseInput } from '../pulse.js';
+import { tagPulse } from '../themes.js';
+import type { Llm } from '../llm.js';
 import { requireSession, type AuthVars } from '../session.js';
 import { requireRole } from '../session-guards.js';
 
@@ -13,9 +15,10 @@ export interface PulseDeps {
   chat: Chat | null;
   sessionSecret: string;
   now: () => Date;
+  llm?: Llm | null;
 }
 
-export function pulseRoutes({ db, chat, sessionSecret, now }: PulseDeps) {
+export function pulseRoutes({ db, chat, sessionSecret, now, llm = null }: PulseDeps) {
   const r = new Hono<AuthVars>();
   r.use('*', requireSession(sessionSecret));
 
@@ -38,6 +41,7 @@ export function pulseRoutes({ db, chat, sessionSecret, now }: PulseDeps) {
     const [student] = await db.select().from(users).where(eq(users.id, sub));
     if (!student) return c.json({ error: 'not_found' }, 404);
     const { pulse, newFlags } = await recordPulse(db, chat, { id: sub, campusId }, v.value, now());
+    void tagPulse(db, llm, pulse.id, v.value.note); // background: themes from the student's own words
     // Students never see flags; only that their answer was saved.
     return c.json({ saved: { week: pulse.week, id: pulse.id }, mentorNotified: newFlags.length > 0 });
   });
@@ -86,6 +90,33 @@ export function pulseRoutes({ db, chat, sessionSecret, now }: PulseDeps) {
       ? await db.select({ n: sql<number>`count(*)`.mapWith(Number) }).from(safetyEvents).where(inArray(safetyEvents.studentId, studentIds))
       : [{ n: 0 }];
     const byStatus = Object.fromEntries(flagRows.map((f) => [f.status, f.n]));
+
+    // Themes (counts only) from the last 4 weeks of notes.
+    const themed = studentIds.length
+      ? await db.select({ themes: pulses.themes }).from(pulses).where(and(inArray(pulses.studentId, studentIds), inArray(pulses.week, weeks)))
+      : [];
+    const themeCounts: Record<string, number> = {};
+    for (const r of themed) for (const th of r.themes ?? []) themeCounts[th] = (themeCounts[th] ?? 0) + 1;
+
+    // Fairness: share of students flagged in the last 8 weeks, by hostel and by language. Big gaps
+    // between groups are worth a look (the rules, or translation, may treat a group differently).
+    const weeks8 = lastWeeks(8, now());
+    const recentFlags = studentIds.length
+      ? await db.select({ studentId: flags.studentId, rule: flags.rule }).from(flags).where(and(inArray(flags.studentId, studentIds), inArray(flags.week, weeks8)))
+      : [];
+    const flagged = new Set(recentFlags.filter((f) => f.rule !== 'improved').map((f) => f.studentId));
+    const studentsFull = studentIds.length
+      ? await db.select({ id: users.id, lang: users.lang, hostel: hostels.name }).from(users).leftJoin(hostels, eq(hostels.id, users.hostelId)).where(inArray(users.id, studentIds))
+      : [];
+    const groupBy = (key: (s: (typeof studentsFull)[number]) => string) => {
+      const groups: Record<string, { students: number; flagged: number }> = {};
+      for (const s of studentsFull) {
+        const g = (groups[key(s)] ??= { students: 0, flagged: 0 });
+        g.students++;
+        if (flagged.has(s.id)) g.flagged++;
+      }
+      return Object.entries(groups).map(([group, v]) => ({ group, ...v, rate: v.students ? v.flagged / v.students : 0 })).sort((a, b) => b.students - a.students);
+    };
     return c.json({
       campus: { id: campusId, name: campus?.name, isPilot: campus?.isPilot ?? false },
       students: studentIds.length,
@@ -95,6 +126,8 @@ export function pulseRoutes({ db, chat, sessionSecret, now }: PulseDeps) {
       flags: { open: byStatus.open ?? 0, contacted: byStatus.contacted ?? 0, resolved: byStatus.resolved ?? 0, dismissed: byStatus.dismissed ?? 0 },
       conversationsStarted: conversations,
       safetyAlerts,
+      themes: Object.entries(themeCounts).map(([theme, n]) => ({ theme, n })).sort((a, b) => b.n - a.n),
+      fairness: { byHostel: groupBy((s) => s.hostel ?? '—'), byLanguage: groupBy((s) => s.lang) },
     });
   });
 

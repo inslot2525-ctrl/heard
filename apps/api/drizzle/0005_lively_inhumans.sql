@@ -1,0 +1,1 @@
+ALTER TABLE "pulses" ADD COLUMN "themes" jsonb;

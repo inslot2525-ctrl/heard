@@ -6,6 +6,7 @@ import { useT } from '../i18n';
 import { go, href } from '../router';
 import { ruleLabel } from './MentorHome';
 import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
+import { MeetingCardButton } from './MeetingCard';
 
 export function FlagScreen({ flagId }: { flagId: string }) {
   const t = useT();
@@ -97,6 +98,8 @@ export function FlagScreen({ flagId }: { flagId: string }) {
             </>
           )}
         </section>
+
+        {!closed && <MeetingCardButton flagId={flag.id} />}
 
         {flag.status === 'contacted' && flag.openerSent && (
           <section className="card">

@@ -83,3 +83,51 @@ describe('voice notes', () => {
     expect(await t!.db.select().from(safetyEvents)).toHaveLength(1);
   });
 });
+
+describe('POST /mentor/ask', () => {
+  it('answers from my students only, checks receipts, and sends the card from the bot', async () => {
+    const { fake, mentor, student } = await setup(() =>
+      JSON.stringify({ answer: 'Priya has not checked in yet.', receipts: [{ student: 'Priya Patil', week: '2026-W45', area: 'checkin', value: 'no reply' }, { student: 'Someone Else', week: '2026-W45', area: 'money', value: 'good' }] }),
+    );
+    const r = (await (await t!.req('POST', '/mentor/ask', { text: 'Who has not checked in?' }, mentor.session)).json()) as any;
+    expect(r.answer).toBe('Priya has not checked in yet.');
+    expect(r.receipts.map((x: any) => x.verified)).toEqual([true, false]);
+    expect(fake.calls[0].system).toContain('STUDENT Priya Patil');
+    expect(fake.calls[0].system).toContain('English');
+    const card = t!.calls.find((c) => c.fn === 'sendDirect' && (c.args[0] as any).messageType === 'SA:AskAnswer')!.args[0] as any;
+    expect(card).toMatchObject({ from: 'c1bot', to: [mentor.user.id] });
+    expect((await t!.req('POST', '/mentor/ask', { text: 'hi' }, student.session)).status).toBe(403);
+  });
+});
+
+describe('POST /mentor/meeting-card', () => {
+  it('builds a card for my own flag only', async () => {
+    const { mentor, student } = await setup(() =>
+      JSON.stringify({ strengths: [], changes: [], questions: ['What would help most right now?'], avoid: ['Lecturing'] }),
+    );
+    t!.clock.set('2026-11-04');
+    await t!.req('POST', '/pulse', { week: '2026-W45', levels: { studies: 2, money: 2, health: 2, home: 2 }, wantsToTalk: true }, student.session);
+    const flag = ((await (await t!.req('GET', '/flags', undefined, mentor.session)).json()) as any[])[0];
+    const card = (await (await t!.req('POST', '/mentor/meeting-card', { flagId: flag.id }, mentor.session)).json()) as any;
+    expect(card).toMatchObject({ student: 'Priya Patil', questions: ['What would help most right now?'], avoid: ['Lecturing'] });
+    expect((await t!.req('POST', '/mentor/meeting-card', { flagId: 'nope' }, mentor.session)).status).toBe(404);
+    expect((await t!.req('POST', '/mentor/meeting-card', { flagId: flag.id }, student.session)).status).toBe(403);
+  });
+});
+
+describe('themes and fairness', () => {
+  it('tags a note in the background, and the warden sees theme counts and flag rates (no names)', async () => {
+    const { student } = await setup((system) => (system.includes('tag what a short note') ? '{"themes":["fees_money"]}' : 'OK'));
+    const codes = await t!.db.select().from((await import('../db/schema.js')).invites);
+    const wardenCode = codes.find((c) => c.role === 'warden')!.code;
+    const warden = (await (await t!.req('POST', '/auth/join', { acceptedPrivacy: true, code: wardenCode, name: 'Sunita', lang: 'mr' })).json()) as any;
+    t!.clock.set('2026-11-04');
+    await t!.req('POST', '/pulse', { week: '2026-W45', levels: { studies: 2, money: 0, health: 2, home: 2 }, note: 'fees are late this month', wantsToTalk: true }, student.session);
+    await new Promise((r) => setTimeout(r, 300)); // background tagging
+    const stats = (await (await t!.req('GET', '/pulse/stats', undefined, warden.session)).json()) as any;
+    expect(stats.themes).toEqual([{ theme: 'fees_money', n: 1 }]);
+    expect(stats.fairness.byHostel).toEqual([{ group: 'Hostel A', students: 1, flagged: 1, rate: 1 }]);
+    expect(stats.fairness.byLanguage).toEqual([{ group: 'mr', students: 1, flagged: 1, rate: 1 }]);
+    expect(JSON.stringify(stats)).not.toContain('fees are late');
+  });
+});

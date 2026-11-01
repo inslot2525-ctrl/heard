@@ -48,6 +48,7 @@ export function chatRoutes({ db, sessionSecret }: { db: Db; sessionSecret: strin
       for (const s of students) {
         out.push({ kind: 'direct', peerId: s.id, title: s.name, subtitle: allHostels.find((h) => h.id === s.hostelId)?.name, peerLang: s.lang, role: 'student' });
       }
+      out.push({ kind: 'direct', peerId: botIdFor(campusId), title: 'Ask Heard', subtitle: 'Questions about your students', role: 'assistant' });
       out.push(mentorsRoom, notices, ...allHostels.map(hostelItem));
     } else if (role === 'warden') {
       out.push(notices, ...allHostels.map(hostelItem), mentorsRoom);

@@ -43,7 +43,7 @@ await db
   .insert(mentorAssignments)
   .values(DEMO_STUDENTS.map((s) => ({ studentId: s.id, mentorId: s.mentor! })))
   .onConflictDoUpdate({ target: mentorAssignments.studentId, set: { mentorId: sql`excluded.mentor_id` } });
-const pulseRows = demoPulses().map((p) => ({ id: newId('p'), ...p, note: p.note ?? null }));
+const pulseRows = demoPulses().map((p) => ({ id: newId('p'), ...p, note: p.note ?? null, themes: p.themes ?? null }));
 await db.insert(pulses).values(pulseRows).onConflictDoNothing();
 console.log(`database: ${people.length} demo people, ${pulseRows.length} pulses`);
 

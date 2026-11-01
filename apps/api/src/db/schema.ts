@@ -85,6 +85,8 @@ export const pulses = pgTable(
     home: smallint('home').notNull(),
     note: text('note'),
     wantsToTalk: boolean('wants_to_talk').notNull().default(false),
+    /** Themes from the note's own words (fixed list, see themes.ts); null = not tagged (yet). */
+    themes: jsonb('themes').$type<string[]>(),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex('pulses_student_week_uq').on(t.studentId, t.week)],
@@ -122,6 +124,30 @@ export const flags = pgTable(
     // the same rule/area can't open twice in the same week
     uniqueIndex('flags_dedupe_uq').on(t.studentId, t.rule, t.area, t.week),
   ],
+);
+
+export const INTERVENTION_KINDS = ['reached_out', 'talked', 'counsellor', 'fee_support', 'academic_help', 'peer_buddy', 'other'] as const;
+export type InterventionKind = (typeof INTERVENTION_KINDS)[number];
+
+/** What a mentor did for a student, and when (ISO week). Used for "improved after help". */
+export const interventions = pgTable(
+  'interventions',
+  {
+    id: text('id').primaryKey(),
+    studentId: text('student_id')
+      .notNull()
+      .references(() => users.id),
+    mentorId: text('mentor_id')
+      .notNull()
+      .references(() => users.id),
+    kind: text('kind', { enum: INTERVENTION_KINDS }).notNull(),
+    note: text('note'),
+    week: text('week').notNull(),
+    /** The flag this was a response to, if any (its area guides the "improved" check). */
+    flagId: text('flag_id'),
+    createdAt: createdAt(),
+  },
+  (t) => [index('interventions_student_idx').on(t.studentId)],
 );
 
 export const safetyEvents = pgTable(

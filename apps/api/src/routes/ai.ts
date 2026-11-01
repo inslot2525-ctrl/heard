@@ -10,6 +10,13 @@ import { LlmError, translateWithLlm, type Llm } from '../llm.js';
 import { rateLimit } from '../rate-limit.js';
 import { checkAndAlert } from '../safety.js';
 import { checkTone } from '../tone.js';
+import { askHeard, buildFactSheet } from '../ask.js';
+import { meetingCard } from '../meeting.js';
+import { flags as flagsTable } from '../db/schema.js';
+import { and } from 'drizzle-orm';
+import { botIdFor } from '../campus.js';
+import { MSG } from '@heard/shared';
+import { NexconnError } from '../nexconn.js';
 import { cacheKeyFor, DEFAULT_VOICE_HOSTS, mimeFor, transcribe, VOICE_MAX_BYTES, voiceUrlAllowed, type VoiceResult } from '../voice.js';
 import { requireSession, type AuthVars } from '../session.js';
 import { requireRole } from '../session-guards.js';
@@ -48,7 +55,8 @@ export function aiRoutes({ db, chat, llm, sessionSecret, now, voiceHosts = DEFAU
   const r = new Hono<AuthVars>();
   const cache = lru<string>(5000);
   // Scoped to this router's own paths: it's mounted at '/', so '*' would also catch other routes.
-  for (const p of ['/translate', '/assistant/*', '/safety/*', '/tone', '/voice/*']) r.use(p, requireSession(sessionSecret));
+  for (const p of ['/translate', '/assistant/*', '/safety/*', '/tone', '/voice/*', '/mentor/*']) r.use(p, requireSession(sessionSecret));
+  r.use('/mentor/*', rateLimit({ max: 60, windowMs: 10 * 60_000 }));
   r.use('/tone', rateLimit({ max: 200, windowMs: 10 * 60_000 }));
   r.use('/voice/*', rateLimit({ max: 120, windowMs: 10 * 60_000 }));
   const voiceCache = lru<VoiceResult>(2000);
@@ -94,6 +102,42 @@ export function aiRoutes({ db, chat, llm, sessionSecret, now, voiceHosts = DEFAU
     if (!me) return c.json({ error: 'not_found' }, 404);
     const hit = await checkAndAlert(db, chat, me.id, text.slice(0, TEXT_MAX), messageId, now());
     return c.json({ alerted: Boolean(hit) });
+  });
+
+  /**
+   * Mentor: Ask Heard about my students. Body: { text }. The answer (with receipts checked by code)
+   * is returned and also sent to the mentor's chat with the campus bot as an SA:AskAnswer card.
+   */
+  r.post('/mentor/ask', requireRole('mentor'), async (c) => {
+    const { text } = (await c.req.json().catch(() => ({}))) as { text?: string };
+    if (!text?.trim() || text.length > 500) return c.json({ error: 'bad_text' }, 400);
+    const { sub, campusId } = c.get('session');
+    const [me] = await db.select({ lang: users.lang }).from(users).where(eq(users.id, sub));
+    const sheet = await buildFactSheet(db, sub, now());
+    const answer = await askHeard(llm, sheet, text.trim(), me?.lang ?? 'en');
+    if (chat) {
+      try {
+        await chat.sendDirect({ from: botIdFor(campusId), to: [sub], messageType: MSG.AskAnswer, content: JSON.stringify(answer) });
+      } catch (e) {
+        console.error('ask answer send failed', e instanceof NexconnError ? JSON.stringify(e.body) : e);
+      }
+    }
+    return c.json(answer);
+  });
+
+  /** Mentor: meeting card for one of my flags. Body: { flagId } → MeetingCard (fact-checked). */
+  r.post('/mentor/meeting-card', requireRole('mentor'), async (c) => {
+    const { flagId } = (await c.req.json().catch(() => ({}))) as { flagId?: string };
+    const { sub } = c.get('session');
+    const [row] = await db
+      .select({ flag: flagsTable, name: users.name })
+      .from(flagsTable)
+      .innerJoin(users, eq(users.id, flagsTable.studentId))
+      .where(and(eq(flagsTable.id, flagId ?? ''), eq(flagsTable.mentorId, sub)));
+    if (!row) return c.json({ error: 'not_found' }, 404);
+    const [me] = await db.select({ lang: users.lang }).from(users).where(eq(users.id, sub));
+    const sheet = await buildFactSheet(db, sub, now(), row.flag.studentId);
+    return c.json(await meetingCard(llm, sheet, row.name, row.flag.reason, me?.lang ?? 'en'));
   });
 
   /** Mentor/warden: check a message's tone before sending. Body: { text } → ToneResult */

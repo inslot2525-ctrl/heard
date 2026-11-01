@@ -16,7 +16,7 @@ import { asc, eq, or } from 'drizzle-orm';
 import QRCode from 'qrcode';
 import { createJoinCodes, provisionCampus } from '../src/campus.js';
 import { openDb } from '../src/db/client.js';
-import { campuses, consents, flags, hostels, invites, mentorAssignments, pulses, safetyEvents, users } from '../src/db/schema.js';
+import { campuses, consents, flags, hostels, interventions, invites, mentorAssignments, pulses, safetyEvents, users } from '../src/db/schema.js';
 import { env, nexconnConfigured } from '../src/env.js';
 import { Nexconn } from '../src/nexconn.js';
 
@@ -132,6 +132,7 @@ if (cmd === 'create') {
   } else {
     await db.delete(flags).where(or(eq(flags.studentId, id), eq(flags.mentorId, id)));
     await db.delete(safetyEvents).where(eq(safetyEvents.studentId, id));
+    await db.delete(interventions).where(or(eq(interventions.studentId, id), eq(interventions.mentorId, id)));
     await db.delete(pulses).where(eq(pulses.studentId, id));
     await db.delete(consents).where(eq(consents.studentId, id));
     await db.delete(mentorAssignments).where(or(eq(mentorAssignments.studentId, id), eq(mentorAssignments.mentorId, id)));

@@ -6,9 +6,9 @@ import { LanguagePicker } from '../LanguagePicker';
 type Mode = 'join' | 'login' | 'demo';
 
 /** initialCode: from a join link or QR poster, #/join/GODAV-7K2M */
-export function Welcome({ onLoggedIn, initialCode }: { onLoggedIn: () => Promise<void>; initialCode?: string }) {
+export function Welcome({ onLoggedIn, initialCode, initialMode }: { onLoggedIn: () => Promise<void>; initialCode?: string; initialMode?: 'demo' }) {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('heard.lang') as Lang) || 'en');
-  const [mode, setMode] = useState<Mode>('join');
+  const [mode, setMode] = useState<Mode>(initialMode ?? 'join');
   const [newCode, setNewCode] = useState<string | null>(null);
   const t = strings(lang);
 
@@ -23,7 +23,7 @@ export function Welcome({ onLoggedIn, initialCode }: { onLoggedIn: () => Promise
       <div className="app">
         <div className="page">
           <div>
-            <div className="brand">Heard</div>
+            <a className="logo welcome-logo" href="#/"><span className="logo-mark" aria-hidden>H</span>Heard</a>
             <p className="tagline">{t.appTagline}</p>
           </div>
           <LanguagePicker value={lang} onChange={setLang} />

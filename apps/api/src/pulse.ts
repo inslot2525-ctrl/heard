@@ -97,7 +97,7 @@ export async function recordPulse(db: Db, chat: Chat | null, student: { id: stri
     .values(row)
     .onConflictDoUpdate({
       target: [pulses.studentId, pulses.week],
-      set: { studies: row.studies, money: row.money, health: row.health, home: row.home, note: row.note, wantsToTalk: row.wantsToTalk },
+      set: { studies: row.studies, money: row.money, health: row.health, home: row.home, note: row.note, wantsToTalk: row.wantsToTalk, themes: null },
     })
     .returning();
 

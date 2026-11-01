@@ -5,7 +5,9 @@ import { and, desc, eq, inArray } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { Chat } from '../chat.js';
 import type { Db } from '../db/client.js';
-import { FLAG_STATUSES, flags, users, type FlagStatus } from '../db/schema.js';
+import { FLAG_STATUSES, flags, interventions, users, type FlagStatus } from '../db/schema.js';
+import { isoWeek } from '@heard/shared';
+import { newId } from '../ids.js';
 import { NexconnError } from '../nexconn.js';
 import { checkOpener } from '../openers.js';
 import { requireSession, type AuthVars } from '../session.js';
@@ -15,9 +17,10 @@ export interface FlagDeps {
   db: Db;
   chat: Chat | null;
   sessionSecret: string;
+  now?: () => Date;
 }
 
-export function flagRoutes({ db, chat, sessionSecret }: FlagDeps) {
+export function flagRoutes({ db, chat, sessionSecret, now = () => new Date() }: FlagDeps) {
   const r = new Hono<AuthVars>();
   r.use('*', requireSession(sessionSecret), requireRole('mentor'));
 
@@ -72,6 +75,8 @@ export function flagRoutes({ db, chat, sessionSecret }: FlagDeps) {
       }
     }
     const [updated] = await db.update(flags).set({ status: 'contacted', openerSent: text!.trim() }).where(eq(flags.id, row.flag.id)).returning();
+    // Reaching out counts as help, for "improved after help".
+    await db.insert(interventions).values({ id: newId('i'), studentId: row.student.id, mentorId, kind: 'reached_out', week: isoWeek(now()), flagId: row.flag.id });
     return c.json(updated);
   });
 

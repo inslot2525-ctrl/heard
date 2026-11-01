@@ -22,7 +22,8 @@ const ICON: Record<ChatItem['role'], string> = {
 export function chatLabels(c: ChatItem, t: Strings): { title: string; subtitle?: string } {
   switch (c.role) {
     case 'mentor': return { title: c.title, subtitle: t.yourMentor };
-    case 'assistant': return { title: t.assistantTitle, subtitle: t.assistantSub };
+    case 'assistant':
+      return c.title === 'Ask Heard' ? { title: t.askHeard, subtitle: t.askHeardSub } : { title: t.assistantTitle, subtitle: t.assistantSub };
     case 'notices': return { title: t.noticesTitle };
     case 'mentors': return { title: t.mentorsRoom, subtitle: t.mentorsRoomSub };
     default: return { title: c.title, subtitle: c.subtitle };
@@ -73,5 +74,16 @@ export function ChatList({ filter }: { filter?: (c: ChatItem) => boolean }) {
         );
       })}
     </nav>
+  );
+}
+
+/** Chats as a page of its own (sidebar / bottom tab "Chats"). */
+export function ChatsPage() {
+  const t = useT();
+  return (
+    <div className="page">
+      <h1 className="page-title">{t.chats}</h1>
+      <ChatList />
+    </div>
   );
 }
