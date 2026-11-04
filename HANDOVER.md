@@ -42,7 +42,7 @@ Store values only in the team password manager, never here.
 | `DEMO_PASSCODE` | Render env + local `.env`. **Change it before judges see the app** (the local one is guessable). | Aditya |
 | Card bound to Nexconn? (translation / moderation / calls) | no (the free translation quota is 10K characters; after that a card is needed) | – |
 
-- [ ] Check the Nexconn plan expiry in the console: one doc says the Free plan is "valid for one month", another says a year (`docs/SPIKES.md`). The app must still work during judging (Nov 23–27).
+- **Nexconn plan (checked in the console Nov 4):** Chat Free, started Oct 30, **expires Nov 29, 2026**; then Starter or Pro is needed. Covers judging (Nov 23–27) but not results day (Dec 1). Quotas: 2,000 MAU, 100 concurrent connections, 0.49 GB storage/upload. Usage on Nov 3: 25 MAU (the 25 demo personas, connected by our own testing, so **not traction**), 14 peak connections.
 - [ ] Om added as a member or co-owner wherever the platform allows (GitHub, Render, Neon, Nexconn)
 - [ ] Every secret in `.env.example` has a matching value in the password manager
 
