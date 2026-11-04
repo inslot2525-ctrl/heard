@@ -49,16 +49,26 @@ export async function provisionCampus(db: Db, chat: Chat | null, spec: CampusSpe
   return { botId };
 }
 
-/** Create one join code per role (and per hostel for students). Returns code → description. */
-export async function createJoinCodes(db: Db, campusId: string, opts: { maxUses?: number; expiresAt?: Date } = {}) {
+/** "Godavari Hostel" → GODAV; "Hostel A" → HOSTA (keep a short last word so hostels differ). */
+export function codePrefix(name: string) {
+  const words = name.trim().split(/\s+/);
+  const last = words.at(-1) ?? '';
+  return words.length > 1 && last.length <= 2 ? words[0].slice(0, 5 - last.length) + last : name;
+}
+
+/**
+ * Create one join code per role (and per hostel for students). Returns code → description.
+ * Use maxUsesByRole on a real campus so a leaked mentor or warden code can't be reused by others.
+ */
+export async function createJoinCodes(db: Db, campusId: string, opts: { maxUses?: number; maxUsesByRole?: Partial<Record<Role, number>>; expiresAt?: Date } = {}) {
   const hostelRows = await db.select().from(hostels).where(eq(hostels.campusId, campusId));
   const out: { code: string; role: Role; hostel?: string }[] = [];
   const add = async (role: Role, prefix: string, hostelId?: string, hostelName?: string) => {
     const code = newJoinCode(prefix);
-    await db.insert(invites).values({ code, campusId, role, hostelId, maxUses: opts.maxUses ?? 200, expiresAt: opts.expiresAt });
+    await db.insert(invites).values({ code, campusId, role, hostelId, maxUses: opts.maxUsesByRole?.[role] ?? opts.maxUses ?? 200, expiresAt: opts.expiresAt });
     out.push({ code, role, hostel: hostelName });
   };
-  for (const h of hostelRows) await add('student', h.name, h.id, h.name); // e.g. GODAV-7K2M
+  for (const h of hostelRows) await add('student', codePrefix(h.name), h.id, h.name); // GODAV-7K2M, HOSTA-…
   await add('mentor', 'MENTR');
   await add('warden', 'WARDN');
   return out;
