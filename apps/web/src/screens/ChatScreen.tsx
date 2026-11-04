@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { HELPLINES, needsTranslation, type AskAnswer, type FlagCard, type PulseResponse, type SafetyCard } from '@heard/shared';
 import { useMe } from '../App';
 import { api, type ChatItem, type Lang } from '../api';
-import { chatKey, connectChat, loadHistory, onMessage, sendText, sendVoice, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
+import { chatKey, clearChatForMe, connectChat, loadHistory, onMessage, sendText, sendVoice, translateMessage, cachedTranslation, type ChatMessage } from '../chat-client';
 import { useT } from '../i18n';
 import { go, href } from '../router';
 import { chatLabels, useChats } from './ChatList';
 import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
 import { VoiceBubble, VoiceButton } from './Voice';
+import { Trash2 } from 'lucide-react';
 import { AskCard, AskSuggestions } from './AskCard';
 
 type Person = { id: string; name: string; role: string; lang: Lang };
@@ -47,6 +48,7 @@ export function ChatScreen({ route }: { route: string[] }) {
   const [tone, setTone] = useState<ToneResult | null>(null);
   // Shown right here when the safety check fires (the helpline card also goes to the assistant chat).
   const [showHelp, setShowHelp] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const key = item ? chatKey(item) : '';
 
@@ -143,7 +145,30 @@ export function ChatScreen({ route }: { route: string[] }) {
           {label.title}
           {label.subtitle && <span className="sub">{label.subtitle}</span>}
         </h1>
+        <span className="spacer" />
+        <button className="btn ghost small" onClick={() => setConfirmClear((v) => !v)} aria-label={t.clearChat} title={t.clearChat}>
+          <Trash2 size={16} aria-hidden />
+        </button>
       </header>
+      {confirmClear && (
+        <div className="clear-bar row small">
+          {t.clearChatAsk}
+          <button
+            className="btn danger small"
+            onClick={() => {
+              setConfirmClear(false);
+              clearChatForMe(item)
+                .then((ok) => ok && setMessages([]))
+                .catch(() => undefined);
+            }}
+          >
+            {t.clearChat}
+          </button>
+          <button className="btn ghost small" onClick={() => setConfirmClear(false)}>
+            {t.cancel}
+          </button>
+        </div>
+      )}
       <div className="messages" aria-live="polite">
         {messages === null && <div className="status">{t.connecting}</div>}
         {messages?.length === 0 && !(me.user.role === 'mentor' && item.role === 'assistant') && <div className="status">{t.noMessages}</div>}

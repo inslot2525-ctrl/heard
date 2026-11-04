@@ -5,6 +5,8 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  clearChat: 'Clear chat',
+  clearChatAsk: 'Clear this chat for you? The other person keeps their copy.',
   themesTitle: 'What students wrote about (last 4 weeks)',
   fairnessTitle: 'Fairness check',
   fairnessHint: 'Share of students flagged in the last 8 weeks, by group. A big gap is worth a look: the rules or translation may treat a group differently.',
@@ -175,6 +177,8 @@ const en = {
 export type Strings = typeof en;
 
 const hi: Partial<Strings> = {
+  clearChat: 'चैट साफ़ करें',
+  clearChatAsk: 'यह चैट आपके लिए साफ़ करें? दूसरे व्यक्ति के पास उनकी कॉपी रहेगी।',
   fairnessHint: 'पिछले 8 हफ़्तों में किन समूहों के कितने छात्रों पर संकेत आया। बड़ा अंतर हो तो जाँचें: हो सकता है नियम या अनुवाद किसी समूह के साथ अलग बर्ताव कर रहे हों।',
   themesTitle: 'छात्रों ने किस बारे में लिखा (पिछले 4 हफ़्ते)',
   fairnessTitle: 'निष्पक्षता जाँच',
@@ -323,6 +327,8 @@ const hi: Partial<Strings> = {
 };
 
 const mr: Partial<Strings> = {
+  clearChat: 'चॅट साफ करा',
+  clearChatAsk: 'ही चॅट तुमच्यासाठी साफ करायची? दुसऱ्या व्यक्तीकडे त्यांची प्रत राहील.',
   fairnessHint: 'मागील 8 आठवड्यांत प्रत्येक गटातील किती विद्यार्थ्यांसाठी संकेत आला. मोठा फरक दिसल्यास तपासा: नियम किंवा भाषांतर एखाद्या गटाला वेगळे वागवत असू शकतात.',
   themesTitle: 'विद्यार्थ्यांनी कशाबद्दल लिहिले (मागील 4 आठवडे)',
   fairnessTitle: 'निष्पक्षता तपासणी',
@@ -472,6 +478,8 @@ const mr: Partial<Strings> = {
 
 
 const zh: Partial<Strings> = {
+  clearChat: '清空聊天',
+  clearChatAsk: '仅为你清空此聊天？对方仍保留他们的记录。',
   fairnessHint: '最近 8 周内各组被提示的学生比例。差距较大时值得查看：规则或翻译可能对某个群体有偏差。',
   themesTitle: '学生写到的话题（最近 4 周）',
   fairnessTitle: '公平性检查',

@@ -1,12 +1,14 @@
 // Seed the fake demo campus into the database and Nexconn. Safe to rerun.
 //   pnpm --filter @heard/api seed:demo           add anything missing
-//   pnpm --filter @heard/api seed:demo --reset   delete demo pulses/flags first (fresh demo)
+//   pnpm --filter @heard/api seed:demo --reset   fresh demo: delete demo check-ins, flags, help log and
+//                                                safety alerts; put names/languages/hostels back
+//   (Chat history lives in Nexconn and is not touched; use "Clear chat" in the app as each demo user.)
 // Uses DATABASE_URL if set, otherwise the local PGlite database.
 
 import { eq, inArray, sql } from 'drizzle-orm';
 import { addToCampusChat, createJoinCodes, provisionCampus } from '../src/campus.js';
 import { openDb } from '../src/db/client.js';
-import { flags, invites, mentorAssignments, pulses, users } from '../src/db/schema.js';
+import { flags, interventions, invites, mentorAssignments, pulses, safetyEvents, users } from '../src/db/schema.js';
 import { DEMO_CAMPUS, DEMO_STAFF, DEMO_STUDENTS, demoPulses } from '../src/demo.js';
 import { evaluateStudent } from '../src/flags.js';
 import { env, nexconnConfigured } from '../src/env.js';
@@ -30,9 +32,14 @@ const people = [...DEMO_STAFF, ...DEMO_STUDENTS];
 const demoIds = people.map((p) => p.id);
 
 if (reset) {
+  await db.delete(interventions).where(inArray(interventions.studentId, demoIds));
+  await db.delete(safetyEvents).where(inArray(safetyEvents.studentId, demoIds));
   await db.delete(flags).where(inArray(flags.studentId, demoIds));
   await db.delete(pulses).where(inArray(pulses.studentId, demoIds));
-  console.log('reset: demo pulses and flags deleted');
+  for (const p of people) {
+    await db.update(users).set({ name: p.name, lang: p.lang, hostelId: hostelDbId(p.hostel) }).where(eq(users.id, p.id));
+  }
+  console.log('reset: demo check-ins, flags, help log and safety alerts deleted; profiles restored');
 }
 
 await db
