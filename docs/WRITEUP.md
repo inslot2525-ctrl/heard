@@ -59,12 +59,12 @@ Heard is a **new codebase built during the challenge** (Oct 31 – Nov 22, 2026)
 [Only real numbers. From the warden overview and the Nexconn console:]
 - [N] students and [N] peer mentors at [college], from [date]
 - [N] check-ins answered, [N] conversations started by mentors
-- Nexconn console MAU screenshot: [attach]
+- Nexconn console MAU screenshot: [attach]. Note: the console already shows 25 MAU from our 25 demo personas (our own testing); report pilot users separately and say so.
 - Quotes: [2–3 short quotes, with permission]
 
 ## 7. Business
 
-Free for a campus up to Nexconn's 10K MAU free tier, which covers a whole college. Paid tier per campus for analytics, SSO and counsellor integrations. Buyers: college student-welfare cells and hostel administrations. [Add a source on mentoring/welfare requirements for Indian colleges if we cite one.]
+A weekly check-in creates a small, predictable load: one campus of a few thousand students fits a single Nexconn app (our Free plan alone allows 2,000 MAU). Pricing per campus per year, with analytics, SSO and counsellor integrations in the paid tier. [Check Nexconn Starter/Pro prices before quoting costs.] Buyers: college student-welfare cells and hostel administrations. [Add a source on mentoring/welfare requirements for Indian colleges if we cite one.]
 
 ## 8. Privacy and safety by design
 

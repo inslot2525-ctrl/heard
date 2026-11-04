@@ -1,7 +1,8 @@
 // Set up a real (pilot) campus and print its join posters.
 //
 //   pnpm --filter @heard/api campus create --id sahyadri --name "Sahyadri College" \
-//        --hostels "hostelA:Godavari Hostel,hostelB:Krishna Hostel" --expires 2026-12-31
+//        --hostels "hostelA:Godavari Hostel,hostelB:Krishna Hostel" --expires 2026-12-31 \
+//        [--max-students 10 --max-mentors 3 --max-wardens 1]   (uses per code; default 200)
 //   pnpm --filter @heard/api campus posters --id sahyadri [--base https://heard-web.onrender.com]
 //   pnpm --filter @heard/api campus codes --id sahyadri
 //   pnpm --filter @heard/api campus users --id sahyadri
@@ -69,7 +70,13 @@ if (cmd === 'create') {
   if (!chat) console.warn('Nexconn not configured: creating the campus in the database only.');
   await provisionCampus(db, chat, { id, name, hostels: hostelList, isPilot: true });
   const existing = await db.select().from(invites).where(eq(invites.campusId, id));
-  if (!existing.length) await createJoinCodes(db, id, { expiresAt: expires ? new Date(`${expires}T23:59:59+05:30`) : undefined });
+  if (!existing.length) {
+    const num = (n: string) => (opt(n) ? Number(opt(n)) : undefined);
+    await createJoinCodes(db, id, {
+      expiresAt: expires ? new Date(`${expires}T23:59:59+05:30`) : undefined,
+      maxUsesByRole: { student: num('max-students'), mentor: num('max-mentors'), warden: num('max-wardens') },
+    });
+  }
   const handbook = `${ROOT}data/handbook/${id}.md`;
   const exists = await stat(handbook).then(() => true, () => false);
   if (!exists) await copyFile(`${ROOT}data/handbook/_TEMPLATE.md`, handbook);
