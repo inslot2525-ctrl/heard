@@ -1,6 +1,7 @@
 // Voice notes: record in the browser (MediaRecorder, Opus), send through Nexconn as an HD voice
 // message, and show a transcript + translation (Gemini via our API) under the audio player.
 import { useEffect, useRef, useState } from 'react';
+import { Mic } from 'lucide-react';
 import { api } from '../api';
 import { useT } from '../i18n';
 
@@ -77,7 +78,7 @@ export function VoiceButton({ onRecorded, disabled }: { onRecorded: (file: File,
         </>
       ) : (
         <button type="button" className="btn" aria-label={t.recordVoice} title={t.recordVoice} disabled={disabled} onClick={() => void start()}>
-          🎙️
+          <Mic size={18} aria-hidden />
         </button>
       )}
       {error && <span className="small error">{error}</span>}

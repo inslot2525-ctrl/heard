@@ -331,3 +331,4 @@ textarea { resize: vertical; min-height: 4.5rem; }
 .fair-bar { height: 0.55rem; background: #f1f5f9; border-radius: 999px; overflow: hidden; }
 .fair-bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
 .clear-bar { gap: 0.6rem; padding: 0.5rem 1rem; background: #fef2f2; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.evidence-tr { color: var(--ink); font-style: normal; }
