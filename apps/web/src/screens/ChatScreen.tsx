@@ -145,7 +145,6 @@ export function ChatScreen({ route }: { route: string[] }) {
           {label.title}
           {label.subtitle && <span className="sub">{label.subtitle}</span>}
         </h1>
-        <span className="spacer" />
         <button className="btn ghost small" onClick={() => setConfirmClear((v) => !v)} aria-label={t.clearChat} title={t.clearChat}>
           <Trash2 size={16} aria-hidden />
         </button>

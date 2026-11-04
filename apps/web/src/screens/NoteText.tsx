@@ -11,27 +11,47 @@ function key(text: string, lang: string) {
   return `heard.note.${lang}.${h}.${text.length}`;
 }
 
-export function NoteText({ text, lang }: { text: string; lang: string }) {
-  const t = useT();
+/** Translation of a student's note into the reader's language (cached), or null when not needed / not ready. */
+export function useNoteTranslation(text: string, lang: string): string | null {
   const [tr, setTr] = useState<string | null>(() => localStorage.getItem(key(text, lang)));
   useEffect(() => {
     if (tr !== null || !needsTranslation(text, lang)) return;
+    let alive = true;
     api<{ text: string }>('/translate', { body: { text, to: lang } })
       .then((r) => {
         localStorage.setItem(key(text, lang), r.text);
-        setTr(r.text);
+        if (alive) setTr(r.text);
       })
       .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
   }, [text, lang, tr]);
+  return tr && tr.trim() !== text.trim() ? tr : null;
+}
+
+export function NoteText({ text, lang }: { text: string; lang: string }) {
+  const t = useT();
+  const tr = useNoteTranslation(text, lang);
   return (
     <>
       <div className="quote">{text}</div>
-      {tr && tr.trim() !== text.trim() && (
+      {tr && (
         <div className="translation small">
           <span className="label">{t.translatedFrom}</span> {tr}
         </div>
       )}
     </>
+  );
+}
+
+/** One-line version for list cards: the student's words, then the translation. */
+export function NoteLine({ text, lang }: { text: string; lang: string }) {
+  const tr = useNoteTranslation(text, lang);
+  return (
+    <span className="evidence-words">
+      “{text}”{tr && <span className="evidence-tr"> → {tr}</span>}
+    </span>
   );
 }
 

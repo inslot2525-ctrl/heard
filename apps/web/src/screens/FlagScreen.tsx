@@ -7,9 +7,12 @@ import { go, href } from '../router';
 import { ruleLabel } from './MentorHome';
 import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
 import { MeetingCardButton } from './MeetingCard';
+import { NoteText } from './NoteText';
+import { useMe } from '../App';
 
 export function FlagScreen({ flagId }: { flagId: string }) {
   const t = useT();
+  const { me } = useMe();
   const [flag, setFlag] = useState<Flag | null>(null);
   const [text, setText] = useState('');
   const [reason, setReason] = useState('');
@@ -94,7 +97,7 @@ export function FlagScreen({ flagId }: { flagId: string }) {
           {flag.evidence.studentWords && (
             <>
               <div className="small muted" style={{ marginTop: '0.75rem' }}>{t.studentWords}</div>
-              <div className="quote">{flag.evidence.studentWords}</div>
+              <NoteText text={flag.evidence.studentWords} lang={me.user.lang} />
             </>
           )}
         </section>

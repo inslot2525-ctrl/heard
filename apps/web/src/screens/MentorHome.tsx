@@ -4,6 +4,8 @@ import { api, type Flag } from '../api';
 import { onMessage } from '../chat-client';
 import { useT } from '../i18n';
 import { href } from '../router';
+import { useMe } from '../App';
+import { NoteLine } from './NoteText';
 
 export function MentorHome() {
   const t = useT();
@@ -84,6 +86,8 @@ function Inbox() {
 
 /** One flag as an evidence card: who, which rule, the plain reason, their words. */
 function EvidenceCard({ f }: { f: Flag }) {
+  const { me } = useMe();
+  const lang = me.user.lang;
   const isUrgent = f.rule.startsWith('safety');
   return (
     <a className={`card evidence-card${isUrgent ? ' urgent' : ''}`} href={href('flag', f.id)}>
@@ -95,7 +99,7 @@ function EvidenceCard({ f }: { f: Flag }) {
           <span className="small muted">{f.week}</span>
         </span>
         <span className="evidence-reason">{f.reason}</span>
-        {f.evidence.studentWords && <span className="evidence-words">“{f.evidence.studentWords}”</span>}
+        {f.evidence.studentWords && <NoteLine text={f.evidence.studentWords} lang={lang} />}
       </span>
       <ChevronRight size={18} className="muted" aria-hidden />
     </a>
