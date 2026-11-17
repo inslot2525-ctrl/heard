@@ -3,6 +3,7 @@
 import { CheckCircle2, CircleAlert } from 'lucide-react';
 import type { AskAnswer } from '@heard/shared';
 import { useT } from '../i18n';
+import { areaLabel } from './Register';
 import { href } from '../router';
 
 export function AskCard({ a }: { a: AskAnswer }) {
@@ -18,11 +19,11 @@ export function AskCard({ a }: { a: AskAnswer }) {
           {a.receipts.map((r, i) =>
             r.verified && r.studentId ? (
               <a key={i} className="receipt ok" href={href('student', r.studentId)}>
-                <CheckCircle2 size={14} aria-hidden /> {r.student} · {r.week} · {r.area}: <b>{r.value}</b>
+                <CheckCircle2 size={14} aria-hidden /> {r.student} · {r.week} · {areaLabel(t, r.area)}: <b>{r.value}</b>
               </a>
             ) : (
               <span key={i} className="receipt bad" title={t.receiptUnverified}>
-                <CircleAlert size={14} aria-hidden /> {r.student} · {r.week} · {r.area}: {r.value} · {t.receiptUnverified}
+                <CircleAlert size={14} aria-hidden /> {r.student} · {r.week} · {areaLabel(t, r.area)}: {r.value} · {t.receiptUnverified}
               </span>
             ),
           )}

@@ -1,116 +1,124 @@
+<div align="center">
+
 # Heard
 
-Hostel students heard early: weekly one-tap check-ins, mentor conversations started by evidence and approved by a human, and chat in Marathi, Hindi or English. Built on the Nexconn Chat SDK for the Nexconn Build Challenge 2026 (Humanitarian & Social Good).
+### Hostel students, heard before it's a crisis.
 
-> Pre-build. This README is for the team; it will be replaced with the judge-facing version before submission.
+A campus chat app on the **Nexconn Chat SDK**: a weekly one-tap check-in, an inbox that shows a mentor *who* may need a conversation and *why*, the hostel's own monthly register, and chat that works across Marathi, Hindi, English, Chinese and 200+ other languages.
 
-- Spec: [docs/MVP-SPEC.md](docs/MVP-SPEC.md)
-- Plan: [docs/PLAN.md](docs/PLAN.md)
-- Handover: [HANDOVER.md](HANDOVER.md)
-- Rules for Claude Code sessions: [CLAUDE.md](CLAUDE.md)
-- **Pilot:** [docs/pilot/README.md](docs/pilot/README.md) (runbook), guides for [wardens](docs/pilot/WARDEN.md), [mentors](docs/pilot/MENTOR.md), [students](docs/pilot/STUDENT.md), and the [privacy notice](docs/pilot/PRIVACY.md)
+**No scores. No labels. A person always decides.**
 
-## Run locally
+**[Live app](https://heard-web.onrender.com)** · Nexconn Build Challenge 2026 · Humanitarian & Social Good
 
-Needs Node 22+ and pnpm 10. No database to install: locally the API uses an embedded Postgres (PGlite) in `apps/api/.pglite`.
+<img src="docs/screenshots/landing.jpg" alt="Heard landing page" width="90%" />
+
+</div>
+
+---
+
+## Try it
+
+1. Open **https://heard-web.onrender.com** → **Try the demo campus**. The passcode is in our submission write-up.
+2. Pick a person. Everyone on "Sahyadri College (demo)" is fake.
+
+| Log in as | What to look at |
+|---|---|
+| **Prof. Anil Rao** (mentor, English) | Inbox with evidence cards → open **Rahul** (attendance slipping in the hostel register) → *Prepare for the talk* → edit and send the opener. **Ask Heard**: "who is struggling with money?" |
+| **Priya Patil** (student, Marathi) | The one-tap check-in, the hostel assistant, and chat with her mentor. She writes Marathi, Prof. Rao reads English. |
+| **Li Na** (student, Chinese) | Chat with Prof. Rao in Chinese ↔ English (Nexconn translation). |
+| **Mrs. Sunita Shinde** (warden) | **Hostel register** (read a photo of the paper register), the overview, the fairness check. |
+
+> The free server sleeps when idle: the first load can take up to a minute.
+
+## The problem
+
+On most Indian campuses, a mentor or warden first hears that a hostel student is struggling at an exam, a disciplinary hearing or a crisis. By then it is no longer a conversation. Students rarely start that conversation themselves, especially about money, homesickness or health. Many are more at ease in Marathi or Hindi than in English. Hostel communication runs on noisy group chats with no roles and no follow-up. Meanwhile the hostel's paper register, which often shows the slide first, sits in a cupboard until the six-month review.
+
+## What Heard does
+
+| | |
+|---|---|
+| <img src="docs/screenshots/inbox.jpg" alt="Mentor inbox" /> | **An inbox of evidence, not scores.** Plain rules (two "struggling" weeks in a row, a drop from the student's own usual, two weeks of silence, "I'd like to talk", attendance falling three months running) raise a card for that student's mentor. Every card shows exactly why, with the student's own words, translated. |
+| <img src="docs/screenshots/register-photo.jpg" alt="Hostel register read from a photo" /> | **The register the hostel already keeps.** The warden photographs the paper register. Gemini fills the table, every filled row is highlighted for checking, and nothing is saved until a person presses Save. Names that match no student are listed, never guessed. |
+| <img src="docs/screenshots/register-flag.jpg" alt="Register flag with perception gap" /> | **The gap is the conversation.** Rahul's attendance fell 84% → 76% → 68% → 57%, yet in his own check-ins he called studies "good". Heard shows both, as a question to ask him, not a verdict. The mentor can set one next-month target; when the record meets it, the card closes by itself. |
+| <img src="docs/screenshots/ask-heard.jpg" alt="Ask Heard with receipts" /> | **AI you can check.** *Ask Heard* answers questions about your own students, and every claim carries a receipt (student, week, value) that **code** checks against the database before it is shown. The meeting card works the same way: points that don't match the records are removed. |
+| <img src="docs/screenshots/journey.jpg" alt="Student journey" /> | **A student's journey on one page.** Check-in charts with flag weeks and help weeks marked, *In their words* (translated, tagged by topic), what the mentor did, and whether things **improved after help**. |
+| <img src="docs/screenshots/review.jpg" alt="Six-month review" /> | **An advisory six-month review.** Each criterion is OK / Watch / Concern with the numbers behind it. The suggestion never goes beyond "discuss at the review meeting". The mentor decides and writes the reason, which is stored next to what was suggested. |
+| <img src="docs/screenshots/warden.jpg" alt="Warden overview" /> | **For wardens: counts, not notes.** Check-in numbers, the topics students wrote about, and a **fairness check**: flag rates by hostel and by language, so a rule or a translation that treats one group differently shows up. |
+| <img src="docs/screenshots/student-marathi.jpg" alt="Student home in Marathi" /> | **In the student's language.** The full UI is in English, हिन्दी, मराठी and 中文. Chat is translated between any of Nexconn's 211 languages, with the original one tap away. Indian scripts go through Gemini, because in our tests Nexconn turned a Marathi request into its opposite. |
+
+**Also:**
+- **Safety path, in code, not AI.** Self-harm and ragging keywords in four languages, in any student message (also caught server-side by a Nexconn webhook), show the student the Tele-MANAS helpline (14416) and alert the mentor and every warden at once.
+- **Tone Guard** catches a blaming or clinical opener before the mentor sends it.
+- **Voice notes** are sent as Nexconn HD voice messages, transcribed and translated.
+- **A hostel handbook assistant** answers in the student's own language and hands anything personal to their mentor.
+
+## Nexconn features we use
+
+| Nexconn feature | Where in Heard |
+|---|---|
+| Chat SDK for Web (`@nexconn/chat` 26.2.1), with our own mobile-first React screens | every chat screen |
+| Community channel + subchannels (public per hostel; private notices and mentors' room) | the campus |
+| Direct channels | student ↔ mentor, student ↔ assistant, mentor ↔ Ask Heard |
+| Custom messages: `SA:PulseCard`, `SA:PulseResp`, `SA:FlagCard`, `SA:Notice`, `SA:SafetyCard`, `SA:AskAnswer` | check-ins, flags, notices, the helpline card, Ask Heard answers |
+| Message translation (`translateMessages`) | chat translation, e.g. Chinese ↔ English |
+| HD voice messages | voice notes |
+| Bot user with server-sent messages | Heard Assistant, Ask Heard, flag cards |
+| Server API: tokens, send, community and subchannel setup, user soft-delete | sign-in, campus setup, the right to be forgotten |
+| Webhooks (`message:send`, signature verified) | the safety check on every student message |
+| Message history, clear-for-me | chat history, *Clear chat* |
+
+Data centre: Singapore. Our API and database run in Singapore too.
+
+## Guardrails
+
+- **No risk scores, no labels, no diagnosis.** Openers containing labels ("depressed", "at risk", …) are refused in code.
+- **The AI never contacts a student.** It drafts; a mentor edits and sends as themselves.
+- **The app never suggests removing a student.** "Discuss at the review meeting" is its strongest suggestion.
+- **Every AI claim is checked by code** against the records (Ask Heard, the meeting card), and the photo reader only fills a table a person must confirm.
+- **Privacy:** a privacy notice must be accepted at join. Mentors see only their own students; wardens see counts, never notes. Deletion on request removes the student here and on Nexconn.
+- **Demo data only** in this repo and the demo campus.
+
+## Does it work?
+
+- **149 automated tests** (rules, API, safety path, translation routing, register, AI fallbacks). Every commit is gated on tests, typecheck and build.
+- **Rule proof** ([docs/PROOF.md](docs/PROOF.md)): on synthetic cohorts with planted problems, the inbox rules caught every planted problem but one, across three noise levels. On a calm cohort about 1 in 100 ordinary students gets a flag; on a noisy one, about 1 in 8. Every flag shows its evidence, so a mentor can dismiss it with a reason.
+- **Photo reader:** on a handwritten-style register page, it read every value correctly in about 5 seconds, matched "Yash C." to the right student and left an unknown name unmatched ([sample page](docs/screenshots/paper-register-sample.jpg)).
+- **Traction:** Heard is **pilot-ready, not yet piloted.** We want a college welfare cell or counsellor on board before real students use it. Setup takes a day: one command creates a campus with capped, expiring join codes and printable QR posters ([pilot kit](docs/pilot/README.md)).
+
+## Architecture
+
+```
+React 19 + Vite (web, mobile-first) ──── Nexconn Chat SDK ────► Nexconn (Singapore)
+        │  REST                                                     │ webhooks (message:send)
+        ▼                                                           ▼
+Hono API on Node ── Drizzle ──► Postgres (Neon, Singapore)   /webhooks/nexconn → safety check
+   │   rules, flags, register, review (pure functions in packages/shared, unit-tested)
+   └── Gemini (optional): Indian-language translation, drafts, Ask Heard, photo reading, transcripts
+```
+
+- `packages/shared`: message types, flag rules, register rules, the six-month review, languages (pure TypeScript, tested)
+- `apps/api`: Hono API, Nexconn server client, Drizzle schema + migrations, demo seed, campus tools
+- `apps/web`: React screens for students, mentors and wardens
+
+Every AI feature is optional: without a Gemini key, check-ins, flags, the register, chat and Nexconn translation still work.
+
+## Run it locally
+
+Needs Node 22+ and pnpm 10. No database to install: locally the API uses an embedded Postgres (PGlite).
 
 ```bash
 pnpm install
-cp .env.example .env                    # Nexconn App Key/Secret, a DEMO_PASSCODE
-pnpm --filter @heard/api seed:demo      # fake demo campus in the DB and on Nexconn; prints join codes
-pnpm dev                                # api on :8787, web on :5173
-pnpm test                               # unit + API tests
-pnpm typecheck
+cp .env.example .env                 # Nexconn App Key/Secret, DEMO_PASSCODE, optional GEMINI_API_KEY
+pnpm --filter @heard/api seed:demo   # the fake demo campus, in the database and on Nexconn
+pnpm dev                             # API on :8787, web on :5173
+pnpm test
 ```
 
-- Reset the demo data: `pnpm --filter @heard/api seed:demo --reset`. Wipe the local DB completely: delete `apps/api/.pglite`.
-- Spike lab (http://localhost:5173): log in as a demo persona (`demopriya`, `demorao`, `demowarden`, …) with the demo passcode. `pnpm --filter @heard/api spike <cmd>` pushes test messages to it.
-- After changing `apps/api/src/db/schema.ts`: `pnpm --filter @heard/api db:generate`, then commit the new file in `apps/api/drizzle`. Migrations run when the API starts.
+Full developer guide (API reference, deploy, campus tools): [docs/DEVELOPERS.md](docs/DEVELOPERS.md).
 
-## API so far
+## Built during the challenge
 
-Authenticated routes take `Authorization: Bearer <session>`.
+Heard is a **new codebase**, written during the Nexconn Build Challenge (Oct 31 – Nov 22, 2026); see the commit history. The concept grew out of an earlier student-support prototype by our team. No code, data or design from it is reused.
 
-**Auth**
-
-| Route | What it does |
-|---|---|
-| `POST /auth/join` `{ code, name, lang }` | Join a campus with a join code; the code decides campus, role and hostel. Returns `{ session, user, loginCode }`. **Show `loginCode` to the user once**: it's how they log back in on another device (only its hash is stored). Students get the mentor with the fewest students. |
-| `POST /auth/login` `{ code }` | Log back in with the personal login code. |
-| `POST /auth/demo-login` `{ passcode, userId }` | Log in as a seeded demo persona (demo users only). |
-| `GET /auth/demo-users` | Demo personas for a login picker. |
-| `GET /auth/me` | User, campus, hostel, and (for students) mentor. |
-| `POST /auth/nexconn-token` | Nexconn access token for the logged-in user. |
-
-Join, login and demo login are rate-limited (20 tries per 10 minutes per IP).
-
-**Check-ins (pulse)**
-
-| Route | Who | What it does |
-|---|---|---|
-| `GET /pulse/current` | student | This week (`2026-W45`) and my answer, or `null`. |
-| `POST /pulse` `{ week, levels: { studies, money, health, home }, note?, wantsToTalk? }` | student | Save or change an answer (levels: 2 good, 1 ok, 0 struggling). This week or last week only. Mirrors a `SA:PulseResp` into the student's chat with the campus bot, then runs the flag rules. Returns `{ saved, mentorNotified }`; students never see flags. |
-| `POST /pulse/rounds` | warden | Send this week's `SA:PulseCard` to every student from the campus bot. First checks last week for students who went silent. |
-
-**Mentor inbox (flags)**
-
-| Route | What it does |
-|---|---|
-| `GET /flags?status=open,contacted` | My students' flags, newest first, with `student`, `reason`, `evidence` (6-week history + the student's words) and `openerDraft` in my language. |
-| `GET /flags/:id` | One flag (only my own students'). |
-| `POST /flags/:id/opener` `{ text }` | Send my edited opener to the student as me; flag → `contacted`. Refuses labels/diagnoses ("depressed", "at risk", …). |
-| `POST /flags/:id/dismiss` `{ reason }` | Close with a reason (required). |
-| `POST /flags/:id/resolve` | Close as resolved. |
-
-A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it shows up in chat.
-
-**AI and safety** (Gemini; off without `GEMINI_API_KEY`)
-
-| Route | Who | What it does |
-|---|---|---|
-| `POST /translate` `{ text, to }` | any | Gemini translation, used for Indian languages (Nexconn garbles Marathi). Cached; rate-limited. |
-| `POST /assistant/ask` `{ text, messageId? }` | student | The Heard Assistant answers from `data/handbook/<campusId>.md` in the student's language, sent as the campus bot. Personal or unknown questions → hand-off: an `asked_for_help` flag for the mentor. |
-| `POST /safety/check` `{ text, messageId? }` | student | Runs the safety keywords on a message the student just sent. A backup for the webhook below. |
-| `POST /webhooks/nexconn` | Nexconn | Signed webhook. On `message:send`, every student text message in any chat goes through the safety check, server-side. Configure in the Nexconn console: Chat → Chat settings → Webhooks → URL `https://heard-api-htrg.onrender.com/webhooks/nexconn`, event `message:send`. |
-
-**Safety path** (`apps/api/src/safety.ts`): fixed keyword lists in English, Hindi, Marathi and Chinese, matched in code (never by AI), for self-harm and ragging. Checked on chat messages, check-in notes and assistant questions, **before** any AI. On a match: the student gets a card with Tele-MANAS 14416 and 112, the mentor gets an **urgent** flag at the top of the inbox, and every warden gets a direct alert. The lists need review by a counsellor and native speakers before the pilot.
-
-## The demo campus
-
-"Sahyadri College (demo)", fake people only: 2 hostels, 3 mentors, 1 warden, 20 students with 6 weeks of check-ins. Four students carry a story, one per flag rule (`apps/api/src/demo.ts`):
-
-| Student | Story | Flag |
-|---|---|---|
-| Priya Patil (`demopriya`, Marathi) | "money: struggling" two weeks running, asks for help with fees | repeat struggling |
-| Rohan Yadav (`demorohan`, Hindi) | health usually good, now struggling; can't sleep | drop from baseline |
-| Sneha Iyer (`demosneha`) | stopped replying two weeks ago | silent |
-| Aman Khan (`demoaman`) | tapped "I'd like to talk" | wants to talk |
-
-Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese, exchange student) talks to Prof. Rao in English: the best showcase of chat translation.
-
-## Layout
-
-- `apps/api`: Hono on Node. Drizzle ORM (PGlite locally, Postgres via `DATABASE_URL`), join-code login, Nexconn server API client.
-- `apps/web`: React + Vite on the Nexconn web SDK (`@nexconn/chat` 26.2.1). Mobile-first screens:
-  - **Welcome:** join with a code (then the one-time login code), log back in with a login code, or pick a demo persona.
-  - **Student:** this week's one-tap check-in card, then chats (mentor, hostel, notices, assistant).
-  - **Mentor:** inbox of flags → flag detail (reason, 6-week bars, the student's words, editable opener, send / resolve / dismiss) and chats with each student.
-  - **Warden:** send this week's check-in round; notices and hostel channels.
-  - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
-  - **Languages:** the full UI is written in English, Hindi, Marathi and Chinese (`src/i18n.ts`; hi/mr/zh need a native speaker's review). Chat works in all **211** languages Nexconn translates (`packages/shared/src/languages.ts`): pick any, and the UI falls back to English while messages are translated. Users can switch language any time (🌐 in the header, `POST /auth/me/lang`). The old spike lab is at `#/lab`.
-- `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).
-
-## Deploy (Render + Neon, all in Singapore)
-
-`render.yaml` is a Render Blueprint with two services:
-
-- **heard-api**: Node web service, Singapore, free plan. Runs migrations on start. Health check `/health`.
-- **heard-web**: static site (global CDN). The hash router needs no rewrite rules.
-
-Live: **https://heard-web.onrender.com** (web) and **https://heard-api-htrg.onrender.com** (API). The services know each other's public URLs from `render.yaml` (`WEB_ORIGIN`, `VITE_API_URL`). Don't use `fromService … property: host` for these: it returns Render's internal hostname, not the public one.
-
-1. Render dashboard → **New → Blueprint** → pick this repo (branch `main`).
-2. Paste the secrets it asks for (never commit them): `NEXCONN_APP_KEY`, `NEXCONN_APP_SECRET`, `DATABASE_URL` (Neon **pooled** string, Singapore project), `GEMINI_API_KEY`, `DEMO_PASSCODE`, and `VITE_NEXCONN_APP_KEY` (same App Key). `SESSION_SECRET` is generated.
-3. After the first deploy, seed the demo campus into Neon once from your machine (`pnpm --filter @heard/api seed:demo` with `DATABASE_URL` set), if it isn't there already.
-
-Free-plan note: the API sleeps after ~15 minutes idle and takes up to a minute to wake. Open `/health` a minute before a demo.
+**Team:** Aditya Chimurkar, Om.

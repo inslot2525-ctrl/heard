@@ -70,7 +70,10 @@ export function App() {
   if (route[0] === 'chat') screen = <ChatScreen route={route.slice(1)} />;
   else if (route[0] === 'flag' && route[1]) screen = <FlagScreen flagId={route[1]} />;
   else if (route[0] === 'chats') screen = <ChatsPage />;
-  else if (route[0] === 'register' && me.user.role === 'warden') screen = <RegisterSheet />;
+  else if (route[0] === 'register' && me.user.role === 'warden') {
+    screen = <RegisterSheet />;
+    wide = true;
+  }
   else if (route[0] === 'students' && me.user.role === 'mentor') {
     wide = true;
     screen = <StudentsPage />;

@@ -5,6 +5,7 @@ import { CheckCircle2, ClipboardList, Printer } from 'lucide-react';
 import type { AskReceipt } from '@heard/shared';
 import { api } from '../api';
 import { useT } from '../i18n';
+import { areaLabel } from './Register';
 
 interface Point {
   text: string;
@@ -21,6 +22,7 @@ interface Card {
 }
 
 function Points({ items }: { items: Point[] }) {
+  const t = useT();
   return (
     <ul className="m-points">
       {items.map((p) => (
@@ -29,7 +31,7 @@ function Points({ items }: { items: Point[] }) {
           <span className="m-receipts">
             {p.receipts.map((r, i) => (
               <span key={i} className="receipt ok">
-                <CheckCircle2 size={12} aria-hidden /> {r.week} · {r.area}: {r.value}
+                <CheckCircle2 size={12} aria-hidden /> {r.week} · {areaLabel(t, r.area)}: {r.value}
               </span>
             ))}
           </span>

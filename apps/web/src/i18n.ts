@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react';
 import { uiLangFor, type UiLang } from '@heard/shared';
 
 const en = {
+  registerShort: "register",
   registerTitle: "Hostel register",
   registerHint: "Monthly records for each student. Leave a column empty if your hostel doesn't track it. Saving checks the records and tells a student's mentor when something has changed, with the numbers.",
   readPhoto: "Read a photo of the register",
