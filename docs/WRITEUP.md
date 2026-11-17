@@ -50,17 +50,27 @@ Heard is a **new codebase built during the challenge** (Oct 31 – Nov 22, 2026)
 
 ## 5. Does it work?
 
-- **[N] automated tests** across the rules, API, safety path, translation routing and AI fallbacks; every commit is gated on tests, typecheck and build.
+- **130 automated tests** across the rules, API, safety path, translation routing and AI fallbacks; every commit is gated on tests, typecheck and build.
 - **Rule proof** (`docs/PROOF.md`): on synthetic cohorts with planted problems, the four inbox rules caught 100% of planted problems (all but one in the noisiest cohort). On a calm cohort about 1 in 100 ordinary students gets a flag; on a noisy one about 1 in 8, every one with its evidence on screen so a mentor can dismiss it with a reason.
 - Deployed on Render + Neon in Singapore (close to Nexconn's Singapore data centre).
 
-## 6. Pilot and traction
+## 6. Traction: pilot-ready, not yet piloted
 
-[Only real numbers. From the warden overview and the Nexconn console:]
-- [N] students and [N] peer mentors at [college], from [date]
-- [N] check-ins answered, [N] conversations started by mentors
-- Nexconn console MAU screenshot: [attach]. Note: the console already shows 25 MAU from our 25 demo personas (our own testing); report pilot users separately and say so.
-- Quotes: [2–3 short quotes, with permission]
+We have **not run a pilot with real students yet**, and we would rather say so than show a thin one. Heard handles
+sensitive data (how a student is doing with money, health and home), so we want a college's welfare cell or a
+counsellor on board before real students use it. What we have instead:
+
+- **Ready to launch on a campus in a day:**
+  - one command creates the campus with join codes (capped per role, with an expiry date) and printable QR posters,
+  - a privacy notice every user must accept,
+  - guides for wardens, mentors and students (`docs/pilot/`),
+  - one-command deletion that also removes the user on Nexconn,
+  - a warden dashboard that counts usage.
+- **Pilot plan after the challenge:** one hostel, 4 weeks, with a counsellor reviewing the safety lists first. We will
+  measure: weekly check-in response rate, time from flag to the mentor's first message, flags acted on vs dismissed
+  (with reasons), and whether students who were helped show "improved after help".
+- **Nexconn usage today:** the console shows 25 MAU. These are our 25 **demo personas**, used while building and
+  testing, **not real users**.
 
 ## 7. Business
 
@@ -88,4 +98,4 @@ Before recording: `seed:demo --reset`, open `/health` on the API a minute early,
 | 1:40 | Rao | Ask Heard: "who's struggling with money?" → answer with receipts. Student journey: charts, help log. |
 | 2:05 | Li Na ↔ Rao | Chinese ↔ English chat (Nexconn translation). |
 | 2:20 | Warden | Overview: numbers, topics, fairness check. A test safety message → helpline card + urgent alert. |
-| 2:45 | – | Pilot numbers + one quote; one slide of Nexconn features used. |
+| 2:45 | – | "Pilot-ready": the campus setup command + QR poster in 5 seconds; one slide of Nexconn features used. |

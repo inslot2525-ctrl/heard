@@ -23,7 +23,7 @@ _Draft filled in on Nov 4 with everything that is true today; update the blanks 
 | F7 Safety path | ✅ done | Fixed keyword lists en/hi/mr/zh; helpline card; urgent mentor flag; warden alert; also server-side via webhook. **Lists not yet reviewed by a counsellor or native speakers.** |
 | Extras | ✅ done | Ask Heard (answers with receipts checked by code), voice notes + transcripts, topic tags, fairness view, Clear chat. |
 | Deploy (Render + Neon) | ✅ live | Both in Singapore. Free plan: the API sleeps after ~15 min idle; open `/health` a minute before a demo. |
-| Pilot | ⬜ not started | No warden; the plan is a peer-mentor pilot with classmates. users: 0 · mentors: 0 |
+| Pilot | ⏸ not before submission (decided Nov 17) | Campus `learnuni` exists with only Aditya as warden; codes expire Nov 29. The write-up says "pilot-ready, not yet piloted" (§6). |
 
 ## 2. Accounts and secrets
 
@@ -85,7 +85,7 @@ See `docs/SPIKES.md`. Learned since then:
 
 ## 6. Open issues and next steps (in priority order)
 
-1. Pilot: 5–10 classmates as students + 1–2 as mentors; send one round a week; collect quotes (business/traction is 20% of the score).
+1. No pilot before submission (Nov 17 decision): strengthen the business case in the write-up instead (§6–7).
 2. Counsellor and native-speaker review of the safety lists and the hi/mr/zh UI strings.
 3. Change `DEMO_PASSCODE` on Render and locally; put the new one only in the write-up.
 4. Write-up PDF (`docs/WRITEUP.md` is the draft) and the demo video (script in the same file).
