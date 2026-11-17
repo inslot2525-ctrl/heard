@@ -28,6 +28,11 @@ Heard is a campus chat app on the **Nexconn Chat SDK** with one idea at its core
    - **Voice notes:** Nexconn HD voice messages, transcribed and translated.
 7. **For wardens, counts, not notes.** Pilot numbers, the topics students wrote about (tagged from a fixed list, never feelings) and a **fairness check**: flag rates by hostel and by language, so a rule or translation that treats one group differently shows up.
 8. **Hostel handbook assistant.** Students ask about fees, mess timings or rules in their own language. Anything personal is handed to their mentor.
+9. **Hostel register: the paper the hostel already keeps.** Wardens record each student's month (attendance, marks, hostel duties, activities, conduct incidents; any column can stay empty), typed in or **read from a photo of the paper register**. The photo only fills the table: every row is highlighted for the warden to check before anything is saved, and names that match no student are listed, never guessed.
+   - **Register rules**, as plain as the check-in rules: a three-month decline, a drop against the student's own usual, repeated conduct incidents (a one-off never flags). The mentor gets the card with the month-by-month numbers and the warden's remarks.
+   - **Perception gap:** when the register shows a slide but the student's own check-ins say studies are "good", the card says so, as a question to ask rather than a verdict.
+   - **Next-month target:** one small goal ("attendance at least 75% in December"). When the next record meets it, the flag closes by itself.
+   - **Six-month review:** each criterion is OK / Watch / Concern with its evidence, plus an advisory suggestion that never goes beyond "discuss at the review meeting". The app never suggests removing a student. The mentor decides and writes the reason, which is stored next to what was suggested.
 
 ## 3. Nexconn features we use, and where
 
@@ -50,7 +55,7 @@ Heard is a **new codebase built during the challenge** (Oct 31 – Nov 22, 2026)
 
 ## 5. Does it work?
 
-- **130 automated tests** across the rules, API, safety path, translation routing and AI fallbacks; every commit is gated on tests, typecheck and build.
+- **149 automated tests** across the rules, API, safety path, translation routing and AI fallbacks; every commit is gated on tests, typecheck and build.
 - **Rule proof** (`docs/PROOF.md`): on synthetic cohorts with planted problems, the four inbox rules caught 100% of planted problems (all but one in the noisiest cohort). On a calm cohort about 1 in 100 ordinary students gets a flag; on a noisy one about 1 in 8, every one with its evidence on screen so a mentor can dismiss it with a reason.
 - Deployed on Render + Neon in Singapore (close to Nexconn's Singapore data centre).
 
@@ -97,5 +102,6 @@ Before recording: `seed:demo --reset`, open `/health` on the API a minute early,
 | 1:20 | Priya | The opener arrives in Marathi; she replies in Marathi; Rao reads it in English. |
 | 1:40 | Rao | Ask Heard: "who's struggling with money?" → answer with receipts. Student journey: charts, help log. |
 | 2:05 | Li Na ↔ Rao | Chinese ↔ English chat (Nexconn translation). |
-| 2:20 | Warden | Overview: numbers, topics, fairness check. A test safety message → helpline card + urgent alert. |
+| 2:15 | Warden | Hostel register: photo of the paper register → rows filled and highlighted → save. Rao's inbox: Rahul's attendance card with the perception gap → set a December target. |
+| 2:35 | Warden | Overview: numbers, topics, fairness check. A test safety message → helpline card + urgent alert. |
 | 2:45 | – | "Pilot-ready": the campus setup command + QR poster in 5 seconds; one slide of Nexconn features used. |
