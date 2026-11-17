@@ -62,16 +62,16 @@ Join, login and demo login are rate-limited (20 tries per 10 minutes per IP).
 
 A new flag also sends the mentor a `SA:FlagCard` from the campus bot, so it shows up in chat.
 
-**Hostel register** (monthly records kept by the warden; rules in )
+**Hostel register** (monthly records kept by the warden; rules in `packages/shared/src/register.ts`)
 
 | Route | Who | What it does |
 |---|---|---|
-|  | warden | The month's sheet for the campus. |
-|   | warden | Save rows (any value may be empty), then run the register rules (3-month decline, drop vs own usual, repeated conduct) and check targets. A continuing problem refreshes the open card instead of opening a new one. |
-|   | warden | Read a photo of the paper register (Gemini). Returns rows with matched students; **nothing is saved**. |
-|  | mentor (own students) | 6 months of records, targets with met / not met, the advisory six-month review, past decisions. |
-|   | mentor | Next-month target; when met, the linked flag resolves. |
-|   | mentor | Record the decision (continue / continue with support / refer) with a required reason, stored with the suggestion shown. |
+| `GET /register?month=&hostelId=` | warden | The month's sheet for the campus. |
+| `PUT /register` `{ month, rows: [{ studentId, attendance, academics, duties, activities, conduct, remarks }], source }` | warden | Save rows (any value may be empty), then run the register rules (3-month decline, drop vs own usual, repeated conduct) and check targets. A continuing problem refreshes the open card instead of opening a new one. |
+| `POST /register/scan` `{ month, hostelId?, image: { mimeType, data } }` | warden | Read a photo of the paper register (Gemini). Returns rows with matched students; **nothing is saved**. |
+| `GET /register/students/:id` | mentor (own students) | 6 months of records, targets with met / not met, the advisory six-month review, past decisions. |
+| `POST /register/students/:id/targets` `{ metric, month, goal, flagId? }` | mentor | Next-month target; when met, the linked flag resolves. |
+| `POST /register/students/:id/review` `{ month, decision, reason }` | mentor | Record the decision (continue / continue with support / refer) with a required reason, stored with the suggestion shown. |
 
 **AI and safety** (Gemini; off without `GEMINI_API_KEY`)
 
