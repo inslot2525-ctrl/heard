@@ -40,3 +40,16 @@ describe('demo campus data', () => {
     expect(priya.slice(0, -1).every((p) => !p.note)).toBe(true);
   });
 });
+
+describe('demo register', () => {
+  it('only the two register stories trip a register rule', async () => {
+    const { evaluateRegister, monthOf } = await import('@heard/shared');
+    const { demoRegister } = await import('./demo.js');
+    const today = new Date('2026-11-17T10:00:00Z');
+    const rows = demoRegister(today);
+    const byStudent = new Map<string, typeof rows>();
+    for (const r of rows) byStudent.set(r.studentId, [...(byStudent.get(r.studentId) ?? []), r]);
+    const hits = [...byStudent].flatMap(([id, rs]) => evaluateRegister(rs, monthOf(today)).map((h) => `${id}:${h.rule}:${h.metric}`));
+    expect(hits.sort()).toEqual(['demorahul:register_decline:attendance', 'demoyash:conduct_concern:conduct']);
+  });
+});

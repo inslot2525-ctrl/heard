@@ -33,7 +33,7 @@ export const MEETING_SYSTEM = (lang: string, reason: string) =>
     '- questions: 3 open, warm, non-judgemental questions the mentor could ask (no yes/no, no "why did you");',
     '- avoid: 1-2 things not to say or do (e.g. lecturing, comparing with others, promising what they cannot keep).',
     'Every strength and change needs receipts from the sheet: {"student","week","area","value"} exactly as in the sheet',
-    '(area: studies, money, health, home, checkin, wants_to_talk, flag; value: good/ok/struggling, "no reply"/"answered", "yes", or the rule).',
+    '(area: studies, money, health, home, checkin, wants_to_talk, flag, or register_<metric> with the month as week; value: good/ok/struggling, "no reply"/"answered", "yes", the rule, or the register number as shown, e.g. 57%).',
     'Never diagnose, label, score or guess feelings. Quote the student only from their notes.',
     'Reply with JSON only: {"strengths":[{"text":"...","receipts":[...]}],"changes":[{"text":"...","receipts":[...]}],"questions":["..."],"avoid":["..."]}',
   ].join('\n');

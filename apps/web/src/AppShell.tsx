@@ -1,7 +1,7 @@
 // App shell: left sidebar + top bar on desktop, compact top bar + bottom tabs on phones.
 // Navigation depends on the role; screens render only their content.
 import { useEffect, useState, type ReactNode } from 'react';
-import { Bell, House, Inbox, LayoutDashboard, LogOut, Megaphone, MessageCircle, Sparkles, Users, type LucideIcon } from 'lucide-react';
+import { Bell, House, Inbox, LayoutDashboard, LogOut, Megaphone, MessageCircle, Sparkles, Users, type LucideIcon, ClipboardList } from 'lucide-react';
 import { useMe } from './App';
 import { api, type Flag } from './api';
 import { onMessage } from './chat-client';
@@ -40,6 +40,7 @@ function useNav(): NavItem[] {
   return [
     { key: 'overview', label: t.navOverview, icon: LayoutDashboard, to: href(), match: (r) => r.length === 0 },
     { key: 'chats', label: t.chats, icon: MessageCircle, to: href('chats'), match: (r) => r[0] === 'chats' || (r[0] === 'chat' && r[3] !== 'notices') },
+    { key: 'register', label: t.registerTitle, icon: ClipboardList, to: href('register'), match: (r) => r[0] === 'register' },
     { key: 'notices', label: t.noticesTitle, icon: Megaphone, to: href('chat', 'community', campus, 'notices'), match: (r) => r[0] === 'chat' && r[3] === 'notices' },
   ];
 }

@@ -8,6 +8,7 @@ import { ruleLabel } from './MentorHome';
 import { checkTone, TonePanel, type ToneResult } from './ToneGuard';
 import { MeetingCardButton } from './MeetingCard';
 import { NoteText } from './NoteText';
+import { metricLabel, RegisterBars, TargetForm } from './Register';
 import { useMe } from '../App';
 
 export function FlagScreen({ flagId }: { flagId: string }) {
@@ -81,7 +82,7 @@ export function FlagScreen({ flagId }: { flagId: string }) {
           <p className="flag-reason" style={{ marginTop: 0 }}>{flag.reason}</p>
           {history && (
             <>
-              <div className="small muted">{t.lastWeeks}{flag.area ? ` · ${t[flag.area]}` : ''}</div>
+              <div className="small muted">{t.lastWeeks}{flag.area ? ` · ${t[flag.area as 'studies']}` : ''}</div>
               <div className="spark" aria-label={history.map((h) => `${h.week}: ${h.level === null ? t.noReply : [t.struggling, t.ok, t.good][h.level]}`).join(', ')}>
                 {history.map((h) => (
                   <div key={h.week} className="bar" data-level={h.level ?? 'none'} title={`${h.week}`} />
@@ -92,6 +93,19 @@ export function FlagScreen({ flagId }: { flagId: string }) {
                   <span key={h.week}>{h.week.slice(-3)}</span>
                 ))}
               </div>
+            </>
+          )}
+          {flag.evidence.registerHistory && (
+            <>
+              <div className="small muted">{t.hostelRecord} · {metricLabel(t, flag.area)}</div>
+              <RegisterBars metric={flag.area} history={flag.evidence.registerHistory} />
+              {flag.evidence.remarks && (
+                <p className="small">
+                  <span className="muted">{t.remarks}:</span> {flag.evidence.remarks}
+                </p>
+              )}
+              {flag.evidence.perceptionGap && <p className="gap-line">↔ {flag.evidence.perceptionGap}</p>}
+              {!closed && <TargetForm studentId={flag.studentId} metric={flag.area} flagId={flag.id} />}
             </>
           )}
           {flag.evidence.studentWords && (

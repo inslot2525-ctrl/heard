@@ -27,6 +27,9 @@ const RULE_LABEL: Record<string, string> = {
   safety: 'URGENT: may not be safe',
   safety_ragging: 'URGENT: reported ragging',
   improved: 'Improved after help',
+  register_decline: 'Register: steady decline',
+  register_drop: 'Register: sudden drop',
+  conduct_concern: 'Register: conduct',
 };
 
 /** Colour family per rule (same idea as the team's earlier evidence-flag colours). */
@@ -39,6 +42,9 @@ const RULE_TONE: Record<string, string> = {
   safety: 'urgent',
   safety_ragging: 'urgent',
   improved: 'improved',
+  register_decline: 'decline',
+  register_drop: 'sudden',
+  conduct_concern: 'missing',
 };
 
 export function ruleLabel(rule: string) {
@@ -100,6 +106,7 @@ function EvidenceCard({ f }: { f: Flag }) {
         </span>
         <span className="evidence-reason">{f.reason}</span>
         {f.evidence.studentWords && <NoteLine text={f.evidence.studentWords} lang={lang} />}
+        {f.evidence.perceptionGap && <span className="gap-line">↔ {f.evidence.perceptionGap}</span>}
       </span>
       <ChevronRight size={18} className="muted" aria-hidden />
     </a>

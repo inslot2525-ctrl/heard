@@ -45,11 +45,19 @@ export interface Pulse {
 export interface Flag {
   id: string;
   studentId: string;
-  rule: 'repeat_struggling' | 'drop_from_baseline' | 'silent' | 'wants_to_talk' | 'asked_for_help' | 'safety' | 'safety_ragging' | 'improved';
-  area: '' | 'studies' | 'money' | 'health' | 'home';
+  rule: 'repeat_struggling' | 'drop_from_baseline' | 'silent' | 'wants_to_talk' | 'asked_for_help' | 'safety' | 'safety_ragging' | 'improved' | 'register_decline' | 'register_drop' | 'conduct_concern';
+  /** Check-in area, or a register metric for register flags. */
+  area: string;
   week: string;
   reason: string;
-  evidence: { history: { week: string; level: Level | null }[] | null; studentWords: string | null };
+  evidence: {
+    history: { week: string; level: Level | null }[] | null;
+    studentWords: string | null;
+    registerHistory?: { month: string; value: number | null }[];
+    perceptionGap?: string | null;
+    remarks?: string | null;
+    month?: string;
+  };
   status: 'open' | 'contacted' | 'resolved' | 'dismissed';
   openerDraft: string | null;
   openerSent: string | null;
