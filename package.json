@@ -6,7 +6,8 @@
     "dev": "pnpm -r --parallel --filter ./apps/* dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "writeup": "node scripts/writeup-pdf.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -15,5 +16,8 @@
     "onlyBuiltDependencies": [
       "esbuild"
     ]
+  },
+  "devDependencies": {
+    "marked": "15.0.12"
   }
 }
