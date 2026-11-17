@@ -38,14 +38,31 @@ const TEMPLATES: Record<UiLang, Record<'struggling' | 'silent' | 'wants_to_talk'
   },
 };
 
+
+// Register flags (monthly hostel records): name what the record shows, ask how it looks from their side.
+const METRIC_NAME: Record<UiLang, Record<string, string>> = {
+  en: { attendance: 'class attendance', academics: 'test marks', duties: 'hostel duties', activities: 'activities', conduct: 'things in the hostel' },
+  hi: { attendance: 'क्लास की हाज़िरी', academics: 'टेस्ट के अंक', duties: 'हॉस्टल की ड्यूटी', activities: 'गतिविधियाँ', conduct: 'हॉस्टल की बातें' },
+  mr: { attendance: 'वर्गातील हजेरी', academics: 'चाचणीचे गुण', duties: 'हॉस्टेलची कामे', activities: 'उपक्रम', conduct: 'हॉस्टेलमधील गोष्टी' },
+  zh: { attendance: '上课出勤', academics: '测验成绩', duties: '宿舍值日', activities: '课外活动', conduct: '宿舍里的事情' },
+};
+
+const REGISTER: Record<UiLang, Template> = {
+  en: (n, m) => `Hi ${n}, I was looking at this month's hostel record and noticed a change in ${m}. How are things from your side? Could we talk for a few minutes this week? You can reply here.`,
+  hi: (n, m) => `नमस्ते ${n}, इस महीने के हॉस्टल रिकॉर्ड में ${m} में कुछ बदलाव दिखा। आपकी तरफ़ से सब कैसा चल रहा है? क्या इस हफ़्ते कुछ मिनट बात कर सकते हैं? आप यहीं जवाब दे सकते हैं।`,
+  mr: (n, m) => `नमस्कार ${n}, या महिन्याच्या हॉस्टेल रेकॉर्डमध्ये ${m} यात थोडा बदल दिसला. तुमच्या बाजूने सगळे कसे चालले आहे? या आठवड्यात थोडा वेळ बोलूया का? इथेच उत्तर द्या.`,
+  zh: (n, m) => `${n}你好，我看了这个月的宿舍记录，注意到${m}有些变化。你那边情况怎么样？这周我们能聊几分钟吗？直接在这里回复就可以。`,
+};
+
 /** Drafts in the mentor's language when we have templates for it; otherwise English. */
-export function draftOpener(rule: string, area: PulseArea | '' | null, studentName: string, mentorLang: string) {
+export function draftOpener(rule: string, area: PulseArea | string | null, studentName: string, mentorLang: string) {
   const lang = uiLangFor(mentorLang);
   const first = studentName.trim().split(/\s+/)[0] || studentName;
   const t = TEMPLATES[lang];
   if (rule === 'silent') return t.silent(first, '');
   if (rule === 'wants_to_talk') return t.wants_to_talk(first, '');
-  return t.struggling(first, area ? AREA[lang][area] : AREA[lang].studies);
+  if (rule.startsWith('register_') || rule === 'conduct_concern') return REGISTER[lang](first, METRIC_NAME[lang][area ?? ''] ?? METRIC_NAME[lang].attendance);
+  return t.struggling(first, area ? (AREA[lang][area as PulseArea] ?? AREA[lang].studies) : AREA[lang].studies);
 }
 
 // Words a draft or a sent opener must not contain: labels, diagnoses, scores, threats.

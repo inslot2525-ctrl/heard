@@ -5,6 +5,7 @@ import { LangContext } from './i18n';
 import { go, useRoute } from './router';
 import { ChatScreen } from './screens/ChatScreen';
 import { FlagScreen } from './screens/FlagScreen';
+import { RegisterSheet } from './screens/Register';
 import { MentorHome } from './screens/MentorHome';
 import { StudentHome } from './screens/StudentHome';
 import { WardenHome } from './screens/WardenHome';
@@ -69,6 +70,7 @@ export function App() {
   if (route[0] === 'chat') screen = <ChatScreen route={route.slice(1)} />;
   else if (route[0] === 'flag' && route[1]) screen = <FlagScreen flagId={route[1]} />;
   else if (route[0] === 'chats') screen = <ChatsPage />;
+  else if (route[0] === 'register' && me.user.role === 'warden') screen = <RegisterSheet />;
   else if (route[0] === 'students' && me.user.role === 'mentor') {
     wide = true;
     screen = <StudentsPage />;

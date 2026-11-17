@@ -3,10 +3,10 @@
 // receipt for every claim; code then checks each receipt against the records. Verified receipts are
 // shown with a tick and link to the student; anything that doesn't match is shown as unverified.
 
-import { englishLanguageName, lastWeeks, type AskAnswer, type AskReceipt, type PulseArea } from '@heard/shared';
+import { englishLanguageName, lastMonths, lastWeeks, METRIC_INFO, METRICS, monthOf, type AskAnswer, type AskReceipt, type PulseArea } from '@heard/shared';
 import { and, eq, inArray } from 'drizzle-orm';
 import type { Db } from './db/client.js';
-import { flags, mentorAssignments, pulses, users } from './db/schema.js';
+import { flags, mentorAssignments, pulses, registerRows, users } from './db/schema.js';
 import { LlmError, type Llm } from './llm.js';
 
 export const ASK_WEEKS = 12;
@@ -30,6 +30,8 @@ export async function buildFactSheet(db: Db, mentorId: string, now: Date, onlySt
   const weeks = lastWeeks(ASK_WEEKS, now);
   const rows = await db.select().from(pulses).where(and(inArray(pulses.studentId, ids), inArray(pulses.week, weeks)));
   const open = await db.select().from(flags).where(and(inArray(flags.studentId, ids), inArray(flags.status, ['open', 'contacted'])));
+  const regMonths = lastMonths(6, monthOf(now));
+  const reg = await db.select().from(registerRows).where(and(inArray(registerRows.studentId, ids), inArray(registerRows.month, regMonths)));
 
   const lines: string[] = [`Weeks covered: ${weeks[0]} to ${weeks.at(-1)}. Levels: good, ok, struggling; "no reply" = no check-in that week.`];
   for (const p of people.sort((a, b) => a.name.localeCompare(b.name))) {
@@ -54,6 +56,18 @@ export async function buildFactSheet(db: Db, mentorId: string, now: Date, onlySt
       }
       lines.push(`  ${week}: ${parts.join(', ')}${r.note ? `; note: "${r.note.replace(/\s+/g, ' ').slice(0, 200)}"` : ''}`);
     }
+    const mine = reg.filter((x) => x.studentId === p.id).sort((a, b) => a.month.localeCompare(b.month));
+    if (mine.length) lines.push('  hostel register (monthly, kept by the warden):');
+    for (const r of mine) {
+      const parts = METRICS.flatMap((m) => {
+        const v = r[m];
+        if (v === null) return [];
+        const shown = METRIC_INFO[m].unit === 'pct' ? `${v}%` : String(v);
+        facts.set(`${key}|${r.month}|register_${m}`, shown);
+        return [`${m} ${shown}`];
+      });
+      lines.push(`  ${r.month}: ${parts.join(', ')}${r.remarks ? `; remarks: "${r.remarks.slice(0, 150)}"` : ''}`);
+    }
     for (const f of open.filter((x) => x.studentId === p.id)) {
       facts.set(`${key}|${f.week}|flag`, f.rule);
       lines.push(`  flag ${f.week}: ${f.rule}${f.area ? ` (${f.area})` : ''}, ${f.status}`);
@@ -67,7 +81,7 @@ export const ASK_SYSTEM = (lang: string) =>
     "You answer a college mentor's questions about THEIR OWN students, using ONLY the fact sheet below.",
     `Answer in ${englishLanguageName(lang)} (${lang}), briefly (at most 5 short sentences or a short list).`,
     'Every claim about a student must be backed by a receipt from the fact sheet.',
-    'Receipt fields: "student" (exact name), "week" (e.g. 2026-W44), "area" (one of: studies, money, health, home, checkin, wants_to_talk, flag), "value" (exactly as in the sheet: good / ok / struggling, "no reply" or "answered" for checkin, "yes" for wants_to_talk, the rule name for flag).',
+    'Receipt fields: "student" (exact name), "week" (e.g. 2026-W44), "area" (one of: studies, money, health, home, checkin, wants_to_talk, flag, or register_attendance / register_academics / register_duties / register_activities / register_conduct, where week is the month, e.g. 2026-11), "value" (exactly as in the sheet: good / ok / struggling, "no reply" or "answered" for checkin, "yes" for wants_to_talk, the rule name for flag, the number as shown for register, e.g. 57%).',
     'Never invent students, weeks or values. Never diagnose, label, score or rank students by risk. If the sheet does not answer the question, say so plainly.',
     'Reply with JSON only: {"answer": "...", "receipts": [{"student": "...", "week": "...", "area": "...", "value": "..."}]}',
   ].join('\n');

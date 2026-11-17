@@ -8,8 +8,10 @@
 import { eq, inArray, sql } from 'drizzle-orm';
 import { addToCampusChat, createJoinCodes, provisionCampus } from '../src/campus.js';
 import { openDb } from '../src/db/client.js';
-import { flags, interventions, invites, mentorAssignments, pulses, safetyEvents, users } from '../src/db/schema.js';
-import { DEMO_CAMPUS, DEMO_STAFF, DEMO_STUDENTS, demoPulses } from '../src/demo.js';
+import { flags, interventions, invites, mentorAssignments, pulses, registerRows, reviewDecisions, safetyEvents, targets, users } from '../src/db/schema.js';
+import { DEMO_CAMPUS, DEMO_STAFF, DEMO_STUDENTS, demoPulses, demoRegister } from '../src/demo.js';
+import { evaluateRegisterStudent } from '../src/register.js';
+import { monthOf } from '@heard/shared';
 import { evaluateStudent } from '../src/flags.js';
 import { env, nexconnConfigured } from '../src/env.js';
 import { newId } from '../src/ids.js';
@@ -33,6 +35,9 @@ const demoIds = people.map((p) => p.id);
 
 if (reset) {
   await db.delete(interventions).where(inArray(interventions.studentId, demoIds));
+  await db.delete(targets).where(inArray(targets.studentId, demoIds));
+  await db.delete(reviewDecisions).where(inArray(reviewDecisions.studentId, demoIds));
+  await db.delete(registerRows).where(inArray(registerRows.studentId, demoIds));
   await db.delete(safetyEvents).where(inArray(safetyEvents.studentId, demoIds));
   await db.delete(flags).where(inArray(flags.studentId, demoIds));
   await db.delete(pulses).where(inArray(pulses.studentId, demoIds));
@@ -72,6 +77,16 @@ if (chat) {
 let flagged = 0;
 for (const s of DEMO_STUDENTS) flagged += (await evaluateStudent(db, chat, s.id)).length;
 console.log(`flags: ${flagged} new`);
+
+// Hostel register: six months of records, entered by the demo warden; the register rules add two story flags.
+const reg = demoRegister();
+await db
+  .insert(registerRows)
+  .values(reg.map((r) => ({ id: newId('r'), ...r, source: 'manual' as const, enteredBy: 'demowarden' })))
+  .onConflictDoNothing();
+let regFlags = 0;
+for (const s of DEMO_STUDENTS) regFlags += (await evaluateRegisterStudent(db, chat, s.id, monthOf(new Date()))).length;
+console.log(`register: ${reg.length} rows, ${regFlags} new flags`);
 
 const existing = await db.select().from(invites).where(eq(invites.campusId, campusId));
 const hostelName = (dbId: string | null) => DEMO_CAMPUS.hostels.find((h) => hostelDbId(h.id) === dbId)?.name;

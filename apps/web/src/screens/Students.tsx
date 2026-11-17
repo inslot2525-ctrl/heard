@@ -9,6 +9,7 @@ import { href } from '../router';
 import { RulePill } from './MentorHome';
 import { HelpLog } from './HelpLog';
 import { NoteText, ThemeChips } from './NoteText';
+import { HostelRecord } from './Register';
 import { useMe } from '../App';
 
 type Area = 'studies' | 'money' | 'health' | 'home';
@@ -168,6 +169,8 @@ export function StudentScreen({ id }: { id: string }) {
           </section>
         </aside>
       </div>
+
+      <HostelRecord studentId={j.student.id} />
 
       <section className="card">
         <h2>

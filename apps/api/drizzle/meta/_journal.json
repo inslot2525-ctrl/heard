@@ -43,6 +43,13 @@
       "when": 1793513729974,
       "tag": "0005_lively_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794892069791,
+      "tag": "0006_low_molecule_man",
+      "breakpoints": true
     }
   ]
 }

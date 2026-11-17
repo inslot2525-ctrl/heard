@@ -2,7 +2,7 @@
 // Four students carry designed stories (one per flag rule); everyone else is steady and must
 // never trigger a flag. demo.test.ts checks both.
 
-import { lastWeeks, type PulseLevel } from '@heard/shared';
+import { lastMonths, lastWeeks, monthOf, type PulseLevel } from '@heard/shared';
 import type { CampusSpec } from './campus.js';
 import type { Lang, Role } from './db/schema.js';
 
@@ -169,3 +169,38 @@ export const DEMO_EXPECTED_FLAGS: Record<string, string> = {
   demosneha: 'silent',
   demoaman: 'wants_to_talk',
 };
+
+// ---- hostel register (monthly records) ----------------------------------------------------------------
+
+/** Register stories, on Prof. Rao's students so one mentor shows everything. Values oldest first. */
+export const REGISTER_STORIES: Record<string, Partial<Record<'attendance' | 'academics' | 'duties' | 'activities' | 'conduct', number[]>> & { remarks?: string }> = {
+  // Attendance slides for three months while his own check-ins keep saying studies are "good": a perception gap.
+  demorahul: { attendance: [93, 91, 84, 76, 68, 59], remarks: 'Missed morning lectures most of the month' },
+  // Conduct incidents in two of the last three months (a one-off would never flag).
+  demoyash: { conduct: [0, 0, 0, 1, 0, 2], remarks: 'Two late entries after gate closing' },
+};
+
+/** Six months of register rows for every demo student, ending with the month of `today`. */
+export function demoRegister(today = new Date()) {
+  const months = lastMonths(6, monthOf(today));
+  const out: { studentId: string; month: string; attendance: number; academics: number; duties: number; activities: number; conduct: number; remarks: string | null }[] = [];
+  DEMO_STUDENTS.forEach((s, i) => {
+    const r = rng(1000 + i);
+    const base = { attendance: 88 + Math.floor(r() * 7), academics: 68 + Math.floor(r() * 15), duties: 85 + Math.floor(r() * 10), activities: 9 + Math.floor(r() * 5) };
+    const story = REGISTER_STORIES[s.id] ?? {};
+    months.forEach((month, m) => {
+      const wobble = () => Math.floor(r() * 5) - 2; // ±2: steady students never trip a rule
+      out.push({
+        studentId: s.id,
+        month,
+        attendance: story.attendance?.[m] ?? Math.min(100, base.attendance + wobble()),
+        academics: story.academics?.[m] ?? base.academics + wobble(),
+        duties: story.duties?.[m] ?? Math.min(100, base.duties + wobble()),
+        activities: story.activities?.[m] ?? Math.max(0, base.activities + wobble()),
+        conduct: story.conduct?.[m] ?? 0,
+        remarks: m === months.length - 1 ? (story.remarks ?? null) : null,
+      });
+    });
+  });
+  return out;
+}

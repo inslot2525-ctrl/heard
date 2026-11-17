@@ -15,6 +15,7 @@ Today is Sat Oct 31, 2026. **Internal deadline: Sun Nov 22, 21:00 IST.** The har
 - **Oct 31 (late):** Gemini in: Indian-language translation (fixes Marathi), the Heard Assistant answering from the handbook with hand-off to mentors, and the safety path (keywords in 4 languages → helplines, urgent flag, warden alert). All verified live in the browser.
 - **Oct 31–Nov 1:** deployed (Render + Neon, Singapore), Nexconn webhooks live, pilot kit: join links + QR posters (`campus posters`), privacy notice + consent at join, warden pilot stats, `campus create/users/forget` (deletion incl. Nexconn soft-delete), guides in docs/pilot. Next: warden permission and the real handbook (people), then the pilot from Nov 12.
 - **Nov 1–4:** all P0 features plus mentor tools (Tone Guard, voice notes, Ask Heard, meeting card, help log, topic tags, fairness, rule proof in `docs/PROOF.md`), Avlokan-style UI, demo cleanup, mobile pass. HANDOVER.md filled in as a draft; write-up + video script drafted in `docs/WRITEUP.md`. Git history scanned: no secrets. **What remains is people work:** pilot users, safety/translation reviews, new DEMO_PASSCODE, video, PDF.
+- **Nov 17:** decided: no pilot before submission. The write-up says "pilot-ready, not yet piloted" and leans on the business case. Remaining: new DEMO_PASSCODE on Render, judge-facing README, business numbers, video (Nov 20–21), PDF, submit by Nov 22 21:00 IST.
 
 ## Who owns what
 
