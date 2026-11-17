@@ -18,6 +18,12 @@ function fmt(m: Metric, v: number | null) {
   return METRIC_INFO[m].unit === 'pct' ? `${v}%` : String(v);
 }
 
+/** Receipt area for display: "register_attendance" → "Attendance (register)". */
+export function areaLabel(t: Strings, area: string) {
+  if (area.startsWith('register_')) return `${metricLabel(t, area.slice(9))} (${t.registerShort})`;
+  return (t[area as keyof Strings] as string | undefined) ?? area;
+}
+
 // ---- small chart for flag cards --------------------------------------------------------------------
 
 export function RegisterBars({ metric, history }: { metric: string; history: { month: string; value: number | null }[] }) {
