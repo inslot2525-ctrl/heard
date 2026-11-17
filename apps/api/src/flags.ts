@@ -69,43 +69,72 @@ export async function evaluateStudent(db: Db, chat: Chat | null, studentId: stri
   }
   for (const hit of [...evaluate(history), ...improvedHits] as (FlagHit & { interventionId?: string })[]) {
     const area = (hit.area ?? '') as PulseArea | '';
-    const values = {
-      id: newId('f'),
-      studentId,
+    const inserted = await openFlag(db, chat, {
+      student: row.student,
       mentorId: row.mentorId,
+      mentorLang: mentor.lang,
       rule: hit.rule,
       area,
       week,
       reason: hit.reason,
       evidence: { history: hit.history ?? null, studentWords: hit.studentWords ?? null, ...(hit.interventionId ? { interventionId: hit.interventionId } : {}) },
-      openerDraft: draftOpener(hit.rule, area, row.student.name, mentor.lang),
-    };
-    const [inserted] = await db.insert(flags).values(values).onConflictDoNothing().returning();
-    if (!inserted) continue; // already flagged this week
-    created.push(inserted);
-    if (chat) {
-      const card: FlagCard = {
-        flagId: inserted.id,
-        studentId,
-        studentName: row.student.name,
-        rule: hit.rule,
-        reason: hit.reason,
-        history: hit.history,
-        studentWords: hit.studentWords,
-      };
-      try {
-        await chat.sendDirect({
-          from: botIdFor(row.student.campusId),
-          to: [row.mentorId],
-          messageType: MSG.FlagCard,
-          content: JSON.stringify(card),
-          pushContent: `Check-in update for ${row.student.name}`,
-        });
-      } catch (e) {
-        // The flag is saved and shows in the inbox; only the chat notification failed.
-        console.error('flag card send failed', inserted.id, e instanceof NexconnError ? JSON.stringify(e.body) : e);
-      }
-    }
+      card: { history: hit.history, studentWords: hit.studentWords },
+    });
+    if (inserted) created.push(inserted);
   }
   return created;
+}
+
+/**
+ * Open one flag (deduped by student/rule/area/week) and tell the mentor with a FlagCard from the campus
+ * bot. Returns the new flag, or null when it already existed. Used by check-in and register rules.
+ */
+export async function openFlag(
+  db: Db,
+  chat: Chat | null,
+  f: {
+    student: { id: string; name: string; campusId: string };
+    mentorId: string;
+    mentorLang: string;
+    rule: string;
+    area: string;
+    week: string;
+    reason: string;
+    evidence: Record<string, unknown>;
+    card?: Partial<FlagCard>;
+    opener?: string;
+  },
+) {
+  const [inserted] = await db
+    .insert(flags)
+    .values({
+      id: newId('f'),
+      studentId: f.student.id,
+      mentorId: f.mentorId,
+      rule: f.rule,
+      area: f.area,
+      week: f.week,
+      reason: f.reason,
+      evidence: f.evidence,
+      openerDraft: f.opener ?? draftOpener(f.rule, f.area as PulseArea | '', f.student.name, f.mentorLang),
+    })
+    .onConflictDoNothing()
+    .returning();
+  if (!inserted) return null;
+  if (chat) {
+    const card: FlagCard = { flagId: inserted.id, studentId: f.student.id, studentName: f.student.name, rule: f.rule, reason: f.reason, ...f.card };
+    try {
+      await chat.sendDirect({
+        from: botIdFor(f.student.campusId),
+        to: [f.mentorId],
+        messageType: MSG.FlagCard,
+        content: JSON.stringify(card),
+        pushContent: `Update for ${f.student.name}`,
+      });
+    } catch (e) {
+      // The flag is saved and shows in the inbox; only the chat notification failed.
+      console.error('flag card send failed', inserted.id, e instanceof NexconnError ? JSON.stringify(e.body) : e);
+    }
+  }
+  return inserted;
 }

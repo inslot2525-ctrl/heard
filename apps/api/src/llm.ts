@@ -5,7 +5,7 @@
 export interface Llm {
   /** Plain-text completion. Throws LlmError if every model fails. */
   /** Plain-text completion. `audio` (base64) lets the model listen, e.g. to a voice note. */
-  complete(p: { system: string; user: string; maxOutputTokens?: number; audio?: { mimeType: string; data: string }; timeoutMs?: number }): Promise<string>;
+  complete(p: { system: string; user: string; maxOutputTokens?: number; audio?: { mimeType: string; data: string }; image?: { mimeType: string; data: string }; timeoutMs?: number }): Promise<string>;
 }
 
 export class LlmError extends Error {}
@@ -18,7 +18,7 @@ export function geminiLlm(opts: { apiKey: string; models?: string[]; timeoutMs?:
   const timeoutMs = opts.timeoutMs ?? 5000;
   const f = opts.fetchImpl ?? fetch;
   return {
-    async complete({ system, user, maxOutputTokens = 1024, audio, timeoutMs: callTimeout }) {
+    async complete({ system, user, maxOutputTokens = 1024, audio, image, timeoutMs: callTimeout }) {
       const errors: string[] = [];
       for (const model of models) {
         try {
@@ -28,7 +28,7 @@ export function geminiLlm(opts: { apiKey: string; models?: string[]; timeoutMs?:
             headers: { 'Content-Type': 'application/json', 'x-goog-api-key': opts.apiKey },
             body: JSON.stringify({
               systemInstruction: { parts: [{ text: system }] },
-              contents: [{ role: 'user', parts: [...(audio ? [{ inlineData: audio }] : []), { text: user }] }],
+              contents: [{ role: 'user', parts: [...(audio ? [{ inlineData: audio }] : []), ...(image ? [{ inlineData: image }] : []), { text: user }] }],
               generationConfig: { temperature: 0, maxOutputTokens },
             }),
           });

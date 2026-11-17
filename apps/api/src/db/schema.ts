@@ -180,3 +180,73 @@ export const consents = pgTable(
   },
   (t) => [primaryKey({ columns: [t.studentId, t.kind] })],
 );
+
+// ---- hostel register (monthly records kept by the warden) ---------------------------------------------
+
+export const registerRows = pgTable(
+  'register_rows',
+  {
+    id: text('id').primaryKey(),
+    studentId: text('student_id')
+      .notNull()
+      .references(() => users.id),
+    /** "2026-11" */
+    month: text('month').notNull(),
+    attendance: smallint('attendance'),
+    academics: smallint('academics'),
+    duties: smallint('duties'),
+    activities: smallint('activities'),
+    conduct: smallint('conduct'),
+    remarks: text('remarks'),
+    /** 'manual' or 'photo' (read from a photo of the paper register and confirmed by a person). */
+    source: text('source', { enum: ['manual', 'photo'] }).notNull().default('manual'),
+    enteredBy: text('entered_by')
+      .notNull()
+      .references(() => users.id),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [uniqueIndex('register_student_month_uq').on(t.studentId, t.month)],
+);
+
+/** "12 activity days in December": set by the mentor; met or not is computed from the register. */
+export const targets = pgTable(
+  'targets',
+  {
+    id: text('id').primaryKey(),
+    studentId: text('student_id')
+      .notNull()
+      .references(() => users.id),
+    mentorId: text('mentor_id')
+      .notNull()
+      .references(() => users.id),
+    metric: text('metric').notNull(),
+    month: text('month').notNull(),
+    goal: smallint('goal').notNull(),
+    flagId: text('flag_id'),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex('targets_student_metric_month_uq').on(t.studentId, t.metric, t.month)],
+);
+
+/** The mentor's six-month review decision, stored beside the advisory suggestion that was shown. */
+export const reviewDecisions = pgTable(
+  'review_decisions',
+  {
+    id: text('id').primaryKey(),
+    studentId: text('student_id')
+      .notNull()
+      .references(() => users.id),
+    mentorId: text('mentor_id')
+      .notNull()
+      .references(() => users.id),
+    month: text('month').notNull(),
+    suggestionShown: text('suggestion_shown').notNull(),
+    decision: text('decision', { enum: ['continue', 'continue_with_support', 'refer'] }).notNull(),
+    reason: text('reason').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index('review_decisions_student_idx').on(t.studentId)],
+);
