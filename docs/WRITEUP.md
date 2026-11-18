@@ -79,14 +79,23 @@ counsellor on board before real students use it. What we have instead:
 
 ## 7. Business
 
-A weekly check-in creates a small, predictable load: one campus of a few thousand students fits a single Nexconn app (our Free plan alone allows 2,000 MAU). Pricing per campus per year, with analytics, SSO and counsellor integrations in the paid tier. [Check Nexconn Starter/Pro prices before quoting costs.] Buyers: college student-welfare cells and hostel administrations. [Add a source on mentoring/welfare requirements for Indian colleges if we cite one.]
+**Who pays.** College student-welfare cells and hostel administrations: the people who today keep the paper register and find out about a struggling student too late. Students and parents never pay.
+
+**Why it's cheap to run.** Heard's load is small and predictable: one check-in per student per week, a monthly register, and the chats people would have anyway.
+- **Chat:** Nexconn's Chat Growth Credit gives full Chat Pro features free up to **10,000 monthly active users** with unlimited messages (Nexconn lists its value at $860 a month). A hostel of a few hundred to a few thousand students fits well under that, so chat costs a campus **nothing** until it is very large. Above the quota, overages are billed at Nexconn's standard rates.
+- **AI is optional and small.** Gemini Flash-Lite is called once per check-in note (topic tags), per translated Indian-language message, per register photo and per mentor question. Check-ins, flags, the register, chat and Nexconn translation all work without it.
+- **Hosting:** one small Node service and a Postgres database (Singapore, next to Nexconn's data centre).
+
+**How we would charge.** A flat price per campus per year, so a college can budget for it, with the core free for a first hostel. The paid tier adds what a larger college asks for: several hostels and wardens, single sign-on, exports for the six-month review, and a counsellor role.
+
+**Go to market.** One hostel at a time, starting where we study: a 4-week pilot (see §6) gives the welfare cell its own numbers (check-in response rate, time from flag to first message, flags acted on), which is what convinces the next college.
 
 ## 8. Privacy and safety by design
 
 - A privacy notice must be accepted at join; mentors see only their own students; wardens see counts, never notes.
 - Deletion on request removes the student from our database and soft-deletes them on Nexconn.
 - No real student data in the repo or demo; the demo campus is fake.
-- Safety keywords are matched in code before any AI sees the text. [Reviewed by: counsellor / native speakers, once done.]
+- Safety keywords are matched in code before any AI sees the text. The lists are our own and have not yet been reviewed by a counsellor; that review comes before any pilot.
 
 ---
 
