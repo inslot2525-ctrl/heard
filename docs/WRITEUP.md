@@ -5,8 +5,8 @@
 
 ## Heard, before it's a crisis
 
-**Live app:** https://heard-web.onrender.com · **Demo login:** "Try the demo campus", passcode **[new DEMO_PASSCODE]**
-**Repo:** https://github.com/inslot2525-ctrl/rocky · **Video:** [link] · **Nexconn App Key:** [App Key]
+**Live app:** https://heard-web.onrender.com · **Demo login:** "Try the demo campus", passcode **[new DEMO_PASSCODE]**\
+**Repo:** https://github.com/inslot2525-ctrl/heard · **Video:** [link] · **Nexconn App Key:** [App Key]
 
 ## 1. The problem
 
@@ -59,12 +59,16 @@ Heard is a **new codebase built during the challenge** (Oct 31 – Nov 22, 2026)
 - **Rule proof** (`docs/PROOF.md`): on synthetic cohorts with planted problems, the four inbox rules caught 100% of planted problems (all but one in the noisiest cohort). On a calm cohort about 1 in 100 ordinary students gets a flag; on a noisy one about 1 in 8, every one with its evidence on screen so a mentor can dismiss it with a reason.
 - Deployed on Render + Neon in Singapore (close to Nexconn's Singapore data centre).
 
-## 6. Traction: pilot-ready, not yet piloted
+## 6. Traction: an early test with friends; the college pilot comes next
 
-We have **not run a pilot with real students yet**, and we would rather say so than show a thin one. Heard handles
-sensitive data (how a student is doing with money, health and home), so we want a college's welfare cell or a
-counsellor on board before real students use it. What we have instead:
+We have **not yet run a pilot with a college**. Heard handles sensitive data (how a student is doing with money,
+health and home), so we want a college's welfare cell or a counsellor on board before a hostel uses it. In the last
+days of the challenge we ran a small, informal test with friends on a separate test campus ("Learn University",
+three hostels, joined with invite codes):
 
+- **Early test, as of Nov 19:** 6 people joined with their own accounts: 2 peer mentors and 4 students across 3
+  hostels. All 4 students answered the weekly check-in, and the rules put 3 cards in the mentors' inboxes (two
+  students asked to talk; one asked the assistant something it handed to their mentor).
 - **Ready to launch on a campus in a day:**
   - one command creates the campus with join codes (capped per role, with an expiry date) and printable QR posters,
   - a privacy notice every user must accept,
@@ -74,8 +78,8 @@ counsellor on board before real students use it. What we have instead:
 - **Pilot plan after the challenge:** one hostel, 4 weeks, with a counsellor reviewing the safety lists first. We will
   measure: weekly check-in response rate, time from flag to the mentor's first message, flags acted on vs dismissed
   (with reasons), and whether students who were helped show "improved after help".
-- **Nexconn usage today:** the console shows 25 MAU. These are our 25 **demo personas**, used while building and
-  testing, **not real users**.
+- **Nexconn usage:** the console's MAU count includes our 25 **demo personas**, used while building and testing; they
+  are **not real users**. Only the people on the test campus are.
 
 ## 7. Business
 

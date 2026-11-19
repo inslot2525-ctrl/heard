@@ -8,7 +8,7 @@ A campus chat app on the **Nexconn Chat SDK**: a weekly one-tap check-in, an inb
 
 **No scores. No labels. A person always decides.**
 
-**[Live app](https://heard-web.onrender.com)** · Nexconn Build Challenge 2026 · Humanitarian & Social Good
+**[Live app](https://heard-web.onrender.com)** · **[Demo video](https://youtu.be/CgqiAs0Kykw)** · **[Write-up (PDF)](docs/Heard-writeup.pdf)** · Nexconn Build Challenge 2026 · Humanitarian & Social Good
 
 <img src="docs/screenshots/landing.jpg" alt="Heard landing page" width="90%" />
 
@@ -25,7 +25,7 @@ A campus chat app on the **Nexconn Chat SDK**: a weekly one-tap check-in, an inb
 |---|---|
 | **Prof. Anil Rao** (mentor, English) | Inbox with evidence cards → open **Rahul** (attendance slipping in the hostel register) → *Prepare for the talk* → edit and send the opener. **Ask Heard**: "who is struggling with money?" |
 | **Priya Patil** (student, Marathi) | The one-tap check-in, the hostel assistant, and chat with her mentor. She writes Marathi, Prof. Rao reads English. |
-| **Li Na** (student, Chinese) | Chat with Prof. Rao in Chinese ↔ English (Nexconn translation). |
+| **Li Na** (student, Chinese) | Chat with Prof. Rao: she writes and reads Chinese, he writes and reads English (Nexconn translation). |
 | **Mrs. Sunita Shinde** (warden) | **Hostel register** (read a photo of the paper register), the overview, the fairness check. |
 
 > The free server sleeps when idle: the first load can take up to a minute.
@@ -35,6 +35,10 @@ A campus chat app on the **Nexconn Chat SDK**: a weekly one-tap check-in, an inb
 On most Indian campuses, a mentor or warden first hears that a hostel student is struggling at an exam, a disciplinary hearing or a crisis. By then it is no longer a conversation. Students rarely start that conversation themselves, especially about money, homesickness or health. Many are more at ease in Marathi or Hindi than in English. Hostel communication runs on noisy group chats with no roles and no follow-up. Meanwhile the hostel's paper register, which often shows the slide first, sits in a cupboard until the six-month review.
 
 ## What Heard does
+
+<p align="center"><img src="docs/screenshots/chat-zh-en.jpg" alt="Li Na writes Chinese and Prof. Rao reads English; his English reply reaches her in Chinese" width="95%" /></p>
+
+**One chat, two languages.** Li Na writes and reads Chinese; Prof. Rao writes and reads English. Nexconn's message translation sits in between: every message arrives in the reader's own language, labelled *Translated*, with the original one tap away.
 
 | | |
 |---|---|
