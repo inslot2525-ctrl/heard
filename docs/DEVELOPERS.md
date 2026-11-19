@@ -105,7 +105,7 @@ Everyone else is steady and never flags (tested). **Li Na** (`demolina`, Chinese
   - **Student:** this week's one-tap check-in card, then chats (mentor, hostel, notices, assistant).
   - **Mentor:** inbox of flags → flag detail (reason, 6-week bars, the student's words, editable opener, send / resolve / dismiss) and chats with each student.
   - **Warden:** send this week's check-in round; notices and hostel channels.
-  - **Chat:** history + live messages, check-in and flag cards, automatic translation when the sender's language differs, with the original always shown.
+  - **Chat:** history + live messages, check-in and flag cards. When the sender's language differs, the message is shown translated into the reader's language, labelled "Translated", with the original one tap away.
   - **Languages:** the full UI is written in English, Hindi, Marathi and Chinese (`src/i18n.ts`; hi/mr/zh need a native speaker's review). Chat works in all **211** languages Nexconn translates (`packages/shared/src/languages.ts`): pick any, and the UI falls back to English while messages are translated. Users can switch language any time (🌐 in the header, `POST /auth/me/lang`). The old spike lab is at `#/lab`.
 - `packages/shared`: custom message types, flag rules, ISO weeks (pure functions with tests).
 

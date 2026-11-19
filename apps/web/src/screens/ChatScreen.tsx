@@ -255,9 +255,10 @@ function Body({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: 
 }
 
 /**
- * Text with translation. Incoming messages from someone whose language differs from mine are
- * translated automatically; the original always stays visible (machine translation can drop a
- * key word, see docs/SPIKES.md C).
+ * Text in the reader's language. Incoming messages from someone whose language differs from mine are
+ * translated automatically and shown translation-first, so each person reads the conversation in the
+ * language they chose. The bubble says it was translated, and the original is one tap away (machine
+ * translation can drop or flip a word, see docs/SPIKES.md C).
  */
 function TextBubble({ m, sender, myLang }: { m: ChatMessage; sender?: Person; myLang: Lang }) {
   const t = useT();
@@ -265,7 +266,8 @@ function TextBubble({ m, sender, myLang }: { m: ChatMessage; sender?: Person; my
   // Auto-translate when the sender chose another language OR the text is visibly in another script.
   const auto = !m.mine && needsTranslation(text, myLang, sender?.lang);
   const [translation, setTranslation] = useState<string | null>(() => cachedTranslation(m.id, myLang));
-  const [state, setState] = useState<'idle' | 'busy' | 'hidden' | 'failed'>('idle');
+  const [state, setState] = useState<'idle' | 'busy' | 'failed'>('idle');
+  const [showOriginal, setShowOriginal] = useState(false);
 
   function run() {
     setState('busy');
@@ -280,27 +282,24 @@ function TextBubble({ m, sender, myLang }: { m: ChatMessage; sender?: Person; my
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auto]);
 
-  const same = translation !== null && translation.trim() === text.trim();
+  const translated = translation !== null && translation.trim() !== text.trim();
   return (
     <div className="bubble">
-      {text}
-      {translation !== null && !same && state !== 'hidden' && (
-        <div className="translation">
-          <div className="label">{t.translatedFrom}</div>
-          {translation}
+      <span lang={translated && !showOriginal ? myLang : sender?.lang}>{translated && !showOriginal ? translation : text}</span>
+      {translated && (
+        <div className="tr-meta">
+          {!showOriginal && <span className="label">{t.translatedFrom}</span>}
+          <button className="linkish" onClick={() => setShowOriginal((v) => !v)}>
+            {showOriginal ? t.showTranslation : t.showOriginal}
+          </button>
         </div>
       )}
-      {!m.mine && (
+      {!m.mine && !translated && (
         <div>
           {translation === null && state !== 'busy' && (
             <button className="linkish" onClick={run}>{t.translate}</button>
           )}
           {state === 'busy' && <span className="small muted">{t.translating}</span>}
-          {translation !== null && !same && (
-            <button className="linkish" onClick={() => setState(state === 'hidden' ? 'idle' : 'hidden')}>
-              {state === 'hidden' ? t.showTranslation : t.showOriginal}
-            </button>
-          )}
         </div>
       )}
     </div>

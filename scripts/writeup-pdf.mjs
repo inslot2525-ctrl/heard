@@ -1,10 +1,12 @@
 // Build the submission PDF from docs/WRITEUP.md.
 //
-//   VIDEO_URL=https://youtu.be/... node scripts/writeup-pdf.mjs
+//   VIDEO_URL=https://youtu.be/... node scripts/writeup-pdf.mjs            submission copy (with the passcode)
+//   PUBLIC=1 VIDEO_URL=https://youtu.be/... node scripts/writeup-pdf.mjs   public copy for the repo (no passcode)
 //
 // - Drops the draft note and the internal demo-video script.
 // - Fills the App Key and demo passcode from .env, so neither is ever committed in the write-up.
-// - Writes docs/writeup/out/Heard-writeup.html and .pdf (gitignored: the PDF contains the passcode).
+// - The submission copy goes to docs/writeup/out/ (gitignored: it contains the passcode). The public copy goes to
+//   docs/Heard-writeup.pdf and says the passcode was given to the judges instead.
 // - Lists any [placeholder] still left, and refuses to finish if one is.
 
 import { execFileSync } from 'node:child_process';
@@ -22,6 +24,7 @@ const env = Object.fromEntries(
 const appKey = env.VITE_NEXCONN_APP_KEY || env.NEXCONN_APP_KEY;
 const passcode = env.DEMO_PASSCODE;
 const video = process.env.VIDEO_URL;
+const isPublic = process.env.PUBLIC === '1';
 if (passcode === 'rocky_balboa') {
   console.error('DEMO_PASSCODE in .env is still the old one. Put the new passcode in .env first.');
   process.exit(1);
@@ -31,9 +34,11 @@ let md = readFileSync(`${root}docs/WRITEUP.md`, 'utf8');
 md = md.slice(0, md.indexOf('\n---\n\n## Demo video script')); // internal script stays out of the PDF
 md = md.replace(/^# .*\n\n(> .*\n)+\n/, ''); // title + draft note
 md = md
-  .replace('[new DEMO_PASSCODE]', passcode ? `\`${passcode}\`` : '[new DEMO_PASSCODE]')
+  .replace('[new DEMO_PASSCODE]', isPublic ? 'given to the judges with our submission' : passcode ? `\`${passcode}\`` : '[new DEMO_PASSCODE]')
   .replace('[App Key]', appKey ? `\`${appKey}\`` : '[App Key]')
-  .replace('**Video:** [link]', video ? `**Video:** ${video}` : '**Video:** [link]');
+  // The video link also has its own field in the submission form, so the PDF can be built before it exists.
+  .replace(' · **Video:** [link]', video ? ` · **Video:** ${video}` : '');
+if (!video) console.log('No VIDEO_URL: building without the video line (set VIDEO_URL=<link> to include it).');
 
 const left = [...md.matchAll(/\[[^\]]+\](?!\()/g)].map((m) => m[0]);
 
@@ -55,10 +60,14 @@ const html = `<!doctype html>
   .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; page-break-inside: avoid; }
   .shots img { width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; }
   .shots figcaption { font-size: 8.5pt; color: #475569; }
+  .wide { margin: 10px 0; page-break-inside: avoid; }
+  .wide img { width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; }
+  .wide figcaption { font-size: 8.5pt; color: #475569; }
 </style></head><body>
 <header><h1>Heard</h1><p>Hostel students, heard before it's a crisis · Nexconn Build Challenge 2026 · Humanitarian &amp; Social Good · Team: Aditya Chimurkar, Om</p></header>
 ${marked.parse(md)}
 <h2>Screens</h2>
+<figure class="wide"><img src="../../screenshots/chat-zh-en.jpg"><figcaption>One chat, two languages: Li Na reads and writes Chinese, Prof. Rao English. Nexconn translation in between, each message labelled, the original one tap away.</figcaption></figure>
 <div class="shots">
 ${[
   ['inbox', 'Mentor inbox: evidence, no scores'],
@@ -74,9 +83,11 @@ ${[
 </body></html>`;
 
 const out = `${root}docs/writeup/out`;
+const name = isPublic ? 'Heard-writeup-public' : 'Heard-writeup';
+const pdf = isPublic ? `${root}docs/Heard-writeup.pdf` : `${out}/Heard-writeup.pdf`;
 mkdirSync(out, { recursive: true });
-writeFileSync(`${out}/Heard-writeup.html`, html);
-console.log(`html: ${out}/Heard-writeup.html`);
+writeFileSync(`${out}/${name}.html`, html);
+console.log(`html: ${out}/${name}.html`);
 
 if (left.length) {
   console.error(`Still to fill in: ${[...new Set(left)].join(', ')}. Not making the PDF yet.`);
@@ -88,5 +99,5 @@ if (!chrome) {
   console.error('Chrome not found: open the HTML in a browser and print to PDF.');
   process.exit(3);
 }
-execFileSync(chrome, ['--headless=new', '--disable-gpu', '--no-pdf-header-footer', `--print-to-pdf=${out}/Heard-writeup.pdf`, `file:///${out}/Heard-writeup.html`.replace(/\\/g, '/')], { stdio: 'ignore' });
-console.log(`pdf:  ${out}/Heard-writeup.pdf`);
+execFileSync(chrome, ['--headless=new', '--disable-gpu', '--no-pdf-header-footer', `--print-to-pdf=${pdf}`, `file:///${out}/${name}.html`.replace(/\\/g, '/')], { stdio: 'ignore' });
+console.log(`pdf:  ${pdf}`);
